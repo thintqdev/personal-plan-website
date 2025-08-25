@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   Calendar,
   Clock,
@@ -18,8 +18,26 @@ import {
   Sun,
   Moon,
   Palette,
-} from "lucide-react"
-import Link from "next/link"
+} from "lucide-react";
+import Link from "next/link";
+import {
+  getQuotes,
+  getUser,
+  type Quote,
+  type User,
+  getTasksByDay,
+  toggleTaskCompletion as apiToggleTaskCompletion,
+  getStatistics,
+  getTodayStatistics,
+  getUserPreferences,
+  updateUserPreferences,
+  type DayTasks,
+  type Task,
+  type Statistics,
+  type UserPreferences,
+  getDayNameFromIndex,
+  getCurrentDayIndex,
+} from "@/lib/service";
 
 const colorThemes = [
   {
@@ -31,7 +49,8 @@ const colorThemes = [
     text: "text-violet-900",
     textSecondary: "text-violet-700",
     textMuted: "text-violet-600",
-    button: "bg-transparent border-violet-300 text-violet-700 hover:bg-violet-50",
+    button:
+      "bg-transparent border-violet-300 text-violet-700 hover:bg-violet-50",
     accent: "text-violet-500",
     clockBg: "from-violet-900 to-purple-900",
   },
@@ -83,11 +102,12 @@ const colorThemes = [
     text: "text-orange-900",
     textSecondary: "text-orange-700",
     textMuted: "text-orange-600",
-    button: "bg-transparent border-orange-300 text-orange-700 hover:bg-orange-50",
+    button:
+      "bg-transparent border-orange-300 text-orange-700 hover:bg-orange-50",
     accent: "text-orange-500",
     clockBg: "from-orange-900 to-amber-900",
   },
-]
+];
 
 export default function ThinPlanPage() {
   const coverImages = [
@@ -96,14 +116,28 @@ export default function ThinPlanPage() {
     "/runner-crossing-finish-line-victory.png",
     "/lighthouse-guiding-ships-motivation.png",
     "/eagle-soaring-high-mountains-freedom.png",
-  ]
+  ];
 
-  const [coverImage, setCoverImage] = useState(coverImages[0])
-  const [currentDayIndex, setCurrentDayIndex] = useState(0)
-  const [completedTasks, setCompletedTasks] = useState<{ [key: string]: boolean }>({})
-  const [currentTime, setCurrentTime] = useState(new Date())
-  const [isDaytime, setIsDaytime] = useState(true)
-  const [currentTheme, setCurrentTheme] = useState(colorThemes[0])
+  const [coverImage, setCoverImage] = useState(coverImages[0]);
+  const [currentDayIndex, setCurrentDayIndex] = useState(0);
+  const [completedTasks, setCompletedTasks] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isDaytime, setIsDaytime] = useState(true);
+  const [currentTheme, setCurrentTheme] = useState(colorThemes[0]);
+
+  // API state
+  const [isMounted, setIsMounted] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [currentDayTasks, setCurrentDayTasks] = useState<DayTasks | null>(null);
+  const [statistics, setStatistics] = useState<Statistics | null>(null);
+  const [preferences, setPreferences] = useState<UserPreferences | null>(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const [isLoadingQuotes, setIsLoadingQuotes] = useState(true);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   const motivationalQuotes = [
     "Thành công là tổng của những nỗ lực nhỏ lặp đi lặp lại mỗi ngày",
@@ -111,29 +145,37 @@ export default function ThinPlanPage() {
     "Không có gì là không thể, chỉ có điều bạn chưa thử đủ lâu",
     "Mỗi ngày là một cơ hội mới để trở thành phiên bản tốt hơn của chính mình",
     "Kỷ luật là cầu nối giữa mục tiêu và thành tựu",
-  ]
+  ];
 
   const getDayData = (dayIndex: number) => {
-    const today = new Date()
-    const currentDayOfWeek = today.getDay() // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-    const mondayOffset = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek // Calculate offset to Monday
+    const today = new Date();
+    const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const mondayOffset = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek; // Calculate offset to Monday
 
-    const monday = new Date(today)
-    monday.setDate(today.getDate() + mondayOffset)
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + mondayOffset);
 
-    const targetDate = new Date(monday)
-    targetDate.setDate(monday.getDate() + dayIndex)
+    const targetDate = new Date(monday);
+    targetDate.setDate(monday.getDate() + dayIndex);
 
-    const dayNames = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"]
-    const dayName = dayNames[dayIndex]
+    const dayNames = [
+      "Thứ Hai",
+      "Thứ Ba",
+      "Thứ Tư",
+      "Thứ Năm",
+      "Thứ Sáu",
+      "Thứ Bảy",
+      "Chủ Nhật",
+    ];
+    const dayName = dayNames[dayIndex];
     const dateString = targetDate.toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
-    })
+    });
 
-    return { dayName, dateString, date: targetDate }
-  }
+    return { dayName, dateString, date: targetDate };
+  };
 
   const dailyPlans = [
     {
@@ -472,48 +514,209 @@ export default function ThinPlanPage() {
         },
       ],
     },
-  ]
+  ];
 
   useEffect(() => {
-    const today = new Date()
-    const currentDayOfWeek = today.getDay() // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-    const currentIndex = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1 // Convert to our 0-6 index (Mon-Sun)
-    setCurrentDayIndex(currentIndex)
+    setIsMounted(true);
+  }, []);
+
+  // Load user data from API
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        setIsLoadingUser(true);
+        const userData = await getUser();
+        setUser(userData);
+      } catch (error) {
+        console.error("Failed to load user:", error);
+        // Fallback to default data
+        setUser({
+          _id: "",
+          name: "Nguyễn Văn A",
+          role: "Lập trình viên & Học viên tiếng Nhật",
+          goal: "JLPT N3",
+          streak: 45,
+          avatar: "/friendly-person-avatar.png",
+          __v: 0,
+        });
+      } finally {
+        setIsLoadingUser(false);
+      }
+    };
+
+    if (isMounted) {
+      loadUser();
+    }
+  }, [isMounted]);
+
+  // Load quotes from API
+  useEffect(() => {
+    const loadQuotes = async () => {
+      try {
+        setIsLoadingQuotes(true);
+        const quotesData = await getQuotes();
+        setQuotes(quotesData);
+      } catch (error) {
+        console.error("Failed to load quotes:", error);
+        // Keep fallback quotes
+      } finally {
+        setIsLoadingQuotes(false);
+      }
+    };
+
+    if (isMounted) {
+      loadQuotes();
+    }
+  }, [isMounted]);
+
+  // Load statistics from API
+  useEffect(() => {
+    const loadStatistics = async () => {
+      try {
+        setIsLoadingStats(true);
+        const statsData = await getTodayStatistics();
+        setStatistics(statsData);
+      } catch (error) {
+        console.error("Failed to load statistics:", error);
+      } finally {
+        setIsLoadingStats(false);
+      }
+    };
+
+    if (isMounted) {
+      loadStatistics();
+    }
+  }, [isMounted]);
+
+  // Load user preferences
+  useEffect(() => {
+    const loadPreferences = async () => {
+      try {
+        const prefsData = await getUserPreferences();
+        setPreferences(prefsData);
+        // Apply theme from preferences
+        if (prefsData.theme) {
+          const themeIndex = colorThemes.findIndex(
+            (t) => t.value === prefsData.theme
+          );
+          if (themeIndex >= 0) {
+            setCurrentTheme(colorThemes[themeIndex]);
+          }
+        }
+        // Apply cover image from preferences
+        if (prefsData.coverImage) {
+          setCoverImage(prefsData.coverImage);
+        }
+      } catch (error) {
+        console.error("Failed to load preferences:", error);
+      }
+    };
+
+    if (isMounted) {
+      loadPreferences();
+    }
+  }, [isMounted]);
+
+  useEffect(() => {
+    const today = new Date();
+    const currentIndex = getCurrentDayIndex();
+    setCurrentDayIndex(currentIndex);
 
     const timer = setInterval(() => {
-      const now = new Date()
-      setCurrentTime(now)
-      setIsDaytime(now.getHours() >= 6 && now.getHours() < 18)
-    }, 1000)
+      const now = new Date();
+      setCurrentTime(now);
+      setIsDaytime(now.getHours() >= 6 && now.getHours() < 18);
+    }, 1000);
 
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(timer);
+  }, []);
 
-  const changeCoverImage = () => {
-    const randomIndex = Math.floor(Math.random() * coverImages.length)
-    setCoverImage(coverImages[randomIndex])
-  }
+  // Load tasks from API when component mounts or day changes
+  useEffect(() => {
+    const loadTasks = async () => {
+      if (!isMounted) return;
 
-  const toggleTaskCompletion = (taskId: string) => {
-    setCompletedTasks((prev) => ({
-      ...prev,
-      [taskId]: !prev[taskId],
-    }))
-  }
+      try {
+        setIsLoadingTasks(true);
+        const dayName = getDayNameFromIndex(currentDayIndex);
+        const tasksData = await getTasksByDay(dayName);
+        setCurrentDayTasks(tasksData);
+      } catch (error) {
+        console.error("Failed to load tasks:", error);
+      } finally {
+        setIsLoadingTasks(false);
+      }
+    };
 
-  const goToPreviousDay = () => {
+    loadTasks();
+  }, [isMounted, currentDayIndex]);
+
+  const changeCoverImage = async () => {
+    const randomIndex = Math.floor(Math.random() * coverImages.length);
+    const newImage = coverImages[randomIndex];
+    setCoverImage(newImage);
+
+    // Save to preferences
+    try {
+      await updateUserPreferences({ coverImage: newImage });
+    } catch (error) {
+      console.error("Failed to save cover image preference:", error);
+    }
+  };
+
+  const toggleTaskCompletion = async (taskId: string) => {
+    // Find the task to get current completion state
+    const task = currentDay?.tasks.find((t: any) => getTaskId(t) === taskId);
+    const isCurrentlyCompleted = task ? isTaskCompleted(task) : false;
+    const newCompletedState = !isCurrentlyCompleted;
+
+    try {
+      await apiToggleTaskCompletion(taskId, newCompletedState);
+
+      // Update the task in current day tasks
+      if (currentDayTasks) {
+        const updatedTasks = currentDayTasks.tasks.map((t: any) =>
+          getTaskId(t) === taskId ? { ...t, completed: newCompletedState } : t
+        );
+
+        setCurrentDayTasks({
+          ...currentDayTasks,
+          tasks: updatedTasks,
+        });
+      }
+
+      // Also update local state for fallback tasks
+      setCompletedTasks((prev) => ({
+        ...prev,
+        [taskId]: newCompletedState,
+      }));
+
+      // Reload statistics after task completion change
+      const statsData = await getTodayStatistics();
+      setStatistics(statsData);
+    } catch (error) {
+      console.error("Failed to toggle task completion:", error);
+    }
+  };
+
+  const goToPreviousDay = async () => {
     if (currentDayIndex > 0) {
-      setCurrentDayIndex(currentDayIndex - 1)
+      setCurrentDayIndex(currentDayIndex - 1);
+      // Tasks will be loaded automatically by the useEffect hook
     }
-  }
+  };
 
-  const goToNextDay = () => {
+  const goToNextDay = async () => {
     if (currentDayIndex < 6) {
-      setCurrentDayIndex(currentDayIndex + 1)
+      setCurrentDayIndex(currentDayIndex + 1);
+      // Tasks will be loaded automatically by the useEffect hook
     }
-  }
+  };
 
-  const currentDay = dailyPlans[currentDayIndex]
+  const currentDay = currentDayTasks || {
+    day: getDayNameFromIndex(currentDayIndex),
+    tasks: dailyPlans[currentDayIndex]?.tasks || [],
+  };
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("vi-VN", {
@@ -521,8 +724,8 @@ export default function ThinPlanPage() {
       minute: "2-digit",
       second: "2-digit",
       hour12: false,
-    })
-  }
+    });
+  };
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("vi-VN", {
@@ -530,14 +733,57 @@ export default function ThinPlanPage() {
       year: "numeric",
       month: "long",
       day: "numeric",
-    })
+    });
+  };
+
+  // Get quotes text for marquee
+  const displayQuotes =
+    quotes.length > 0 ? quotes.map((q) => q.text) : motivationalQuotes;
+
+  // Helper function to get task color based on type
+  const getTaskColor = (type: string) => {
+    const colorMap: { [key: string]: string } = {
+      Study: "bg-blue-100 text-blue-800",
+      "Học tập": "bg-blue-100 text-blue-800",
+      Work: "bg-green-100 text-green-800",
+      "Công việc": "bg-green-100 text-green-800",
+      Gym: "bg-orange-100 text-orange-800",
+      "Thể dục": "bg-orange-100 text-orange-800",
+      Relax: "bg-purple-100 text-purple-800",
+      "Thư giãn": "bg-purple-100 text-purple-800",
+      Social: "bg-pink-100 text-pink-800",
+      "Xã hội": "bg-pink-100 text-pink-800",
+    };
+    return colorMap[type] || "bg-gray-100 text-gray-800";
+  };
+
+  // Helper function to get task ID (handle both API and fallback data)
+  const getTaskId = (task: any) => {
+    return task._id || task.id;
+  };
+
+  // Helper function to check if task is completed
+  const isTaskCompleted = (task: any) => {
+    if (task.completed !== undefined) {
+      return task.completed; // From API
+    }
+    return completedTasks[getTaskId(task)] || false; // From local state
+  };
+
+  // Don't render until mounted to prevent hydration mismatch
+  if (!isMounted) {
+    return null;
   }
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${currentTheme.gradient}`}>
       {/* Cover Image Section */}
       <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden">
-        <img src={coverImage || "/placeholder.svg"} alt="Cover" className="w-full h-full object-cover" />
+        <img
+          src={coverImage || "/placeholder.svg"}
+          alt="Cover"
+          className="w-full h-full object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
         <Button
           variant="secondary"
@@ -552,7 +798,9 @@ export default function ThinPlanPage() {
 
         {/* Logo/Title Overlay */}
         <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white drop-shadow-lg font-serif">ThinPlan</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white drop-shadow-lg font-serif">
+            ThinPlan
+          </h1>
           <p className="text-white/90 text-sm sm:text-base md:text-lg drop-shadow">
             Kế hoạch thông minh, cuộc sống ý nghĩa
           </p>
@@ -565,47 +813,86 @@ export default function ThinPlanPage() {
           <div className="lg:col-span-1 order-2 lg:order-1">
             <Card className={`lg:sticky lg:top-8 ${currentTheme.cardBg}`}>
               <CardContent className="p-4 sm:p-6">
-                <div className="flex flex-col items-center text-center">
-                  <Avatar
-                    className={`w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mb-3 sm:mb-4 border-2 sm:border-4 border-${currentTheme.primary}-400`}
-                  >
-                    <AvatarImage src="/friendly-person-avatar.png" />
-                    <AvatarFallback
-                      className={`text-lg sm:text-xl lg:text-2xl bg-${currentTheme.primary}-500 text-white`}
-                    >
-                      TP
-                    </AvatarFallback>
-                  </Avatar>
-                  <h2 className={`text-lg sm:text-xl font-semibold mb-2 ${currentTheme.text}`}>Nguyễn Văn A</h2>
-                  <p className={`text-sm ${currentTheme.textMuted} mb-3 sm:mb-4`}>
-                    Lập trình viên & Học viên tiếng Nhật
-                  </p>
-
-                  <div className="w-full space-y-2 sm:space-y-3">
-                    <div className={`flex items-center gap-2 text-xs sm:text-sm ${currentTheme.textSecondary}`}>
-                      <Calendar className={`w-3 h-3 sm:w-4 sm:h-4 ${currentTheme.accent}`} />
-                      <span>Tham gia: 15/01/2024</span>
-                    </div>
-                    <div className={`flex items-center gap-2 text-xs sm:text-sm ${currentTheme.textSecondary}`}>
-                      <Target className={`w-3 h-3 sm:w-4 sm:h-4 ${currentTheme.accent}`} />
-                      <span>Mục tiêu: JLPT N3</span>
-                    </div>
-                    <div className={`flex items-center gap-2 text-xs sm:text-sm ${currentTheme.textSecondary}`}>
-                      <Clock className={`w-3 h-3 sm:w-4 sm:h-4 ${currentTheme.accent}`} />
-                      <span>Streak: 45 ngày</span>
+                {isLoadingUser ? (
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mb-3 sm:mb-4 bg-gray-200 rounded-full animate-pulse" />
+                    <div className="h-6 bg-gray-200 rounded w-32 mb-2 animate-pulse" />
+                    <div className="h-4 bg-gray-200 rounded w-48 mb-4 animate-pulse" />
+                    <div className="space-y-2 w-full">
+                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
+                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
+                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
                     </div>
                   </div>
-
-                  <Link href="/admin" className="w-full">
-                    <Button
-                      variant="outline"
-                      className={`w-full mt-3 sm:mt-4 ${currentTheme.button} text-xs sm:text-sm`}
+                ) : user ? (
+                  <div className="flex flex-col items-center text-center">
+                    <Avatar
+                      className={`w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mb-3 sm:mb-4 border-2 sm:border-4 border-${currentTheme.primary}-400`}
                     >
-                      <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                      Admin
-                    </Button>
-                  </Link>
-                </div>
+                      <AvatarImage
+                        src={user.avatar || "/friendly-person-avatar.png"}
+                      />
+                      <AvatarFallback
+                        className={`text-lg sm:text-xl lg:text-2xl bg-${currentTheme.primary}-500 text-white`}
+                      >
+                        TP
+                      </AvatarFallback>
+                    </Avatar>
+                    <h2
+                      className={`text-lg sm:text-xl font-semibold mb-2 ${currentTheme.text}`}
+                    >
+                      {user.name}
+                    </h2>
+                    <p
+                      className={`text-sm ${currentTheme.textMuted} mb-3 sm:mb-4`}
+                    >
+                      {user.role}
+                    </p>
+
+                    <div className="w-full space-y-2 sm:space-y-3">
+                      <div
+                        className={`flex items-center gap-2 text-xs sm:text-sm ${currentTheme.textSecondary}`}
+                      >
+                        <Calendar
+                          className={`w-3 h-3 sm:w-4 sm:h-4 ${currentTheme.accent}`}
+                        />
+                        <span>Tham gia: 15/01/2024</span>
+                      </div>
+                      <div
+                        className={`flex items-center gap-2 text-xs sm:text-sm ${currentTheme.textSecondary}`}
+                      >
+                        <Target
+                          className={`w-3 h-3 sm:w-4 sm:h-4 ${currentTheme.accent}`}
+                        />
+                        <span>Mục tiêu: {user.goal}</span>
+                      </div>
+                      <div
+                        className={`flex items-center gap-2 text-xs sm:text-sm ${currentTheme.textSecondary}`}
+                      >
+                        <Clock
+                          className={`w-3 h-3 sm:w-4 sm:h-4 ${currentTheme.accent}`}
+                        />
+                        <span>Streak: {user.streak} ngày</span>
+                      </div>
+                    </div>
+
+                    <Link href="/admin" className="w-full">
+                      <Button
+                        variant="outline"
+                        className={`w-full mt-3 sm:mt-4 ${currentTheme.button} text-xs sm:text-sm`}
+                      >
+                        <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                        Admin
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center text-center py-8">
+                    <div className={`text-sm ${currentTheme.textMuted}`}>
+                      Không thể tải thông tin người dùng
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -613,44 +900,33 @@ export default function ThinPlanPage() {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-4 sm:space-y-6 lg:space-y-8 order-1 lg:order-2">
             {/* Motivational Quotes Marquee */}
-            <Card className={`overflow-hidden ${currentTheme.cardBg} shadow-lg`}>
-              <CardContent className="p-0">
-                <div
-                  className={`relative bg-gradient-to-r from-${currentTheme.primary}-500 via-${currentTheme.primary}-400 to-${currentTheme.primary}-500 py-4 sm:py-5 lg:py-6 overflow-hidden`}
-                >
-                  {/* Background decorative elements */}
-                  <div className="absolute inset-0 opacity-10">
-                    <div className="absolute top-2 left-10 w-8 h-8 bg-white rounded-full animate-pulse"></div>
-                    <div className="absolute bottom-3 right-20 w-6 h-6 bg-white rounded-full animate-pulse delay-1000"></div>
-                    <div className="absolute top-1/2 left-1/4 w-4 h-4 bg-white rounded-full animate-pulse delay-500"></div>
-                    <div className="absolute top-1/4 right-1/3 w-5 h-5 bg-white rounded-full animate-pulse delay-700"></div>
+            <div className="relative overflow-hidden rounded-xl">
+              <div
+                className={`relative bg-gradient-to-r from-${currentTheme.primary}-500 to-${currentTheme.primary}-600 py-5 sm:py-6 overflow-hidden`}
+              >
+                {/* Simple gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/5 via-transparent to-black/5"></div>
+
+                {/* Main marquee content */}
+                <div className="relative z-10">
+                  <div className="animate-marquee whitespace-nowrap">
+                    <span className="text-black font-medium text-base sm:text-lg mx-8 drop-shadow-lg">
+                      {displayQuotes.join(" • ")}
+                    </span>
                   </div>
-
-                  {/* Gradient overlay for text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20"></div>
-
-                  {/* Main marquee content */}
-                  <div className="relative z-10">
-                    <div className="animate-marquee whitespace-nowrap">
-                      <span className="text-white font-semibold text-base sm:text-lg lg:text-xl mx-6 sm:mx-8 lg:mx-12 drop-shadow-lg">
-                        ✨ {motivationalQuotes.join(" ✨ • ✨ ")} ✨
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Bottom accent line */}
-                  <div
-                    className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent`}
-                  ></div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             <Card className={`${currentTheme.cardBg}`}>
               <CardHeader className="pb-3 sm:pb-6">
                 <div className="flex items-center justify-between">
-                  <CardTitle className={`flex items-center gap-2 text-lg sm:text-xl ${currentTheme.text}`}>
-                    <Calendar className={`w-4 h-4 sm:w-5 sm:h-5 ${currentTheme.accent}`} />
+                  <CardTitle
+                    className={`flex items-center gap-2 text-lg sm:text-xl ${currentTheme.text}`}
+                  >
+                    <Calendar
+                      className={`w-4 h-4 sm:w-5 sm:h-5 ${currentTheme.accent}`}
+                    />
                     <span className="hidden sm:inline">Kế hoạch hôm nay</span>
                     <span className="sm:hidden">Hôm nay</span>
                   </CardTitle>
@@ -660,23 +936,39 @@ export default function ThinPlanPage() {
                       size="sm"
                       onClick={goToPreviousDay}
                       disabled={currentDayIndex === 0}
-                      className={`h-8 w-8 sm:h-9 sm:w-9 p-0 ${currentTheme.button} ${
-                        currentDayIndex === 0 ? "opacity-50 cursor-not-allowed" : ""
+                      className={`h-8 w-8 sm:h-9 sm:w-9 p-0 ${
+                        currentTheme.button
+                      } ${
+                        currentDayIndex === 0
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
                       }`}
                     >
                       <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                     </Button>
                     <div className="text-center px-2 sm:px-4">
-                      <div className={`text-xs sm:text-sm font-medium ${currentTheme.text}`}>{currentDay?.day}</div>
-                      <div className={`text-xs ${currentTheme.textMuted} hidden sm:block`}>{currentDay?.date}</div>
+                      <div
+                        className={`text-xs sm:text-sm font-medium ${currentTheme.text}`}
+                      >
+                        {currentDay?.day}
+                      </div>
+                      <div
+                        className={`text-xs ${currentTheme.textMuted} hidden sm:block`}
+                      >
+                        {getDayData(currentDayIndex).dateString}
+                      </div>
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={goToNextDay}
                       disabled={currentDayIndex === 6}
-                      className={`h-8 w-8 sm:h-9 sm:w-9 p-0 ${currentTheme.button} ${
-                        currentDayIndex === 6 ? "opacity-50 cursor-not-allowed" : ""
+                      className={`h-8 w-8 sm:h-9 sm:w-9 p-0 ${
+                        currentTheme.button
+                      } ${
+                        currentDayIndex === 6
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
                       }`}
                     >
                       <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -685,51 +977,81 @@ export default function ThinPlanPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 sm:space-y-3">
-                  {currentDay?.tasks.map((task, taskIndex) => (
-                    <div
-                      key={taskIndex}
-                      className={`group flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-white/70 hover:bg-white/90 transition-all duration-300 border border-${currentTheme.primary}-100 shadow-sm hover:shadow-lg hover:scale-[1.02] ${
-                        completedTasks[task.id] ? `opacity-60 line-through bg-${currentTheme.primary}-50/50` : ""
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                        <button
-                          onClick={() => toggleTaskCompletion(task.id)}
-                          className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
-                            completedTasks[task.id]
-                              ? `bg-${currentTheme.primary}-500 border-${currentTheme.primary}-500 text-white shadow-lg scale-110`
-                              : `border-${currentTheme.primary}-300 hover:border-${currentTheme.primary}-500 hover:bg-${currentTheme.primary}-50 group-hover:scale-110`
+                {isLoadingTasks ? (
+                  <div className="space-y-3">
+                    {[...Array(4)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-3 p-4 bg-gray-100 rounded-xl animate-pulse"
+                      >
+                        <div className="w-6 h-6 bg-gray-200 rounded-full" />
+                        <div className="h-4 bg-gray-200 rounded w-20" />
+                        <div className="h-4 bg-gray-200 rounded flex-1" />
+                        <div className="h-6 bg-gray-200 rounded w-16" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-2 sm:space-y-3">
+                    {currentDay?.tasks.map((task: any, taskIndex: number) => {
+                      const taskId = getTaskId(task);
+                      const completed = isTaskCompleted(task);
+                      const taskColor = getTaskColor(task.type);
+
+                      return (
+                        <div
+                          key={taskId}
+                          onClick={() => toggleTaskCompletion(taskId)}
+                          className={`cursor-pointer flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-white/70 border border-${
+                            currentTheme.primary
+                          }-100 shadow-sm ${
+                            completed
+                              ? `opacity-60 line-through bg-${currentTheme.primary}-50/50`
+                              : ""
                           }`}
                         >
-                          {completedTasks[task.id] && <Check className="w-3 h-3 sm:w-4 sm:h-4" />}
-                        </button>
-                        <div
-                          className={`text-xs sm:text-sm font-mono ${currentTheme.textMuted} font-medium bg-${currentTheme.primary}-50 px-2 py-1 rounded-lg border border-${currentTheme.primary}-200 flex-shrink-0`}
-                        >
-                          {task.time}
+                          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                            <div
+                              className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                                completed
+                                  ? `bg-${currentTheme.primary}-500 border-${currentTheme.primary}-500 text-white`
+                                  : `border-${currentTheme.primary}-300`
+                              }`}
+                            >
+                              {completed && (
+                                <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                              )}
+                            </div>
+                            <div
+                              className={`text-xs sm:text-sm font-mono ${currentTheme.textMuted} font-medium bg-${currentTheme.primary}-50 px-2 py-1 rounded-lg border border-${currentTheme.primary}-200 flex-shrink-0`}
+                            >
+                              {task.time}
+                            </div>
+                            <Badge
+                              variant="secondary"
+                              className={`${taskColor} text-xs flex-shrink-0 rounded-full px-2 py-1 sm:hidden`}
+                            >
+                              {task.type}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center justify-between w-full sm:flex-1">
+                            <span
+                              className={`text-sm sm:text-base font-medium break-words ${currentTheme.text} flex-1`}
+                            >
+                              {task.task}
+                            </span>
+                            <Badge
+                              variant="secondary"
+                              className={`${taskColor} text-xs flex-shrink-0 rounded-full px-3 py-1 ml-2 hidden sm:inline-flex`}
+                            >
+                              {task.type}
+                            </Badge>
+                          </div>
                         </div>
-                        <Badge
-                          variant="secondary"
-                          className={`${task.color} text-xs flex-shrink-0 rounded-full px-2 py-1 sm:hidden`}
-                        >
-                          {task.type}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center justify-between w-full sm:flex-1">
-                        <span className={`text-sm sm:text-base font-medium break-words ${currentTheme.text} flex-1`}>
-                          {task.task}
-                        </span>
-                        <Badge
-                          variant="secondary"
-                          className={`${task.color} text-xs flex-shrink-0 rounded-full px-3 py-1 ml-2 hidden sm:inline-flex`}
-                        >
-                          {task.type}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -739,7 +1061,9 @@ export default function ThinPlanPage() {
             <div className="lg:sticky lg:top-8 space-y-4">
               <Card className={`${currentTheme.cardBg}`}>
                 <CardHeader className="pb-3">
-                  <CardTitle className={`flex items-center gap-2 text-lg ${currentTheme.text}`}>
+                  <CardTitle
+                    className={`flex items-center gap-2 text-lg ${currentTheme.text}`}
+                  >
                     <Palette className={`w-5 h-5 ${currentTheme.accent}`} />
                     Chọn màu
                   </CardTitle>
@@ -749,23 +1073,42 @@ export default function ThinPlanPage() {
                     {colorThemes.map((theme) => (
                       <button
                         key={theme.value}
-                        onClick={() => setCurrentTheme(theme)}
+                        onClick={async () => {
+                          setCurrentTheme(theme);
+                          // Save theme preference
+                          try {
+                            await updateUserPreferences({ theme: theme.value });
+                          } catch (error) {
+                            console.error(
+                              "Failed to save theme preference:",
+                              error
+                            );
+                          }
+                        }}
                         className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
                           currentTheme.value === theme.value
                             ? `border-${theme.primary}-600 scale-110 shadow-lg`
                             : `border-${theme.primary}-300 hover:scale-105`
-                        } bg-gradient-to-br from-${theme.primary}-400 to-${theme.primary}-600`}
+                        } bg-gradient-to-br from-${theme.primary}-400 to-${
+                          theme.primary
+                        }-600`}
                         title={theme.name}
                       />
                     ))}
                   </div>
-                  <p className={`text-xs ${currentTheme.textMuted} mt-2 text-center`}>Hiện tại: {currentTheme.name}</p>
+                  <p
+                    className={`text-xs ${currentTheme.textMuted} mt-2 text-center`}
+                  >
+                    Hiện tại: {currentTheme.name}
+                  </p>
                 </CardContent>
               </Card>
 
               <Card className={`${currentTheme.cardBg}`}>
                 <CardHeader className="pb-3">
-                  <CardTitle className={`flex items-center gap-2 text-lg ${currentTheme.text}`}>
+                  <CardTitle
+                    className={`flex items-center gap-2 text-lg ${currentTheme.text}`}
+                  >
                     <Timer className={`w-5 h-5 ${currentTheme.accent}`} />
                     Đồng hồ điện tử
                   </CardTitle>
@@ -780,13 +1123,17 @@ export default function ThinPlanPage() {
                       <div className="text-2xl sm:text-3xl font-bold mb-2 tracking-wider filter drop-shadow-[0_0_10px_currentColor]">
                         {formatTime(currentTime)}
                       </div>
-                      <div className="text-sm opacity-80 tracking-wide">{formatDate(currentTime)}</div>
+                      <div className="text-sm opacity-80 tracking-wide">
+                        {formatDate(currentTime)}
+                      </div>
                     </div>
                     {/* Subtle scan line effect */}
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-green-400/5 to-transparent animate-pulse"></div>
                   </div>
 
-                  <div className={`flex items-center justify-center gap-2 text-sm ${currentTheme.textSecondary}`}>
+                  <div
+                    className={`flex items-center justify-center gap-2 text-sm ${currentTheme.textSecondary}`}
+                  >
                     {isDaytime ? (
                       <>
                         <Sun className="w-4 h-4 text-yellow-500" />
@@ -805,27 +1152,70 @@ export default function ThinPlanPage() {
               {/* Quick Stats Card */}
               <Card className={`${currentTheme.cardBg}`}>
                 <CardHeader className="pb-3">
-                  <CardTitle className={`text-lg ${currentTheme.text}`}>Thống kê nhanh</CardTitle>
+                  <CardTitle className={`text-lg ${currentTheme.text}`}>
+                    Thống kê nhanh
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className={`text-sm ${currentTheme.textSecondary}`}>Hoàn thành hôm nay</span>
-                    <Badge variant="secondary" className="bg-green-100 text-green-800 rounded-full">
-                      {Object.values(completedTasks).filter(Boolean).length}/{currentDay?.tasks.length || 0}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className={`text-sm ${currentTheme.textSecondary}`}>Tiến độ tuần</span>
-                    <Badge variant="secondary" className="bg-blue-100 text-blue-800 rounded-full">
-                      75%
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className={`text-sm ${currentTheme.textSecondary}`}>Streak hiện tại</span>
-                    <Badge variant="secondary" className="bg-orange-100 text-orange-800 rounded-full">
-                      45 ngày
-                    </Badge>
-                  </div>
+                  {isLoadingStats ? (
+                    <div className="space-y-3">
+                      {[...Array(3)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="flex justify-between items-center"
+                        >
+                          <div className="h-4 bg-gray-200 rounded w-24 animate-pulse" />
+                          <div className="h-6 bg-gray-200 rounded w-16 animate-pulse" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span
+                          className={`text-sm ${currentTheme.textSecondary}`}
+                        >
+                          Hoàn thành hôm nay
+                        </span>
+                        <Badge
+                          variant="secondary"
+                          className="bg-green-100 text-green-800 rounded-full"
+                        >
+                          {statistics?.todayProgress ||
+                            `${
+                              Object.values(completedTasks).filter(Boolean)
+                                .length
+                            }/${currentDay?.tasks.length || 0}`}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span
+                          className={`text-sm ${currentTheme.textSecondary}`}
+                        >
+                          Tiến độ tuần
+                        </span>
+                        <Badge
+                          variant="secondary"
+                          className="bg-blue-100 text-blue-800 rounded-full"
+                        >
+                          {statistics?.weekProgress || 75}%
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span
+                          className={`text-sm ${currentTheme.textSecondary}`}
+                        >
+                          Streak hiện tại
+                        </span>
+                        <Badge
+                          variant="secondary"
+                          className="bg-orange-100 text-orange-800 rounded-full"
+                        >
+                          {statistics?.currentStreak || user?.streak || 45} ngày
+                        </Badge>
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -835,13 +1225,17 @@ export default function ThinPlanPage() {
 
       <style jsx>{`
         @keyframes marquee {
-          0% { transform: translate3d(100%, 0, 0); }
-          100% { transform: translate3d(-100%, 0, 0); }
+          0% {
+            transform: translate3d(100%, 0, 0);
+          }
+          100% {
+            transform: translate3d(-100%, 0, 0);
+          }
         }
         .animate-marquee {
           animation: marquee 30s linear infinite;
         }
       `}</style>
     </div>
-  )
+  );
 }
