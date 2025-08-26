@@ -18,6 +18,8 @@ import {
   Sun,
   Moon,
   Palette,
+  Goal,
+  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -41,71 +43,43 @@ import {
 
 const colorThemes = [
   {
-    name: "Tím Violet",
-    value: "violet",
-    gradient: "from-violet-50 via-purple-50 to-indigo-50",
-    primary: "violet",
-    cardBg: "bg-white/80 backdrop-blur-sm border-violet-200",
-    text: "text-violet-900",
-    textSecondary: "text-violet-700",
-    textMuted: "text-violet-600",
-    button:
-      "bg-transparent border-violet-300 text-violet-700 hover:bg-violet-50",
-    accent: "text-violet-500",
-    clockBg: "from-violet-900 to-purple-900",
-  },
-  {
-    name: "Hồng Pink",
-    value: "pink",
-    gradient: "from-pink-50 via-rose-50 to-red-50",
-    primary: "pink",
-    cardBg: "bg-white/80 backdrop-blur-sm border-pink-200",
-    text: "text-pink-900",
-    textSecondary: "text-pink-700",
-    textMuted: "text-pink-600",
-    button: "bg-transparent border-pink-300 text-pink-700 hover:bg-pink-50",
-    accent: "text-pink-500",
-    clockBg: "from-pink-900 to-rose-900",
-  },
-  {
-    name: "Xanh Blue",
+    name: "Blue",
     value: "blue",
-    gradient: "from-blue-50 via-sky-50 to-cyan-50",
+    gradient: "from-gray-50 to-blue-50",
     primary: "blue",
-    cardBg: "bg-white/80 backdrop-blur-sm border-blue-200",
-    text: "text-blue-900",
-    textSecondary: "text-blue-700",
-    textMuted: "text-blue-600",
-    button: "bg-transparent border-blue-300 text-blue-700 hover:bg-blue-50",
-    accent: "text-blue-500",
-    clockBg: "from-blue-900 to-sky-900",
+    cardBg: "bg-white border border-gray-200",
+    text: "text-gray-900",
+    textSecondary: "text-gray-600",
+    textMuted: "text-gray-500",
+    button: "bg-blue-600 text-white hover:bg-blue-700",
+    accent: "text-blue-600",
+    progressBg: "bg-blue-600",
   },
   {
-    name: "Xanh lá Green",
+    name: "Green",
     value: "green",
-    gradient: "from-green-50 via-emerald-50 to-teal-50",
+    gradient: "from-gray-50 to-green-50",
     primary: "green",
-    cardBg: "bg-white/80 backdrop-blur-sm border-green-200",
-    text: "text-green-900",
-    textSecondary: "text-green-700",
-    textMuted: "text-green-600",
-    button: "bg-transparent border-green-300 text-green-700 hover:bg-green-50",
-    accent: "text-green-500",
-    clockBg: "from-green-900 to-emerald-900",
+    cardBg: "bg-white border border-gray-200",
+    text: "text-gray-900",
+    textSecondary: "text-gray-600",
+    textMuted: "text-gray-500",
+    button: "bg-green-600 text-white hover:bg-green-700",
+    accent: "text-green-600",
+    progressBg: "bg-green-600",
   },
   {
-    name: "Cam Orange",
-    value: "orange",
-    gradient: "from-orange-50 via-amber-50 to-yellow-50",
-    primary: "orange",
-    cardBg: "bg-white/80 backdrop-blur-sm border-orange-200",
-    text: "text-orange-900",
-    textSecondary: "text-orange-700",
-    textMuted: "text-orange-600",
-    button:
-      "bg-transparent border-orange-300 text-orange-700 hover:bg-orange-50",
-    accent: "text-orange-500",
-    clockBg: "from-orange-900 to-amber-900",
+    name: "Purple",
+    value: "purple",
+    gradient: "from-gray-50 to-purple-50",
+    primary: "purple",
+    cardBg: "bg-white border border-gray-200",
+    text: "text-gray-900",
+    textSecondary: "text-gray-600",
+    textMuted: "text-gray-500",
+    button: "bg-purple-600 text-white hover:bg-purple-700",
+    accent: "text-purple-600",
+    progressBg: "bg-purple-600",
   },
 ];
 
@@ -784,177 +758,98 @@ export default function ThinPlanPage() {
           alt="Cover"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40" />
+
         <Button
           variant="secondary"
           size="sm"
-          className="absolute top-2 right-2 sm:top-4 sm:right-4 text-xs sm:text-sm bg-white/90 hover:bg-white"
+          className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30"
           onClick={changeCoverImage}
         >
-          <Camera className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+          <Camera className="w-4 h-4 mr-2" />
           <span className="hidden sm:inline">Đổi ảnh bìa</span>
           <span className="sm:hidden">Đổi ảnh</span>
         </Button>
 
-        {/* Logo/Title Overlay */}
-        <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white drop-shadow-lg font-serif">
-            ThinPlan
-          </h1>
-          <p className="text-white/90 text-sm sm:text-base md:text-lg drop-shadow">
-            Kế hoạch thông minh, cuộc sống ý nghĩa
-          </p>
+        {/* Cover Content */}
+        <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+          <div className="container mx-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-lg">
+                  <Calendar className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">
+                    ThinPlan
+                  </h1>
+                  <p className="text-white/90 text-lg drop-shadow">
+                    Kế hoạch thông minh, cuộc sống ý nghĩa
+                  </p>
+                </div>
+              </div>
+              <Link href="/admin">
+                <Button className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30">
+                  <Settings className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Quản lý</span>
+                  <span className="sm:hidden">Admin</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8">
-          {/* Left Sidebar - Profile */}
-          <div className="lg:col-span-1 order-2 lg:order-1">
-            <Card className={`lg:sticky lg:top-8 ${currentTheme.cardBg}`}>
-              <CardContent className="p-4 sm:p-6">
-                {isLoadingUser ? (
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mb-3 sm:mb-4 bg-gray-200 rounded-full animate-pulse" />
-                    <div className="h-6 bg-gray-200 rounded w-32 mb-2 animate-pulse" />
-                    <div className="h-4 bg-gray-200 rounded w-48 mb-4 animate-pulse" />
-                    <div className="space-y-2 w-full">
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
-                    </div>
-                  </div>
-                ) : user ? (
-                  <div className="flex flex-col items-center text-center">
-                    <Avatar
-                      className={`w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mb-3 sm:mb-4 border-2 sm:border-4 border-${currentTheme.primary}-400`}
-                    >
-                      <AvatarImage
-                        src={user.avatar || "/friendly-person-avatar.png"}
-                      />
-                      <AvatarFallback
-                        className={`text-lg sm:text-xl lg:text-2xl bg-${currentTheme.primary}-500 text-white`}
-                      >
-                        TP
-                      </AvatarFallback>
-                    </Avatar>
-                    <h2
-                      className={`text-lg sm:text-xl font-semibold mb-2 ${currentTheme.text}`}
-                    >
-                      {user.name}
-                    </h2>
-                    <p
-                      className={`text-sm ${currentTheme.textMuted} mb-3 sm:mb-4`}
-                    >
-                      {user.role}
-                    </p>
-
-                    <div className="w-full space-y-2 sm:space-y-3">
-                      <div
-                        className={`flex items-center gap-2 text-xs sm:text-sm ${currentTheme.textSecondary}`}
-                      >
-                        <Calendar
-                          className={`w-3 h-3 sm:w-4 sm:h-4 ${currentTheme.accent}`}
-                        />
-                        <span>Tham gia: 15/01/2024</span>
-                      </div>
-                      <div
-                        className={`flex items-center gap-2 text-xs sm:text-sm ${currentTheme.textSecondary}`}
-                      >
-                        <Target
-                          className={`w-3 h-3 sm:w-4 sm:h-4 ${currentTheme.accent}`}
-                        />
-                        <span>Mục tiêu: {user.goal}</span>
-                      </div>
-                      <div
-                        className={`flex items-center gap-2 text-xs sm:text-sm ${currentTheme.textSecondary}`}
-                      >
-                        <Clock
-                          className={`w-3 h-3 sm:w-4 sm:h-4 ${currentTheme.accent}`}
-                        />
-                        <span>Streak: {user.streak} ngày</span>
-                      </div>
-                    </div>
-
-                    <Link href="/admin" className="w-full">
-                      <Button
-                        variant="outline"
-                        className={`w-full mt-3 sm:mt-4 ${currentTheme.button} text-xs sm:text-sm`}
-                      >
-                        <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                        Admin
-                      </Button>
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center text-center py-8">
-                    <div className={`text-sm ${currentTheme.textMuted}`}>
-                      Không thể tải thông tin người dùng
-                    </div>
-                  </div>
-                )}
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-3">
+            {/* Motivational Quotes Section */}
+            <Card className={`${currentTheme.cardBg} mb-8`}>
+              <CardContent className="p-6 text-center">
+                <div className="text-lg text-gray-700 italic">
+                  "
+                  {
+                    displayQuotes[
+                      Math.floor(Math.random() * displayQuotes.length)
+                    ]
+                  }
+                  "
+                </div>
               </CardContent>
             </Card>
-          </div>
 
-          {/* Main Content */}
-          <div className="lg:col-span-3 space-y-4 sm:space-y-6 lg:space-y-8 order-1 lg:order-2">
-            {/* Motivational Quotes Marquee */}
-            <div className="relative overflow-hidden rounded-xl">
-              <div
-                className={`relative bg-gradient-to-r from-${currentTheme.primary}-500 to-${currentTheme.primary}-600 py-5 sm:py-6 overflow-hidden`}
-              >
-                {/* Simple gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/5 via-transparent to-black/5"></div>
-
-                {/* Main marquee content */}
-                <div className="relative z-10">
-                  <div className="animate-marquee whitespace-nowrap">
-                    <span className="text-black font-medium text-base sm:text-lg mx-8 drop-shadow-lg">
-                      {displayQuotes.join(" • ")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <Card className={`${currentTheme.cardBg}`}>
-              <CardHeader className="pb-3 sm:pb-6">
+            {/* Daily Plan Card */}
+            <Card className={`${currentTheme.cardBg} shadow-lg`}>
+              <CardHeader className="pb-6">
                 <div className="flex items-center justify-between">
                   <CardTitle
-                    className={`flex items-center gap-2 text-lg sm:text-xl ${currentTheme.text}`}
+                    className={`flex items-center gap-2 text-xl ${currentTheme.text}`}
                   >
-                    <Calendar
-                      className={`w-4 h-4 sm:w-5 sm:h-5 ${currentTheme.accent}`}
-                    />
-                    <span className="hidden sm:inline">Kế hoạch hôm nay</span>
-                    <span className="sm:hidden">Hôm nay</span>
+                    <Calendar className={`w-5 h-5 ${currentTheme.accent}`} />
+                    <span>Kế hoạch hôm nay</span>
                   </CardTitle>
-                  <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={goToPreviousDay}
                       disabled={currentDayIndex === 0}
-                      className={`h-8 w-8 sm:h-9 sm:w-9 p-0 ${
-                        currentTheme.button
-                      } ${
+                      className={`h-9 w-9 p-0 ${
                         currentDayIndex === 0
                           ? "opacity-50 cursor-not-allowed"
-                          : ""
+                          : "border-gray-300 hover:bg-gray-50"
                       }`}
                     >
-                      <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <ChevronLeft className="w-4 h-4" />
                     </Button>
-                    <div className="text-center px-2 sm:px-4">
+                    <div className="text-center px-4">
                       <div
-                        className={`text-xs sm:text-sm font-medium ${currentTheme.text}`}
+                        className={`text-sm font-medium ${currentTheme.text}`}
                       >
                         {currentDay?.day}
                       </div>
-                      <div
-                        className={`text-xs ${currentTheme.textMuted} hidden sm:block`}
-                      >
+                      <div className={`text-xs ${currentTheme.textMuted}`}>
                         {getDayData(currentDayIndex).dateString}
                       </div>
                     </div>
@@ -963,15 +858,13 @@ export default function ThinPlanPage() {
                       size="sm"
                       onClick={goToNextDay}
                       disabled={currentDayIndex === 6}
-                      className={`h-8 w-8 sm:h-9 sm:w-9 p-0 ${
-                        currentTheme.button
-                      } ${
+                      className={`h-9 w-9 p-0 ${
                         currentDayIndex === 6
                           ? "opacity-50 cursor-not-allowed"
-                          : ""
+                          : "border-gray-300 hover:bg-gray-50"
                       }`}
                     >
-                      <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <ChevronRight className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
@@ -992,7 +885,7 @@ export default function ThinPlanPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="space-y-2 sm:space-y-3">
+                  <div className="space-y-3">
                     {currentDay?.tasks.map((task: any, taskIndex: number) => {
                       const taskId = getTaskId(task);
                       const completed = isTaskCompleted(task);
@@ -1002,47 +895,35 @@ export default function ThinPlanPage() {
                         <div
                           key={taskId}
                           onClick={() => toggleTaskCompletion(taskId)}
-                          className={`cursor-pointer flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-white/70 border border-${
-                            currentTheme.primary
-                          }-100 shadow-sm ${
+                          className={`cursor-pointer flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 ${
                             completed
-                              ? `opacity-60 line-through bg-${currentTheme.primary}-50/50`
+                              ? `opacity-60 line-through bg-gray-50`
                               : ""
                           }`}
                         >
-                          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                            <div
-                              className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                                completed
-                                  ? `bg-${currentTheme.primary}-500 border-${currentTheme.primary}-500 text-white`
-                                  : `border-${currentTheme.primary}-300`
-                              }`}
-                            >
-                              {completed && (
-                                <Check className="w-3 h-3 sm:w-4 sm:h-4" />
-                              )}
-                            </div>
-                            <div
-                              className={`text-xs sm:text-sm font-mono ${currentTheme.textMuted} font-medium bg-${currentTheme.primary}-50 px-2 py-1 rounded-lg border border-${currentTheme.primary}-200 flex-shrink-0`}
-                            >
-                              {task.time}
-                            </div>
-                            <Badge
-                              variant="secondary"
-                              className={`${taskColor} text-xs flex-shrink-0 rounded-full px-2 py-1 sm:hidden`}
-                            >
-                              {task.type}
-                            </Badge>
+                          <div
+                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                              completed
+                                ? `bg-green-500 border-green-500 text-white`
+                                : `border-gray-300 hover:border-green-400`
+                            }`}
+                          >
+                            {completed && <Check className="w-4 h-4" />}
                           </div>
-                          <div className="flex items-center justify-between w-full sm:flex-1">
+                          <div
+                            className={`text-sm font-mono ${currentTheme.textMuted} font-medium bg-gray-50 px-3 py-1 rounded-lg border border-gray-200 flex-shrink-0`}
+                          >
+                            {task.time}
+                          </div>
+                          <div className="flex items-center justify-between flex-1">
                             <span
-                              className={`text-sm sm:text-base font-medium break-words ${currentTheme.text} flex-1`}
+                              className={`text-base font-medium break-words ${currentTheme.text}`}
                             >
                               {task.task}
                             </span>
                             <Badge
                               variant="secondary"
-                              className={`${taskColor} text-xs flex-shrink-0 rounded-full px-3 py-1 ml-2 hidden sm:inline-flex`}
+                              className={`${taskColor} text-xs flex-shrink-0 rounded-full px-3 py-1 ml-4`}
                             >
                               {task.type}
                             </Badge>
@@ -1056,26 +937,88 @@ export default function ThinPlanPage() {
             </Card>
           </div>
 
-          {/* Right Sidebar with Digital Clock and Color Picker */}
-          <div className="lg:col-span-1 order-3 lg:order-3">
-            <div className="lg:sticky lg:top-8 space-y-4">
-              <Card className={`${currentTheme.cardBg}`}>
-                <CardHeader className="pb-3">
-                  <CardTitle
-                    className={`flex items-center gap-2 text-lg ${currentTheme.text}`}
-                  >
-                    <Palette className={`w-5 h-5 ${currentTheme.accent}`} />
-                    Chọn màu
+          {/* Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="lg:sticky lg:top-8 space-y-6">
+              {/* User Profile Card */}
+              <Card className={currentTheme.cardBg}>
+                <CardContent className="p-6">
+                  {isLoadingUser ? (
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-32 mx-auto mb-2 animate-pulse"></div>
+                      <div className="h-3 bg-gray-200 rounded w-24 mx-auto animate-pulse"></div>
+                    </div>
+                  ) : user ? (
+                    <div className="text-center">
+                      <Avatar className="w-16 h-16 mx-auto mb-4">
+                        <AvatarImage
+                          src={user.avatar || "/friendly-person-avatar.png"}
+                        />
+                        <AvatarFallback className="text-lg bg-blue-500 text-white">
+                          {user.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <h2 className="text-lg font-semibold text-gray-900 mb-1">
+                        {user.name}
+                      </h2>
+                      <p className="text-sm text-gray-600 mb-4">{user.role}</p>
+
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Calendar className="w-4 h-4" />
+                          <span>Tham gia: 25/08/2025</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Clock className="w-4 h-4" />
+                          <span>Streak: {user.streak} ngày</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Link href="/goals" className="block">
+                          <Button variant="outline" className="w-full">
+                            <Goal className="w-4 h-4 mr-2" />
+                            Mục tiêu
+                          </Button>
+                        </Link>
+                        <Link href="/finance" className="block">
+                          <Button variant="outline" className="w-full">
+                            <Wallet className="w-4 h-4 mr-2" />
+                            Tài chính
+                          </Button>
+                        </Link>
+                        <Link href="/admin" className="block">
+                          <Button className={`w-full ${currentTheme.button}`}>
+                            <Settings className="w-4 h-4 mr-2" />
+                            Quản lý
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center text-gray-500">
+                      Không thể tải thông tin người dùng
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Theme Selector */}
+              <Card className={currentTheme.cardBg}>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg text-gray-900">
+                    <Palette className="w-5 h-5 mr-2 inline" />
+                    Chủ đề
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-3">
                     {colorThemes.map((theme) => (
                       <button
                         key={theme.value}
                         onClick={async () => {
                           setCurrentTheme(theme);
-                          // Save theme preference
                           try {
                             await updateUserPreferences({ theme: theme.value });
                           } catch (error) {
@@ -1085,74 +1028,66 @@ export default function ThinPlanPage() {
                             );
                           }
                         }}
-                        className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
+                        className={`w-full h-10 rounded-lg border-2 transition-all ${
                           currentTheme.value === theme.value
-                            ? `border-${theme.primary}-600 scale-110 shadow-lg`
-                            : `border-${theme.primary}-300 hover:scale-105`
-                        } bg-gradient-to-br from-${theme.primary}-400 to-${
-                          theme.primary
-                        }-600`}
+                            ? "border-gray-900 scale-105"
+                            : "border-gray-300 hover:border-gray-400"
+                        }`}
+                        style={{
+                          background:
+                            theme.value === "blue"
+                              ? "#3b82f6"
+                              : theme.value === "green"
+                              ? "#10b981"
+                              : "#8b5cf6",
+                        }}
                         title={theme.name}
                       />
                     ))}
                   </div>
-                  <p
-                    className={`text-xs ${currentTheme.textMuted} mt-2 text-center`}
-                  >
+                  <p className="text-sm text-gray-500 mt-3 text-center">
                     Hiện tại: {currentTheme.name}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className={`${currentTheme.cardBg}`}>
-                <CardHeader className="pb-3">
-                  <CardTitle
-                    className={`flex items-center gap-2 text-lg ${currentTheme.text}`}
-                  >
-                    <Timer className={`w-5 h-5 ${currentTheme.accent}`} />
-                    Đồng hồ điện tử
+              {/* Digital Clock */}
+              <Card className={currentTheme.cardBg}>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg text-gray-900">
+                    <Timer className="w-5 h-5 mr-2 inline" />
+                    Thời gian
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="text-center">
-                  <div
-                    className={`bg-black text-green-400 p-4 rounded-xl mb-4 shadow-2xl border-2 border-gray-800 font-mono relative overflow-hidden`}
-                  >
-                    {/* LED-style background pattern */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black opacity-90"></div>
-                    <div className="relative z-10">
-                      <div className="text-2xl sm:text-3xl font-bold mb-2 tracking-wider filter drop-shadow-[0_0_10px_currentColor]">
-                        {formatTime(currentTime)}
-                      </div>
-                      <div className="text-sm opacity-80 tracking-wide">
-                        {formatDate(currentTime)}
-                      </div>
+                <CardContent>
+                  <div className="text-center">
+                    <div className="text-2xl font-mono font-bold text-gray-900 mb-2">
+                      {formatTime(currentTime)}
                     </div>
-                    {/* Subtle scan line effect */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-green-400/5 to-transparent animate-pulse"></div>
-                  </div>
-
-                  <div
-                    className={`flex items-center justify-center gap-2 text-sm ${currentTheme.textSecondary}`}
-                  >
-                    {isDaytime ? (
-                      <>
-                        <Sun className="w-4 h-4 text-yellow-500" />
-                        <span>Ban ngày</span>
-                      </>
-                    ) : (
-                      <>
-                        <Moon className="w-4 h-4 text-blue-400" />
-                        <span>Ban đêm</span>
-                      </>
-                    )}
+                    <div className="text-sm text-gray-600 mb-3">
+                      {formatDate(currentTime)}
+                    </div>
+                    <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                      {isDaytime ? (
+                        <>
+                          <Sun className="w-4 h-4" />
+                          <span>Ban ngày</span>
+                        </>
+                      ) : (
+                        <>
+                          <Moon className="w-4 h-4" />
+                          <span>Ban đêm</span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Quick Stats Card */}
-              <Card className={`${currentTheme.cardBg}`}>
-                <CardHeader className="pb-3">
-                  <CardTitle className={`text-lg ${currentTheme.text}`}>
+              <Card className={currentTheme.cardBg}>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg text-gray-900">
                     Thống kê nhanh
                   </CardTitle>
                 </CardHeader>
@@ -1172,9 +1107,7 @@ export default function ThinPlanPage() {
                   ) : (
                     <>
                       <div className="flex justify-between items-center">
-                        <span
-                          className={`text-sm ${currentTheme.textSecondary}`}
-                        >
+                        <span className="text-sm text-gray-600">
                           Hoàn thành hôm nay
                         </span>
                         <Badge
@@ -1189,9 +1122,7 @@ export default function ThinPlanPage() {
                         </Badge>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span
-                          className={`text-sm ${currentTheme.textSecondary}`}
-                        >
+                        <span className="text-sm text-gray-600">
                           Tiến độ tuần
                         </span>
                         <Badge
@@ -1202,9 +1133,7 @@ export default function ThinPlanPage() {
                         </Badge>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span
-                          className={`text-sm ${currentTheme.textSecondary}`}
-                        >
+                        <span className="text-sm text-gray-600">
                           Streak hiện tại
                         </span>
                         <Badge
@@ -1222,20 +1151,6 @@ export default function ThinPlanPage() {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes marquee {
-          0% {
-            transform: translate3d(100%, 0, 0);
-          }
-          100% {
-            transform: translate3d(-100%, 0, 0);
-          }
-        }
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
-        }
-      `}</style>
     </div>
   );
 }
