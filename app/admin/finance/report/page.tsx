@@ -704,13 +704,7 @@ export default function MonthlyReportPage() {
             <Link href="/admin/finance">
               <Button variant="outline">← Quay lại Tài chính</Button>
             </Link>
-            <Button
-              onClick={() => setShowGenerateForm(true)}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Tạo báo cáo mới
-            </Button>
+            {/* Đã xóa nút tạo báo cáo mới */}
           </div>
         </div>
 
@@ -916,114 +910,7 @@ export default function MonthlyReportPage() {
           </CardContent>
         </Card>
 
-        {/* Generate Report Modal */}
-        {showGenerateForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <Card className="w-full max-w-md bg-white">
-              <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-t-lg">
-                <CardTitle className="text-xl">📊 Tạo báo cáo mới</CardTitle>
-                <p className="text-purple-100 text-sm">
-                  Tạo báo cáo tài chính cho tháng được chỉ định
-                </p>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="generate-year">Năm</Label>
-                    <Select
-                      value={generateYear.toString()}
-                      onValueChange={(value) =>
-                        setGenerateYear(parseInt(value))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn năm" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getYearOptions().map((year) => (
-                          <SelectItem
-                            key={`generate-year-${year}`}
-                            value={year}
-                          >
-                            {year}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="generate-month">Tháng</Label>
-                    <Select
-                      value={generateMonth.toString()}
-                      onValueChange={(value) =>
-                        setGenerateMonth(parseInt(value))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn tháng" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Array.from({ length: 12 }, (_, i) => i + 1).map(
-                          (month) => (
-                            <SelectItem
-                              key={`generate-month-${month}`}
-                              value={month.toString()}
-                            >
-                              {getMonthName(month)}
-                            </SelectItem>
-                          )
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-blue-800 mb-2">
-                    ℹ️ Thông tin báo cáo
-                  </h4>
-                  <ul className="text-sm text-blue-700 space-y-1">
-                    <li>
-                      • Tạo báo cáo cho {getMonthName(generateMonth)}{" "}
-                      {generateYear}
-                    </li>
-                    <li>• Bao gồm tất cả giao dịch trong tháng</li>
-                    <li>• Tính toán theo từng jar và danh mục</li>
-                    <li>• Có thể tạo PDF sau khi hoàn thành</li>
-                  </ul>
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    onClick={generateReport}
-                    disabled={isGenerating}
-                    className="flex-1 bg-purple-600 hover:bg-purple-700"
-                  >
-                    {isGenerating ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                        Đang tạo...
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Tạo báo cáo
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowGenerateForm(false)}
-                    disabled={isGenerating}
-                    className="flex-1"
-                  >
-                    Hủy
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        {/* Đã xóa modal tạo báo cáo mới */}
       </div>
 
       <ConfirmDialog

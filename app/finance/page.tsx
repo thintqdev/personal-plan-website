@@ -132,7 +132,7 @@ export default function FinancePage() {
         getFinanceJars(),
         getUser(),
       ]);
-      setJars(jarsData.filter((jar) => jar.isActive !== false));
+      setJars(jarsData.filter((jar) => jar.isActive));
       setUser(userData);
 
       // Load transactions with current filters
@@ -1069,17 +1069,30 @@ export default function FinancePage() {
 
                 <div>
                   <Label htmlFor="category">Danh mục</Label>
-                  <Input
-                    id="category"
+                  <Select
                     value={formData.category}
-                    onChange={(e) =>
+                    onValueChange={(value) =>
                       setFormData((prev) => ({
                         ...prev,
-                        category: e.target.value,
+                        category: value,
                       }))
                     }
-                    placeholder="Ví dụ: Ăn uống, Đi lại, Giải trí..."
-                  />
+                  >
+                    <SelectTrigger id="category">
+                      <SelectValue placeholder="Chọn danh mục chi tiêu" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Ăn uống">Ăn uống</SelectItem>
+                      <SelectItem value="Đi lại">Đi lại</SelectItem>
+                      <SelectItem value="Giải trí">Giải trí</SelectItem>
+                      <SelectItem value="Mua sắm">Mua sắm</SelectItem>
+                      <SelectItem value="Sức khỏe">Sức khỏe</SelectItem>
+                      <SelectItem value="Giáo dục">Giáo dục</SelectItem>
+                      <SelectItem value="Du lịch">Du lịch</SelectItem>
+                      <SelectItem value="Nhà cửa">Nhà cửa</SelectItem>
+                      <SelectItem value="Khác">Khác</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="flex space-x-3 pt-4">
