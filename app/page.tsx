@@ -20,8 +20,11 @@ import {
   Palette,
   Goal,
   Wallet,
+  Home,
+  BookOpen,
 } from "lucide-react";
 import Link from "next/link";
+import UserLayout from "@/components/layouts/UserLayout";
 import {
   getQuotes,
   getUser,
@@ -750,407 +753,363 @@ export default function ThinPlanPage() {
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${currentTheme.gradient}`}>
-      {/* Cover Image Section */}
-      <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden">
-        <img
-          src={coverImage || "/placeholder.svg"}
-          alt="Cover"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40" />
+    <UserLayout
+      title="ThinPlan"
+      description="Kế hoạch thông minh, cuộc sống ý nghĩa"
+      icon={<Home className="w-8 h-8 text-white" />}
+      coverImage={coverImage}
+      onCoverImageChange={changeCoverImage}
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Main Content */}
+        <div className="lg:col-span-3">
+          {/* Motivational Quotes Section */}
+          <Card className={`${currentTheme.cardBg} mb-8`}>
+            <CardContent className="p-6 text-center">
+              <div className="text-lg text-gray-700 italic">
+                "
+                {
+                  displayQuotes[
+                    Math.floor(Math.random() * displayQuotes.length)
+                  ]
+                }
+                "
+              </div>
+            </CardContent>
+          </Card>
 
-        <Button
-          variant="secondary"
-          size="sm"
-          className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30"
-          onClick={changeCoverImage}
-        >
-          <Camera className="w-4 h-4 mr-2" />
-          <span className="hidden sm:inline">Đổi ảnh bìa</span>
-          <span className="sm:hidden">Đổi ảnh</span>
-        </Button>
-
-        {/* Cover Content */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
-          <div className="container mx-auto">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-lg">
-                  <Calendar className="w-8 h-8 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">
-                    ThinPlan
-                  </h1>
-                  <p className="text-white/90 text-lg drop-shadow">
-                    Kế hoạch thông minh, cuộc sống ý nghĩa
-                  </p>
+          {/* Daily Plan Card */}
+          <Card className={`${currentTheme.cardBg} shadow-lg`}>
+            <CardHeader className="pb-6">
+              <div className="flex items-center justify-between">
+                <CardTitle
+                  className={`flex items-center gap-2 text-xl ${currentTheme.text}`}
+                >
+                  <Calendar className={`w-5 h-5 ${currentTheme.accent}`} />
+                  <span>Kế hoạch hôm nay</span>
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToPreviousDay}
+                    disabled={currentDayIndex === 0}
+                    className={`h-9 w-9 p-0 ${
+                      currentDayIndex === 0
+                        ? "opacity-50 cursor-not-allowed"
+                        : "border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <div className="text-center px-4">
+                    <div className={`text-sm font-medium ${currentTheme.text}`}>
+                      {currentDay?.day}
+                    </div>
+                    <div className={`text-xs ${currentTheme.textMuted}`}>
+                      {getDayData(currentDayIndex).dateString}
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToNextDay}
+                    disabled={currentDayIndex === 6}
+                    className={`h-9 w-9 p-0 ${
+                      currentDayIndex === 6
+                        ? "opacity-50 cursor-not-allowed"
+                        : "border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
-              <Link href="/admin">
-                <Button className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30">
-                  <Settings className="w-4 h-4 mr-2" />
-                  <span className="hidden sm:inline">Quản lý</span>
-                  <span className="sm:hidden">Admin</span>
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {/* Motivational Quotes Section */}
-            <Card className={`${currentTheme.cardBg} mb-8`}>
-              <CardContent className="p-6 text-center">
-                <div className="text-lg text-gray-700 italic">
-                  "
-                  {
-                    displayQuotes[
-                      Math.floor(Math.random() * displayQuotes.length)
-                    ]
-                  }
-                  "
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Daily Plan Card */}
-            <Card className={`${currentTheme.cardBg} shadow-lg`}>
-              <CardHeader className="pb-6">
-                <div className="flex items-center justify-between">
-                  <CardTitle
-                    className={`flex items-center gap-2 text-xl ${currentTheme.text}`}
-                  >
-                    <Calendar className={`w-5 h-5 ${currentTheme.accent}`} />
-                    <span>Kế hoạch hôm nay</span>
-                  </CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={goToPreviousDay}
-                      disabled={currentDayIndex === 0}
-                      className={`h-9 w-9 p-0 ${
-                        currentDayIndex === 0
-                          ? "opacity-50 cursor-not-allowed"
-                          : "border-gray-300 hover:bg-gray-50"
-                      }`}
+            </CardHeader>
+            <CardContent>
+              {isLoadingTasks ? (
+                <div className="space-y-3">
+                  {[...Array(4)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 p-4 bg-gray-100 rounded-xl animate-pulse"
                     >
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
-                    <div className="text-center px-4">
-                      <div
-                        className={`text-sm font-medium ${currentTheme.text}`}
-                      >
-                        {currentDay?.day}
-                      </div>
-                      <div className={`text-xs ${currentTheme.textMuted}`}>
-                        {getDayData(currentDayIndex).dateString}
-                      </div>
+                      <div className="w-6 h-6 bg-gray-200 rounded-full" />
+                      <div className="h-4 bg-gray-200 rounded w-20" />
+                      <div className="h-4 bg-gray-200 rounded flex-1" />
+                      <div className="h-6 bg-gray-200 rounded w-16" />
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={goToNextDay}
-                      disabled={currentDayIndex === 6}
-                      className={`h-9 w-9 p-0 ${
-                        currentDayIndex === 6
-                          ? "opacity-50 cursor-not-allowed"
-                          : "border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  ))}
                 </div>
-              </CardHeader>
-              <CardContent>
-                {isLoadingTasks ? (
-                  <div className="space-y-3">
-                    {[...Array(4)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-3 p-4 bg-gray-100 rounded-xl animate-pulse"
-                      >
-                        <div className="w-6 h-6 bg-gray-200 rounded-full" />
-                        <div className="h-4 bg-gray-200 rounded w-20" />
-                        <div className="h-4 bg-gray-200 rounded flex-1" />
-                        <div className="h-6 bg-gray-200 rounded w-16" />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {currentDay?.tasks.map((task: any, taskIndex: number) => {
-                      const taskId = getTaskId(task);
-                      const completed = isTaskCompleted(task);
-                      const taskColor = getTaskColor(task.type);
+              ) : (
+                <div className="space-y-3">
+                  {currentDay?.tasks.map((task: any, taskIndex: number) => {
+                    const taskId = getTaskId(task);
+                    const completed = isTaskCompleted(task);
+                    const taskColor = getTaskColor(task.type);
 
-                      return (
+                    return (
+                      <div
+                        key={taskId}
+                        onClick={() => toggleTaskCompletion(taskId)}
+                        className={`cursor-pointer flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 ${
+                          completed ? `opacity-60 line-through bg-gray-50` : ""
+                        }`}
+                      >
                         <div
-                          key={taskId}
-                          onClick={() => toggleTaskCompletion(taskId)}
-                          className={`cursor-pointer flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 ${
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                             completed
-                              ? `opacity-60 line-through bg-gray-50`
-                              : ""
+                              ? `bg-green-500 border-green-500 text-white`
+                              : `border-gray-300 hover:border-green-400`
                           }`}
                         >
-                          <div
-                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                              completed
-                                ? `bg-green-500 border-green-500 text-white`
-                                : `border-gray-300 hover:border-green-400`
-                            }`}
-                          >
-                            {completed && <Check className="w-4 h-4" />}
-                          </div>
-                          <div
-                            className={`text-sm font-mono ${currentTheme.textMuted} font-medium bg-gray-50 px-3 py-1 rounded-lg border border-gray-200 flex-shrink-0`}
-                          >
-                            {task.time}
-                          </div>
-                          <div className="flex items-center justify-between flex-1">
-                            <span
-                              className={`text-base font-medium break-words ${currentTheme.text}`}
-                            >
-                              {task.task}
-                            </span>
-                            <Badge
-                              variant="secondary"
-                              className={`${taskColor} text-xs flex-shrink-0 rounded-full px-3 py-1 ml-4`}
-                            >
-                              {task.type}
-                            </Badge>
-                          </div>
+                          {completed && <Check className="w-4 h-4" />}
                         </div>
-                      );
-                    })}
+                        <div
+                          className={`text-sm font-mono ${currentTheme.textMuted} font-medium bg-gray-50 px-3 py-1 rounded-lg border border-gray-200 flex-shrink-0`}
+                        >
+                          {task.time}
+                        </div>
+                        <div className="flex items-center justify-between flex-1">
+                          <span
+                            className={`text-base font-medium break-words ${currentTheme.text}`}
+                          >
+                            {task.task}
+                          </span>
+                          <Badge
+                            variant="secondary"
+                            className={`${taskColor} text-xs flex-shrink-0 rounded-full px-3 py-1 ml-4`}
+                          >
+                            {task.type}
+                          </Badge>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Sidebar */}
+        <div className="lg:col-span-1">
+          <div className="lg:sticky lg:top-8 space-y-6">
+            {/* User Profile Card */}
+            <Card className={currentTheme.cardBg}>
+              <CardContent className="p-6">
+                {isLoadingUser ? (
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-32 mx-auto mb-2 animate-pulse"></div>
+                    <div className="h-3 bg-gray-200 rounded w-24 mx-auto animate-pulse"></div>
+                  </div>
+                ) : user ? (
+                  <div className="text-center">
+                    <Avatar className="w-16 h-16 mx-auto mb-4">
+                      <AvatarImage
+                        src={user.avatar || "/friendly-person-avatar.png"}
+                      />
+                      <AvatarFallback className="text-lg bg-blue-500 text-white">
+                        {user.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-1">
+                      {user.name}
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-4">{user.role}</p>
+
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Calendar className="w-4 h-4" />
+                        <span>Tham gia: 25/08/2025</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Clock className="w-4 h-4" />
+                        <span>Streak: {user.streak} ngày</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Link href="/goals" className="block">
+                        <Button variant="outline" className="w-full">
+                          <Goal className="w-4 h-4 mr-2" />
+                          Mục tiêu
+                        </Button>
+                      </Link>
+                      <Link href="/finance" className="block">
+                        <Button variant="outline" className="w-full">
+                          <Wallet className="w-4 h-4 mr-2" />
+                          Tài chính
+                        </Button>
+                      </Link>
+                      <Link href="/notes" className="block">
+                        <Button variant="outline" className="w-full">
+                          <BookOpen className="w-4 h-4 mr-2" />
+                          Ghi chú
+                        </Button>
+                      </Link>
+                      <Link href="/admin" className="block">
+                        <Button className={`w-full ${currentTheme.button}`}>
+                          <Settings className="w-4 h-4 mr-2" />
+                          Quản lý
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-500">
+                    Không thể tải thông tin người dùng
                   </div>
                 )}
               </CardContent>
             </Card>
-          </div>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="lg:sticky lg:top-8 space-y-6">
-              {/* User Profile Card */}
-              <Card className={currentTheme.cardBg}>
-                <CardContent className="p-6">
-                  {isLoadingUser ? (
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-32 mx-auto mb-2 animate-pulse"></div>
-                      <div className="h-3 bg-gray-200 rounded w-24 mx-auto animate-pulse"></div>
-                    </div>
-                  ) : user ? (
-                    <div className="text-center">
-                      <Avatar className="w-16 h-16 mx-auto mb-4">
-                        <AvatarImage
-                          src={user.avatar || "/friendly-person-avatar.png"}
-                        />
-                        <AvatarFallback className="text-lg bg-blue-500 text-white">
-                          {user.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <h2 className="text-lg font-semibold text-gray-900 mb-1">
-                        {user.name}
-                      </h2>
-                      <p className="text-sm text-gray-600 mb-4">{user.role}</p>
+            {/* Theme Selector */}
+            <Card className={currentTheme.cardBg}>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg text-gray-900">
+                  <Palette className="w-5 h-5 mr-2 inline" />
+                  Chủ đề
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-3">
+                  {colorThemes.map((theme) => (
+                    <button
+                      key={theme.value}
+                      onClick={async () => {
+                        setCurrentTheme(theme);
+                        try {
+                          await updateUserPreferences({ theme: theme.value });
+                        } catch (error) {
+                          console.error(
+                            "Failed to save theme preference:",
+                            error
+                          );
+                        }
+                      }}
+                      className={`w-full h-10 rounded-lg border-2 transition-all ${
+                        currentTheme.value === theme.value
+                          ? "border-gray-900 scale-105"
+                          : "border-gray-300 hover:border-gray-400"
+                      }`}
+                      style={{
+                        background:
+                          theme.value === "blue"
+                            ? "#3b82f6"
+                            : theme.value === "green"
+                            ? "#10b981"
+                            : "#8b5cf6",
+                      }}
+                      title={theme.name}
+                    />
+                  ))}
+                </div>
+                <p className="text-sm text-gray-500 mt-3 text-center">
+                  Hiện tại: {currentTheme.name}
+                </p>
+              </CardContent>
+            </Card>
 
-                      <div className="space-y-3 mb-6">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Calendar className="w-4 h-4" />
-                          <span>Tham gia: 25/08/2025</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Clock className="w-4 h-4" />
-                          <span>Streak: {user.streak} ngày</span>
-                        </div>
+            {/* Digital Clock */}
+            <Card className={currentTheme.cardBg}>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg text-gray-900">
+                  <Timer className="w-5 h-5 mr-2 inline" />
+                  Thời gian
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center">
+                  <div className="text-2xl font-mono font-bold text-gray-900 mb-2">
+                    {formatTime(currentTime)}
+                  </div>
+                  <div className="text-sm text-gray-600 mb-3">
+                    {formatDate(currentTime)}
+                  </div>
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                    {isDaytime ? (
+                      <>
+                        <Sun className="w-4 h-4" />
+                        <span>Ban ngày</span>
+                      </>
+                    ) : (
+                      <>
+                        <Moon className="w-4 h-4" />
+                        <span>Ban đêm</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Stats Card */}
+            <Card className={currentTheme.cardBg}>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg text-gray-900">
+                  Thống kê nhanh
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {isLoadingStats ? (
+                  <div className="space-y-3">
+                    {[...Array(3)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="flex justify-between items-center"
+                      >
+                        <div className="h-4 bg-gray-200 rounded w-24 animate-pulse" />
+                        <div className="h-6 bg-gray-200 rounded w-16 animate-pulse" />
                       </div>
-
-                      <div className="space-y-2">
-                        <Link href="/goals" className="block">
-                          <Button variant="outline" className="w-full">
-                            <Goal className="w-4 h-4 mr-2" />
-                            Mục tiêu
-                          </Button>
-                        </Link>
-                        <Link href="/finance" className="block">
-                          <Button variant="outline" className="w-full">
-                            <Wallet className="w-4 h-4 mr-2" />
-                            Tài chính
-                          </Button>
-                        </Link>
-                        <Link href="/admin" className="block">
-                          <Button className={`w-full ${currentTheme.button}`}>
-                            <Settings className="w-4 h-4 mr-2" />
-                            Quản lý
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center text-gray-500">
-                      Không thể tải thông tin người dùng
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Theme Selector */}
-              <Card className={currentTheme.cardBg}>
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg text-gray-900">
-                    <Palette className="w-5 h-5 mr-2 inline" />
-                    Chủ đề
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-3 gap-3">
-                    {colorThemes.map((theme) => (
-                      <button
-                        key={theme.value}
-                        onClick={async () => {
-                          setCurrentTheme(theme);
-                          try {
-                            await updateUserPreferences({ theme: theme.value });
-                          } catch (error) {
-                            console.error(
-                              "Failed to save theme preference:",
-                              error
-                            );
-                          }
-                        }}
-                        className={`w-full h-10 rounded-lg border-2 transition-all ${
-                          currentTheme.value === theme.value
-                            ? "border-gray-900 scale-105"
-                            : "border-gray-300 hover:border-gray-400"
-                        }`}
-                        style={{
-                          background:
-                            theme.value === "blue"
-                              ? "#3b82f6"
-                              : theme.value === "green"
-                              ? "#10b981"
-                              : "#8b5cf6",
-                        }}
-                        title={theme.name}
-                      />
                     ))}
                   </div>
-                  <p className="text-sm text-gray-500 mt-3 text-center">
-                    Hiện tại: {currentTheme.name}
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Digital Clock */}
-              <Card className={currentTheme.cardBg}>
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg text-gray-900">
-                    <Timer className="w-5 h-5 mr-2 inline" />
-                    Thời gian
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center">
-                    <div className="text-2xl font-mono font-bold text-gray-900 mb-2">
-                      {formatTime(currentTime)}
+                ) : (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">
+                        Hoàn thành hôm nay
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className="bg-green-100 text-green-800 rounded-full"
+                      >
+                        {statistics?.todayProgress ||
+                          `${
+                            Object.values(completedTasks).filter(Boolean).length
+                          }/${currentDay?.tasks.length || 0}`}
+                      </Badge>
                     </div>
-                    <div className="text-sm text-gray-600 mb-3">
-                      {formatDate(currentTime)}
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">
+                        Tiến độ tuần
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className="bg-blue-100 text-blue-800 rounded-full"
+                      >
+                        {statistics?.weekProgress || 75}%
+                      </Badge>
                     </div>
-                    <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                      {isDaytime ? (
-                        <>
-                          <Sun className="w-4 h-4" />
-                          <span>Ban ngày</span>
-                        </>
-                      ) : (
-                        <>
-                          <Moon className="w-4 h-4" />
-                          <span>Ban đêm</span>
-                        </>
-                      )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">
+                        Streak hiện tại
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className="bg-orange-100 text-orange-800 rounded-full"
+                      >
+                        {statistics?.currentStreak || user?.streak || 45} ngày
+                      </Badge>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Quick Stats Card */}
-              <Card className={currentTheme.cardBg}>
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg text-gray-900">
-                    Thống kê nhanh
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {isLoadingStats ? (
-                    <div className="space-y-3">
-                      {[...Array(3)].map((_, i) => (
-                        <div
-                          key={i}
-                          className="flex justify-between items-center"
-                        >
-                          <div className="h-4 bg-gray-200 rounded w-24 animate-pulse" />
-                          <div className="h-6 bg-gray-200 rounded w-16 animate-pulse" />
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">
-                          Hoàn thành hôm nay
-                        </span>
-                        <Badge
-                          variant="secondary"
-                          className="bg-green-100 text-green-800 rounded-full"
-                        >
-                          {statistics?.todayProgress ||
-                            `${
-                              Object.values(completedTasks).filter(Boolean)
-                                .length
-                            }/${currentDay?.tasks.length || 0}`}
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">
-                          Tiến độ tuần
-                        </span>
-                        <Badge
-                          variant="secondary"
-                          className="bg-blue-100 text-blue-800 rounded-full"
-                        >
-                          {statistics?.weekProgress || 75}%
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">
-                          Streak hiện tại
-                        </span>
-                        <Badge
-                          variant="secondary"
-                          className="bg-orange-100 text-orange-800 rounded-full"
-                        >
-                          {statistics?.currentStreak || user?.streak || 45} ngày
-                        </Badge>
-                      </div>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
-    </div>
+    </UserLayout>
   );
 }

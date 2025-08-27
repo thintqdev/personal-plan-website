@@ -1,6 +1,13 @@
 "use client";
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TableCell } from "@tiptap/extension-table-cell";
+import UserLayout from "@/components/layouts/UserLayout";
+
 // Icons as SVG components
 const StickyNote = ({ className = "w-4 h-4" }) => (
   <svg
@@ -355,6 +362,199 @@ const Calendar = ({ className = "w-4 h-4" }) => (
   </svg>
 );
 
+const Bold = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"
+    />
+  </svg>
+);
+
+const Italic = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <line
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      x1="19"
+      y1="4"
+      x2="10"
+      y2="4"
+    />
+    <line
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      x1="14"
+      y1="20"
+      x2="5"
+      y2="20"
+    />
+    <line
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      x1="15"
+      y1="4"
+      x2="9"
+      y2="20"
+    />
+  </svg>
+);
+
+const List = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <line
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      x1="8"
+      y1="6"
+      x2="21"
+      y2="6"
+    />
+    <line
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      x1="8"
+      y1="12"
+      x2="21"
+      y2="12"
+    />
+    <line
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      x1="8"
+      y1="18"
+      x2="21"
+      y2="18"
+    />
+    <line
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      x1="3"
+      y1="6"
+      x2="3.01"
+      y2="6"
+    />
+    <line
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      x1="3"
+      y1="12"
+      x2="3.01"
+      y2="12"
+    />
+    <line
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      x1="3"
+      y1="18"
+      x2="3.01"
+      y2="18"
+    />
+  </svg>
+);
+
+const Grid = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <rect
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      x="3"
+      y="3"
+      width="7"
+      height="7"
+    />
+    <rect
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      x="14"
+      y="3"
+      width="7"
+      height="7"
+    />
+    <rect
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      x="14"
+      y="14"
+      width="7"
+      height="7"
+    />
+    <rect
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      x="3"
+      y="14"
+      width="7"
+      height="7"
+    />
+  </svg>
+);
+
+const Eye = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+    />
+    <circle
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      cx="12"
+      cy="12"
+      r="3"
+    />
+  </svg>
+);
+
 const initialNotesTree = [
   {
     id: "folder-1",
@@ -396,6 +596,18 @@ const initialNotesTree = [
 
 import { useEffect } from "react";
 
+// Helper function to extract plain text from HTML content
+const getPlainText = (html: string): string => {
+  // Create a temporary div element to parse HTML
+  if (typeof window !== "undefined") {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || "";
+  }
+  // Fallback for server-side rendering - simple regex to remove HTML tags
+  return html.replace(/<[^>]*>/g, "");
+};
+
 export default function NotesPage() {
   const coverImages = [
     "/peaceful-pink-sunset-landscape.png",
@@ -426,12 +638,39 @@ export default function NotesPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAddFolderModal, setShowAddFolderModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [editorMode, setEditorMode] = useState<"edit" | "preview">("edit");
+
+  // Initialize TipTap editor with SSR compatibility
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
+    ],
+    content: editingNote.content,
+    immediatelyRender: false, // Fix for SSR hydration
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      setEditingNote((prev) => ({ ...prev, content: html }));
+    },
+  });
 
   // Hydration fix: move all random/date logic to useEffect or event handlers
   useEffect(() => {
     // On mount, pick a random cover image (client only)
     setCoverImage(coverImages[Math.floor(Math.random() * coverImages.length)]);
   }, []);
+
+  // Update editor content when editingNote changes
+  useEffect(() => {
+    if (editor && editingNote.content !== editor.getHTML()) {
+      editor.commands.setContent(editingNote.content);
+    }
+  }, [editor, editingNote.content]);
 
   // Stats
   const totalFolders = notesTree.length;
@@ -546,226 +785,200 @@ export default function NotesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50">
-      {/* Cover Image Section */}
-      <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden">
-        <img
-          src={coverImage || "/placeholder.svg"}
-          alt="Cover"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40" />
-        <button
-          className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full p-2 shadow-lg transition-all"
-          onClick={changeCoverImage}
-          title="Đổi ảnh bìa"
-        >
-          <Camera className="w-5 h-5" />
-        </button>
-        <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
-          <div className="container mx-auto">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
-                <BookOpen className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">
-                  Ghi chú cá nhân
-                </h1>
-                <p className="text-white/90 text-lg drop-shadow">
-                  Lưu trữ, tổ chức và quản lý ghi chú thông minh
-                </p>
-              </div>
-            </div>
-          </div>
+    <UserLayout
+      title="Ghi chú cá nhân"
+      description="Lưu trữ, tổ chức và quản lý ghi chú thông minh với Rich Text Editor"
+      icon={<BookOpen className="w-8 h-8 text-white" />}
+      coverImage={coverImage}
+      onCoverImageChange={changeCoverImage}
+    >
+      {/* Action Bar */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Tìm kiếm ghi chú..."
+            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowAddFolderModal(true)}
+            className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+          >
+            <FolderPlus className="w-4 h-4" />
+            <span className="hidden sm:inline">Thêm thư mục</span>
+          </button>
+          <button
+            onClick={() => addNewNote(notesTree[0]?.id)}
+            className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Thêm ghi chú</span>
+          </button>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Action Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Tìm kiếm ghi chú..."
-              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div className="bg-gradient-to-br from-white to-pink-50 border border-pink-100 shadow-lg rounded-lg p-6 text-center">
+          <Folder className="w-8 h-8 text-pink-500 mx-auto mb-2" />
+          <div className="text-3xl font-bold text-gray-800 mb-1">
+            {totalFolders}
           </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setShowAddFolderModal(true)}
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-            >
-              <FolderPlus className="w-4 h-4" />
-              <span className="hidden sm:inline">Thêm thư mục</span>
-            </button>
-            <button
-              onClick={() => addNewNote(notesTree[0]?.id)}
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Thêm ghi chú</span>
-            </button>
-          </div>
+          <div className="text-sm text-gray-600">Thư mục</div>
         </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gradient-to-br from-white to-pink-50 border border-pink-100 shadow-lg rounded-lg p-6 text-center">
-            <Folder className="w-8 h-8 text-pink-500 mx-auto mb-2" />
-            <div className="text-3xl font-bold text-gray-800 mb-1">
-              {totalFolders}
-            </div>
-            <div className="text-sm text-gray-600">Thư mục</div>
+        <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg rounded-lg p-6 text-center">
+          <StickyNote className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+          <div className="text-3xl font-bold text-gray-800 mb-1">
+            {totalNotes}
           </div>
-          <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg rounded-lg p-6 text-center">
-            <StickyNote className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-            <div className="text-3xl font-bold text-gray-800 mb-1">
-              {totalNotes}
-            </div>
-            <div className="text-sm text-gray-600">Ghi chú</div>
-          </div>
-          <div className="bg-gradient-to-br from-white to-green-50 border border-green-100 shadow-lg rounded-lg p-6 text-center">
-            <Calendar className="w-8 h-8 text-green-500 mx-auto mb-2" />
-            <div className="text-3xl font-bold text-gray-800 mb-1">
-              {notesTree[0]?.children.length || 0}
-            </div>
-            <div className="text-sm text-gray-600">Tài chính</div>
-          </div>
-          <div className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 shadow-lg rounded-lg p-6 text-center">
-            <FileText className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-            <div className="text-3xl font-bold text-gray-800 mb-1">
-              {notesTree[1]?.children.length || 0}
-            </div>
-            <div className="text-sm text-gray-600">Cá nhân</div>
-          </div>
+          <div className="text-sm text-gray-600">Ghi chú</div>
         </div>
+        <div className="bg-gradient-to-br from-white to-green-50 border border-green-100 shadow-lg rounded-lg p-6 text-center">
+          <Calendar className="w-8 h-8 text-green-500 mx-auto mb-2" />
+          <div className="text-3xl font-bold text-gray-800 mb-1">
+            {notesTree[0]?.children.length || 0}
+          </div>
+          <div className="text-sm text-gray-600">Tài chính</div>
+        </div>
+        <div className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 shadow-lg rounded-lg p-6 text-center">
+          <FileText className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+          <div className="text-3xl font-bold text-gray-800 mb-1">
+            {notesTree[1]?.children.length || 0}
+          </div>
+          <div className="text-sm text-gray-600">Cá nhân</div>
+        </div>
+      </div>
 
-        {/* Folders and Notes */}
-        <div className="space-y-8">
-          {notesTree.map((folder) => (
-            <div key={folder.id} className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg">
-                    <Folder className="w-5 h-5 text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {folder.label}
-                  </h2>
-                  <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                    {folder.children.length} ghi chú
-                  </span>
+      {/* Folders and Notes */}
+      <div className="space-y-8">
+        {notesTree.map((folder) => (
+          <div key={folder.id} className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg">
+                  <Folder className="w-5 h-5 text-white" />
                 </div>
-                <button
-                  onClick={() => addNewNote(folder.id)}
-                  className="flex items-center gap-1 text-pink-600 hover:text-pink-700 text-sm font-medium px-3 py-1 hover:bg-pink-50 rounded-lg transition-all"
-                >
-                  <Plus className="w-4 h-4" />
-                  Thêm ghi chú
-                </button>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  {folder.label}
+                </h2>
+                <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                  {folder.children.length} ghi chú
+                </span>
               </div>
+              <button
+                onClick={() => addNewNote(folder.id)}
+                className="flex items-center gap-1 text-pink-600 hover:text-pink-700 text-sm font-medium px-3 py-1 hover:bg-pink-50 rounded-lg transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                Thêm ghi chú
+              </button>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {folder.children
-                  .filter(
-                    (note) =>
-                      note.title
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase()) ||
-                      note.content
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase())
-                  )
-                  .map((note) => (
-                    <div
-                      key={note.id}
-                      className="bg-white border border-gray-100 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group rounded-lg overflow-hidden"
-                    >
-                      <div className="bg-gradient-to-r from-gray-50 to-white px-6 py-4 border-b border-gray-100">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 flex-1">
-                            <StickyNote className="w-5 h-5 text-pink-400" />
-                            <h3 className="text-lg font-bold text-gray-900 truncate">
-                              {note.title}
-                            </h3>
-                          </div>
-                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={() =>
-                                editNote({ ...note, folderId: folder.id })
-                              }
-                              className="p-1 text-blue-500 hover:bg-blue-50 rounded transition-all"
-                              title="Chỉnh sửa"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => deleteNote(note.id)}
-                              className="p-1 text-red-500 hover:bg-red-50 rounded transition-all"
-                              title="Xóa"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {folder.children
+                .filter(
+                  (note) =>
+                    note.title
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase()) ||
+                    getPlainText(note.content)
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                )
+                .map((note) => (
+                  <div
+                    key={note.id}
+                    className="bg-white border border-gray-100 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group rounded-lg overflow-hidden"
+                  >
+                    <div className="bg-gradient-to-r from-gray-50 to-white px-6 py-4 border-b border-gray-100">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 flex-1">
+                          <StickyNote className="w-5 h-5 text-pink-400" />
+                          <h3 className="text-lg font-bold text-gray-900 truncate">
+                            {note.title}
+                          </h3>
                         </div>
-                      </div>
-                      <div className="px-6 py-4 flex flex-col">
-                        <div className="text-xs text-pink-500 mb-3 font-semibold uppercase tracking-wide flex items-center gap-1">
-                          <Layers className="w-3 h-3" />
-                          {folder.label}
-                        </div>
-                        <div className="text-gray-700 text-sm mb-4 min-h-[80px] line-clamp-4">
-                          <ReactMarkdown>
-                            {note.content.length > 150
-                              ? note.content.slice(0, 150) + "..."
-                              : note.content}
-                          </ReactMarkdown>
-                        </div>
-                        <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
-                          <span className="text-xs text-gray-400 flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {new Date(note.createdAt).toLocaleDateString(
-                              "vi-VN"
-                            )}
-                          </span>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() =>
-                              viewNoteDetail({ ...note, folder: folder.label })
+                              editNote({ ...note, folderId: folder.id })
                             }
-                            className="flex items-center gap-1 text-pink-600 hover:text-pink-700 text-xs font-medium px-2 py-1 hover:bg-pink-50 rounded transition-all"
+                            className="p-1 text-blue-500 hover:bg-blue-50 rounded transition-all"
+                            title="Chỉnh sửa"
                           >
-                            <FileText className="w-3 h-3" />
-                            Xem chi tiết
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteNote(note.id)}
+                            className="p-1 text-red-500 hover:bg-red-50 rounded transition-all"
+                            title="Xóa"
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
                     </div>
-                  ))}
-              </div>
+                    <div className="px-6 py-4 flex flex-col">
+                      <div className="text-xs text-pink-500 mb-3 font-semibold uppercase tracking-wide flex items-center gap-1">
+                        <Layers className="w-3 h-3" />
+                        {folder.label}
+                      </div>
+                      <div className="text-gray-700 text-sm mb-4 min-h-[80px] line-clamp-4">
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html:
+                              getPlainText(note.content).length > 120
+                                ? `${getPlainText(note.content).substring(
+                                    0,
+                                    120
+                                  )}...`
+                                : note.content,
+                          }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
+                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(note.createdAt).toLocaleDateString("vi-VN")}
+                        </span>
+                        <button
+                          onClick={() =>
+                            viewNoteDetail({ ...note, folder: folder.label })
+                          }
+                          className="flex items-center gap-1 text-pink-600 hover:text-pink-700 text-xs font-medium px-2 py-1 hover:bg-pink-50 rounded transition-all"
+                        >
+                          <FileText className="w-3 h-3" />
+                          Xem chi tiết
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
             </div>
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {allNotes.length === 0 && searchTerm && (
-          <div className="text-center py-16">
-            <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">
-              Không tìm thấy kết quả
-            </h3>
-            <p className="text-gray-500">Thử tìm kiếm với từ khóa khác</p>
           </div>
-        )}
+        ))}
       </div>
 
-      {/* Edit/Add Note Modal */}
+      {/* Empty State */}
+      {allNotes.length === 0 && searchTerm && (
+        <div className="text-center py-16">
+          <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+            Không tìm thấy kết quả
+          </h3>
+          <p className="text-gray-500">Thử tìm kiếm với từ khóa khác</p>
+        </div>
+      )}
+
+      {/* Enhanced Rich Text Editor Modal */}
       {(isEditMode || showAddModal) && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-pink-50 to-purple-50">
               <h3 className="text-xl font-bold text-gray-800">
                 {editingNote.id ? "Chỉnh sửa ghi chú" : "Thêm ghi chú mới"}
@@ -781,6 +994,7 @@ export default function NotesPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
+
             <div className="p-6 space-y-4 max-h-96 overflow-y-auto">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -796,6 +1010,7 @@ export default function NotesPage() {
                   placeholder="Nhập tiêu đề ghi chú..."
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Thư mục
@@ -814,20 +1029,223 @@ export default function NotesPage() {
                   ))}
                 </select>
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nội dung
-                </label>
-                <textarea
-                  value={editingNote.content}
-                  onChange={(e) =>
-                    setEditingNote({ ...editingNote, content: e.target.value })
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent h-48"
-                  placeholder="Nhập nội dung ghi chú..."
-                />
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Nội dung
+                  </label>
+                  <div className="flex bg-gray-100 rounded-lg p-1">
+                    <button
+                      type="button"
+                      onClick={() => setEditorMode("edit")}
+                      className={`flex items-center gap-1 px-3 py-1 rounded text-xs font-medium transition-all ${
+                        editorMode === "edit"
+                          ? "bg-white text-gray-900 shadow-sm"
+                          : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      <Edit className="w-3 h-3" />
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditorMode("preview")}
+                      className={`flex items-center gap-1 px-3 py-1 rounded text-xs font-medium transition-all ${
+                        editorMode === "preview"
+                          ? "bg-white text-gray-900 shadow-sm"
+                          : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      <Eye className="w-3 h-3" />
+                      Preview
+                    </button>
+                  </div>
+                </div>
+
+                {editorMode === "edit" && (
+                  <div className="space-y-2">
+                    {/* Enhanced Toolbar */}
+                    {editor && (
+                      <div className="flex flex-wrap gap-1 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            editor?.chain().focus().toggleBold().run()
+                          }
+                          className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+                            editor?.isActive("bold") ? "bg-gray-300" : ""
+                          }`}
+                          title="Bold"
+                        >
+                          <Bold className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            editor?.chain().focus().toggleItalic().run()
+                          }
+                          className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+                            editor?.isActive("italic") ? "bg-gray-300" : ""
+                          }`}
+                          title="Italic"
+                        >
+                          <Italic className="w-4 h-4" />
+                        </button>
+                        <div className="w-px h-6 bg-gray-300 mx-1" />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            editor
+                              ?.chain()
+                              .focus()
+                              .toggleHeading({ level: 1 })
+                              .run()
+                          }
+                          className={`px-3 py-1 rounded text-sm font-bold hover:bg-gray-200 transition-colors ${
+                            editor?.isActive("heading", { level: 1 })
+                              ? "bg-gray-300"
+                              : ""
+                          }`}
+                          title="Heading 1"
+                        >
+                          H1
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            editor
+                              ?.chain()
+                              .focus()
+                              .toggleHeading({ level: 2 })
+                              .run()
+                          }
+                          className={`px-3 py-1 rounded text-sm font-bold hover:bg-gray-200 transition-colors ${
+                            editor?.isActive("heading", { level: 2 })
+                              ? "bg-gray-300"
+                              : ""
+                          }`}
+                          title="Heading 2"
+                        >
+                          H2
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            editor
+                              ?.chain()
+                              .focus()
+                              .toggleHeading({ level: 3 })
+                              .run()
+                          }
+                          className={`px-3 py-1 rounded text-sm font-bold hover:bg-gray-200 transition-colors ${
+                            editor?.isActive("heading", { level: 3 })
+                              ? "bg-gray-300"
+                              : ""
+                          }`}
+                          title="Heading 3"
+                        >
+                          H3
+                        </button>
+                        <div className="w-px h-6 bg-gray-300 mx-1" />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            editor?.chain().focus().toggleBulletList().run()
+                          }
+                          className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+                            editor?.isActive("bulletList") ? "bg-gray-300" : ""
+                          }`}
+                          title="Bullet List"
+                        >
+                          <List className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            editor?.chain().focus().toggleOrderedList().run()
+                          }
+                          className={`px-3 py-1 rounded text-sm hover:bg-gray-200 transition-colors ${
+                            editor?.isActive("orderedList") ? "bg-gray-300" : ""
+                          }`}
+                          title="Numbered List"
+                        >
+                          1.
+                        </button>
+                        <div className="w-px h-6 bg-gray-300 mx-1" />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            editor
+                              ?.chain()
+                              .focus()
+                              .insertTable({
+                                rows: 3,
+                                cols: 3,
+                                withHeaderRow: true,
+                              })
+                              .run()
+                          }
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
+                          title="Insert Table"
+                        >
+                          <Grid className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            editor?.chain().focus().toggleCodeBlock().run()
+                          }
+                          className={`px-3 py-1 rounded text-xs font-mono hover:bg-gray-200 transition-colors ${
+                            editor?.isActive("codeBlock") ? "bg-gray-300" : ""
+                          }`}
+                          title="Code Block"
+                        >
+                          {"{}"}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Enhanced Editor */}
+                    {editor ? (
+                      <div className="relative border border-gray-300 rounded-lg overflow-hidden">
+                        <EditorContent
+                          editor={editor}
+                          className="prose prose-sm max-w-none p-3 min-h-[200px] focus-within:ring-2 focus-within:ring-pink-500 [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[180px] [&_table]:border-collapse [&_table]:table [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-50 [&_th]:font-bold"
+                        />
+                      </div>
+                    ) : (
+                      <div className="border border-gray-300 rounded-lg p-3 min-h-[200px] bg-gray-50 flex items-center justify-center">
+                        <div className="text-gray-500">Loading editor...</div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {editorMode === "preview" && (
+                  <div className="border border-gray-300 rounded-lg p-3 h-48 overflow-y-auto bg-gray-50">
+                    {editingNote.content ? (
+                      <div
+                        className="prose prose-sm max-w-none [&_table]:border-collapse [&_table]:table [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-50 [&_th]:font-bold"
+                        dangerouslySetInnerHTML={{
+                          __html: editingNote.content,
+                        }}
+                      />
+                    ) : (
+                      <p className="text-gray-400 italic">
+                        Nhập nội dung để xem preview...
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <div className="text-xs text-gray-500 mt-2">
+                  <strong>Rich Text Features:</strong> Bold, Italic, Headers,
+                  Lists, Tables, Code blocks
+                </div>
               </div>
             </div>
+
             <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
               <button
                 onClick={() => {
@@ -933,9 +1351,12 @@ export default function NotesPage() {
                   {new Date(selectedNote.createdAt).toLocaleDateString("vi-VN")}
                 </span>
               </div>
-              <div className="text-gray-800 leading-relaxed">
-                <ReactMarkdown>{selectedNote.content}</ReactMarkdown>
-              </div>
+              <div
+                className="prose prose-sm max-w-none [&_table]:border-collapse [&_table]:table [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-50 [&_th]:font-bold"
+                dangerouslySetInnerHTML={{
+                  __html: selectedNote.content,
+                }}
+              />
             </div>
             <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
               <button
@@ -961,6 +1382,6 @@ export default function NotesPage() {
           </div>
         </div>
       )}
-    </div>
+    </UserLayout>
   );
 }
