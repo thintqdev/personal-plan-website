@@ -334,14 +334,14 @@ export default function AdminFinancePage() {
       const calculatedTargetAmount =
         monthlyIncome * (template.percentage / 100);
       setFormData({
-        name: template.name,
-        description: template.description,
-        targetAmount: calculatedTargetAmount.toString(),
-        percentage: template.percentage.toString(),
-        color: template.color,
-        icon: template.icon,
-        priority: template.priority,
-        category: template.category,
+        name: template.name || "",
+        description: template.description || "",
+        targetAmount: calculatedTargetAmount?.toString() || "",
+        percentage: template.percentage?.toString() || "",
+        color: template.color || "blue",
+        icon: template.icon || "PiggyBank",
+        priority: template.priority || "Medium",
+        category: template.category || "",
       });
       setSelectedTemplate(templateIndex);
     }
@@ -427,14 +427,14 @@ export default function AdminFinancePage() {
   const startEdit = (jar: FinanceJar) => {
     setEditingJar(jar);
     setFormData({
-      name: jar.name,
-      description: jar.description,
-      targetAmount: jar.targetAmount.toString(),
-      percentage: jar.percentage.toString(),
-      color: jar.color,
-      icon: jar.icon,
-      priority: jar.priority,
-      category: jar.category,
+      name: jar.name || "",
+      description: jar.description || "",
+      targetAmount: jar.targetAmount?.toString() || "",
+      percentage: jar.percentage?.toString() || "",
+      color: jar.color || "blue",
+      icon: jar.icon || "PiggyBank",
+      priority: jar.priority || "Medium",
+      category: jar.category || "",
     });
   };
 

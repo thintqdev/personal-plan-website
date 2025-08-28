@@ -1,4 +1,21 @@
 import { API_URL } from "./types";
+import { authService } from "./auth-service";
+
+/**
+ * Get authenticated headers for API calls
+ */
+function getAuthHeaders(): HeadersInit {
+    const headers: HeadersInit = {
+        "Content-Type": "application/json",
+    };
+
+    const token = authService.getToken();
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return headers;
+}
 
 // Note Management Types
 export interface NoteFolder {
@@ -99,9 +116,7 @@ export async function getNoteFolders(): Promise<NoteFolder[]> {
     try {
         const response = await fetch(`${API_URL}/api/notes/folders`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -127,9 +142,7 @@ export async function createNoteFolder(
     try {
         const response = await fetch(`${API_URL}/api/notes/folders`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(folderData),
         });
 
@@ -157,9 +170,7 @@ export async function updateNoteFolder(
     try {
         const response = await fetch(`${API_URL}/api/notes/folders/${folderId}`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(updates),
         });
 
@@ -184,9 +195,7 @@ export async function deleteNoteFolder(folderId: string): Promise<void> {
     try {
         const response = await fetch(`${API_URL}/api/notes/folders/${folderId}`, {
             method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -209,9 +218,7 @@ export async function getNotes(): Promise<Note[]> {
     try {
         const response = await fetch(`${API_URL}/api/notes`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -235,9 +242,7 @@ export async function getNotesTree(): Promise<NotesTree[]> {
     try {
         const response = await fetch(`${API_URL}/api/notes/tree`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -261,9 +266,7 @@ export async function getNote(noteId: string): Promise<Note> {
     try {
         const response = await fetch(`${API_URL}/api/notes/${noteId}`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -287,9 +290,7 @@ export async function getNotesByFolder(folderId: string): Promise<Note[]> {
     try {
         const response = await fetch(`${API_URL}/api/notes/folder/${folderId}`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -313,9 +314,7 @@ export async function createNote(noteData: CreateNoteRequest): Promise<Note> {
     try {
         const response = await fetch(`${API_URL}/api/notes`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(noteData),
         });
 
@@ -343,9 +342,7 @@ export async function updateNote(
     try {
         const response = await fetch(`${API_URL}/api/notes/${noteId}`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(updates),
         });
 
@@ -370,9 +367,7 @@ export async function deleteNote(noteId: string): Promise<void> {
     try {
         const response = await fetch(`${API_URL}/api/notes/${noteId}`, {
             method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -405,9 +400,7 @@ export async function searchNotes(
             `${API_URL}/api/notes/search?${params.toString()}`,
             {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
             }
         );
 
@@ -432,9 +425,7 @@ export async function getNoteStats(): Promise<NoteStats> {
     try {
         const response = await fetch(`${API_URL}/api/notes/stats`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {

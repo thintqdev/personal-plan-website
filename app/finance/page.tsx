@@ -146,10 +146,22 @@ export default function FinancePage() {
       setUser({
         _id: "default",
         name: "Người dùng",
-        role: "user",
+        email: "user@example.com",
         goal: "",
         streak: 0,
         avatar: "/friendly-person-avatar.png",
+        income: 0,
+        isEmailVerified: false,
+        isActive: true,
+        lastLogin: new Date().toISOString(),
+        preferences: {
+          theme: "blue",
+          coverImage: "/mountain-peak-sunrise-motivation-success.png",
+          notifications: true,
+          language: "vi",
+        },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         __v: 0,
       });
     } finally {
@@ -364,10 +376,10 @@ export default function FinancePage() {
         : transaction.jarId._id;
 
     setFormData({
-      jarId: jarIdValue,
-      amount: transaction.amount.toString(),
-      description: transaction.description,
-      category: transaction.category,
+      jarId: jarIdValue || "",
+      amount: transaction.amount?.toString() || "",
+      description: transaction.description || "",
+      category: transaction.category || "",
     });
     setShowAddForm(true);
   };
@@ -584,7 +596,7 @@ export default function FinancePage() {
               <h3 className="text-xl font-semibold text-gray-900">
                 {user?.name || "Người dùng"}
               </h3>
-              <p className="text-gray-600">{user?.role || "Người dùng"}</p>
+              <p className="text-gray-600">Người dùng</p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge
                   variant="outline"

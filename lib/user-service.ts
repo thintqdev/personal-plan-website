@@ -1,7 +1,24 @@
 import { API_URL, Quote, CreateQuoteRequest, User, UpdateUserRequest, UpdateUserIncomeRequest, UserPreferences, Statistics } from "./types";
+import { authService } from "./auth-service";
 
 // Re-export types for convenience
 export type { Quote, CreateQuoteRequest, User, UpdateUserRequest, UpdateUserIncomeRequest, UserPreferences, Statistics };
+
+/**
+ * Get authenticated headers for API calls
+ */
+function getAuthHeaders(): HeadersInit {
+    const headers: HeadersInit = {
+        "Content-Type": "application/json",
+    };
+
+    const token = authService.getToken();
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return headers;
+}
 
 /**
  * Get all quotes from the API
@@ -10,9 +27,7 @@ export async function getQuotes(): Promise<Quote[]> {
     try {
         const response = await fetch(`${API_URL}/api/quotes`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -36,9 +51,7 @@ export async function addQuote(quoteData: CreateQuoteRequest): Promise<Quote> {
     try {
         const response = await fetch(`${API_URL}/api/quotes`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(quoteData),
         });
 
@@ -63,9 +76,7 @@ export async function deleteQuote(quoteId: string): Promise<void> {
     try {
         const response = await fetch(`${API_URL}/api/quotes/${quoteId}`, {
             method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -84,21 +95,13 @@ export async function deleteQuote(quoteId: string): Promise<void> {
  */
 export async function getUser(): Promise<User> {
     try {
-        const response = await fetch(`${API_URL}/api/user`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error(
-                `Failed to fetch user: ${response.status} ${response.statusText}`
-            );
+        const response = await authService.getProfile();
+        
+        if (!response.success) {
+            throw new Error("Failed to fetch user profile");
         }
 
-        const user = await response.json();
-        return user;
+        return response.user;
     } catch (error) {
         console.error("Error fetching user:", error);
         throw error;
@@ -110,22 +113,28 @@ export async function getUser(): Promise<User> {
  */
 export async function updateUser(userData: UpdateUserRequest): Promise<User> {
     try {
-        const response = await fetch(`${API_URL}/api/user`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(userData),
-        });
-
-        if (!response.ok) {
-            throw new Error(
-                `Failed to update user: ${response.status} ${response.statusText}`
-            );
+        // Convert UpdateUserRequest to format expected by auth service
+        const { preferences, ...restData } = userData;
+        const updateData = {
+            ...restData,
+            // Only include preferences if provided and with complete structure
+            ...(preferences && {
+                preferences: {
+                    theme: preferences.theme || 'blue',
+                    coverImage: preferences.coverImage || '/mountain-peak-sunrise-motivation-success.png',
+                    notifications: preferences.notifications ?? true,
+                    language: preferences.language || 'vi',
+                } as UserPreferences
+            })
+        };
+        
+        const response = await authService.updateProfile(updateData);
+        
+        if (!response.success) {
+            throw new Error(response.message || "Failed to update user profile");
         }
 
-        const updatedUser = await response.json();
-        return updatedUser;
+        return response.user;
     } catch (error) {
         console.error("Error updating user:", error);
         throw error;
@@ -139,9 +148,7 @@ export async function updateUserIncome(income: number): Promise<User> {
     try {
         const response = await fetch(`${API_URL}/api/user/income`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify({ income }),
         });
 
@@ -166,9 +173,7 @@ export async function getStatistics(): Promise<Statistics> {
     try {
         const response = await fetch(`${API_URL}/api/stats`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -192,9 +197,7 @@ export async function getTodayStatistics(): Promise<Statistics> {
     try {
         const response = await fetch(`${API_URL}/api/stats/today`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -218,9 +221,7 @@ export async function getWeekStatistics(): Promise<Statistics> {
     try {
         const response = await fetch(`${API_URL}/api/stats/week`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -244,9 +245,7 @@ export async function getUserPreferences(): Promise<UserPreferences> {
     try {
         const response = await fetch(`${API_URL}/api/user/preferences`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -272,9 +271,7 @@ export async function updateUserPreferences(
     try {
         const response = await fetch(`${API_URL}/api/user/preferences`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(preferences),
         });
 

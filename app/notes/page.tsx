@@ -613,13 +613,13 @@ export default function NotesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   type EditingNote = {
-    id?: string;
+    id: string;
     title: string;
     content: string;
     folderId: string;
   };
   const [editingNote, setEditingNote] = useState<EditingNote>({
-    id: undefined,
+    id: "",
     title: "",
     content: "",
     folderId: "",
@@ -735,10 +735,10 @@ export default function NotesPage() {
 
   const editNote = (note: any) => {
     setEditingNote({
-      id: note.id,
-      title: note.title,
-      content: note.content,
-      folderId: note.folderId,
+      id: note.id || "",
+      title: note.title || "",
+      content: note.content || "",
+      folderId: note.folderId || "",
     });
     setIsEditMode(true);
   };
@@ -750,7 +750,7 @@ export default function NotesPage() {
     }
 
     try {
-      if (editingNote.id) {
+      if (editingNote.id && editingNote.id !== "") {
         // Update existing note
         const updateData: UpdateNoteRequest = {
           title: editingNote.title,
@@ -813,7 +813,7 @@ export default function NotesPage() {
 
       setIsEditMode(false);
       setShowAddModal(false);
-      setEditingNote({ id: undefined, title: "", content: "", folderId: "" });
+      setEditingNote({ id: "", title: "", content: "", folderId: "" });
     } catch (err) {
       console.error("Failed to save note:", err);
       alert("Failed to save note. Please try again.");
@@ -821,7 +821,7 @@ export default function NotesPage() {
   };
 
   const addNewNote = (folderId: string) => {
-    setEditingNote({ id: undefined, title: "", content: "", folderId });
+    setEditingNote({ id: "", title: "", content: "", folderId });
     setIsEditMode(true);
     setShowAddModal(true);
   };
@@ -1156,13 +1156,13 @@ export default function NotesPage() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-pink-50 to-purple-50">
               <h3 className="text-xl font-bold text-gray-800">
-                {editingNote.id ? "Chỉnh sửa ghi chú" : "Thêm ghi chú mới"}
+                {editingNote.id && editingNote.id !== "" ? "Chỉnh sửa ghi chú" : "Thêm ghi chú mới"}
               </h3>
               <button
                 onClick={() => {
                   setIsEditMode(false);
                   setShowAddModal(false);
-                  setEditingNote({ title: "", content: "", folderId: "" });
+                  setEditingNote({ id: "", title: "", content: "", folderId: "" });
                 }}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-all"
               >
@@ -1426,7 +1426,7 @@ export default function NotesPage() {
                 onClick={() => {
                   setIsEditMode(false);
                   setShowAddModal(false);
-                  setEditingNote({ title: "", content: "", folderId: "" });
+                  setEditingNote({ id: "", title: "", content: "", folderId: "" });
                 }}
                 className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all"
               >
@@ -1443,7 +1443,7 @@ export default function NotesPage() {
                 className="flex items-center gap-2 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Save className="w-4 h-4" />
-                {editingNote.id ? "Cập nhật" : "Thêm mới"}
+                {editingNote.id && editingNote.id !== "" ? "Cập nhật" : "Thêm mới"}
               </button>
             </div>
           </div>

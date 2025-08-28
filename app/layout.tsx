@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter, Nunito } from "next/font/google"
+import { AuthProvider } from "@/contexts/AuthContext"
 import "./globals.css"
 
 const inter = Inter({
@@ -28,7 +29,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" className={`${inter.variable} ${nunito.variable} antialiased`}>
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   )
 }
