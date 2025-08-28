@@ -16,7 +16,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { getUser, type User as UserType } from "@/lib/service";
+import { getUser, type User as UserType } from "@/lib/user-service";
 
 interface UserLayoutProps {
   children: ReactNode;

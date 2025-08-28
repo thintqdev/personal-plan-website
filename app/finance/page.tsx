@@ -41,14 +41,13 @@ import {
   FinanceJar,
   Transaction,
   CreateTransactionRequest,
-  User,
   getFinanceJars,
   getTransactions,
   createTransaction,
   updateTransaction,
   deleteTransaction,
-  getUser,
-} from "@/lib/service";
+} from "@/lib/finance-service";
+import { User, getUser } from "@/lib/user-service";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 

@@ -40,7 +40,7 @@ import {
   type SubGoal,
   type CreateGoalRequest,
   type UpdateGoalRequest,
-} from "@/lib/service";
+} from "@/lib/goal-service";
 
 export default function GoalsAdminPage() {
   const [goals, setGoals] = useState<Goal[]>([]);

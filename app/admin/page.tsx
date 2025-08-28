@@ -14,14 +14,9 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
-import {
-  getUser,
-  getQuotes,
-  getTasks,
-  getGoals,
-  type User as UserType,
-  type Task as TaskType,
-} from "@/lib/service";
+import { getUser, getQuotes, type User as UserType } from "@/lib/user-service";
+import { getTasks, type Task as TaskType } from "@/lib/task-service";
+import { getGoals } from "@/lib/goal-service";
 
 export default function AdminDashboardPage() {
   const [isMounted, setIsMounted] = useState(false);

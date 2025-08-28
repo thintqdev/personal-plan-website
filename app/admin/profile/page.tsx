@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, User, Save, Upload } from "lucide-react";
 import Link from "next/link";
-import { getUser, updateUser, type User as UserType } from "@/lib/service";
+import { getUser, updateUser, type User as UserType } from "@/lib/user-service";
 
 export default function ProfileAdminPage() {
   const [isMounted, setIsMounted] = useState(false);

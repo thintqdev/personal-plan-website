@@ -49,7 +49,7 @@ import {
   generateMonthlyReport,
   finalizeMonthlyReport,
   getMonthlyReportPDFData,
-} from "@/lib/service";
+} from "@/lib/finance-service";
 
 export default function MonthlyReportPage() {
   const [reports, setReports] = useState<MonthlyReport[]>([]);
@@ -256,7 +256,7 @@ export default function MonthlyReportPage() {
       Home: "🏠",
       PiggyBank: "🐷",
       Coffee: "☕",
-      Book: "📚", 
+      Book: "📚",
       Target: "🎯",
       Heart: "❤️",
       Wallet: "👛",
@@ -267,7 +267,7 @@ export default function MonthlyReportPage() {
       Fitness: "💪",
       // Add more icon mappings as needed
     };
-    
+
     return <span className="text-lg">{iconMap[iconName] || "💰"}</span>;
   };
 
@@ -496,179 +496,184 @@ export default function MonthlyReportPage() {
                   (jar: JarReport, index: number) => {
                     const safeJar = safeJarData(jar);
                     return (
-                    <div
-                      key={`jar-${getStringId(
-                        jar.jarId,
-                        jar.jarName || index
-                      )}`}
-                      className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="p-2 rounded-lg"
-                            style={{
-                              backgroundColor:
-                                (safeJar.jarInfo.color || "#6B7280") + "20",
-                            }}
-                          >
-                            {renderIcon(safeJar.jarInfo.icon || "💰")}
+                      <div
+                        key={`jar-${getStringId(
+                          jar.jarId,
+                          jar.jarName || index
+                        )}`}
+                        className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="p-2 rounded-lg"
+                              style={{
+                                backgroundColor:
+                                  (safeJar.jarInfo.color || "#6B7280") + "20",
+                              }}
+                            >
+                              {renderIcon(safeJar.jarInfo.icon || "💰")}
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-lg">
+                                {safeJar.jarInfo.name}
+                              </h4>
+                              <p className="text-gray-600">
+                                {safeJar.jarInfo.category}
+                              </p>
+                              <Badge variant="outline">
+                                {safeJar.percentage}% ngân sách
+                              </Badge>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-semibold text-lg">
-                              {safeJar.jarInfo.name}
-                            </h4>
-                            <p className="text-gray-600">{safeJar.jarInfo.category}</p>
-                            <Badge variant="outline">
-                              {safeJar.percentage}% ngân sách
-                            </Badge>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-600">
+                              Tỷ lệ tiết kiệm
+                            </p>
+                            <p
+                              className={`text-2xl font-bold ${
+                                parseFloat(safeJar.savingsPercentage || "0") >=
+                                80
+                                  ? "text-green-600"
+                                  : parseFloat(
+                                      safeJar.savingsPercentage || "0"
+                                    ) >= 50
+                                  ? "text-orange-600"
+                                  : "text-red-600"
+                              }`}
+                            >
+                              {safeJar.savingsPercentage || "0"}%
+                            </p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-600">
-                            Tỷ lệ tiết kiệm
-                          </p>
-                          <p
-                            className={`text-2xl font-bold ${
-                              parseFloat(safeJar.savingsPercentage || "0") >= 80
-                                ? "text-green-600"
-                                : parseFloat(safeJar.savingsPercentage || "0") >= 50
-                                ? "text-orange-600"
-                                : "text-red-600"
-                            }`}
-                          >
-                            {safeJar.savingsPercentage || "0"}%
-                          </p>
-                        </div>
-                      </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                        <div className="text-center p-3 bg-blue-50 rounded-lg">
-                          <p className="text-sm text-gray-600">Phân bổ</p>
-                          <p className="font-semibold text-blue-600">
-                            {formatCurrency(jar.allocatedAmount || 0)}
-                          </p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                          <div className="text-center p-3 bg-blue-50 rounded-lg">
+                            <p className="text-sm text-gray-600">Phân bổ</p>
+                            <p className="font-semibold text-blue-600">
+                              {formatCurrency(jar.allocatedAmount || 0)}
+                            </p>
+                          </div>
+                          <div className="text-center p-3 bg-red-50 rounded-lg">
+                            <p className="text-sm text-gray-600">Chi tiêu</p>
+                            <p className="font-semibold text-red-600">
+                              {formatCurrency(jar.actualSpent || 0)}
+                            </p>
+                          </div>
+                          <div className="text-center p-3 bg-green-50 rounded-lg">
+                            <p className="text-sm text-gray-600">Thu nhập</p>
+                            <p className="font-semibold text-green-600">
+                              {formatCurrency(jar.actualIncome || 0)}
+                            </p>
+                          </div>
+                          <div className="text-center p-3 bg-purple-50 rounded-lg">
+                            <p className="text-sm text-gray-600">Tiết kiệm</p>
+                            <p
+                              className={`font-semibold ${
+                                (jar.savings || 0) >= 0
+                                  ? "text-purple-600"
+                                  : "text-red-600"
+                              }`}
+                            >
+                              {formatCurrency(jar.savings || 0)}
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-center p-3 bg-red-50 rounded-lg">
-                          <p className="text-sm text-gray-600">Chi tiêu</p>
-                          <p className="font-semibold text-red-600">
-                            {formatCurrency(jar.actualSpent || 0)}
-                          </p>
-                        </div>
-                        <div className="text-center p-3 bg-green-50 rounded-lg">
-                          <p className="text-sm text-gray-600">Thu nhập</p>
-                          <p className="font-semibold text-green-600">
-                            {formatCurrency(jar.actualIncome || 0)}
-                          </p>
-                        </div>
-                        <div className="text-center p-3 bg-purple-50 rounded-lg">
-                          <p className="text-sm text-gray-600">Tiết kiệm</p>
-                          <p
-                            className={`font-semibold ${
-                              (jar.savings || 0) >= 0
-                                ? "text-purple-600"
-                                : "text-red-600"
-                            }`}
-                          >
-                            {formatCurrency(jar.savings || 0)}
-                          </p>
-                        </div>
-                      </div>
 
-                      {/* Progress bar */}
-                      <div className="mb-4">
-                        <div className="flex justify-between text-sm text-gray-600 mb-1">
-                          <span>Sử dụng ngân sách</span>
-                          <span>
-                            {(jar.allocatedAmount || 0) > 0
-                              ? (
-                                  ((jar.actualSpent || 0) /
-                                    (jar.allocatedAmount || 1)) *
-                                  100
-                                ).toFixed(1)
-                              : "0"}
-                            %
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full transition-all ${
-                              (jar.allocatedAmount || 0) > 0 &&
-                              (jar.actualSpent || 0) /
-                                (jar.allocatedAmount || 1) >
-                                1
-                                ? "bg-red-500"
-                                : (jar.allocatedAmount || 0) > 0 &&
-                                  (jar.actualSpent || 0) /
-                                    (jar.allocatedAmount || 1) >
-                                    0.8
-                                ? "bg-orange-500"
-                                : "bg-green-500"
-                            }`}
-                            style={{
-                              width: `${Math.min(
-                                100,
-                                (jar.allocatedAmount || 0) > 0
-                                  ? ((jar.actualSpent || 0) /
+                        {/* Progress bar */}
+                        <div className="mb-4">
+                          <div className="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>Sử dụng ngân sách</span>
+                            <span>
+                              {(jar.allocatedAmount || 0) > 0
+                                ? (
+                                    ((jar.actualSpent || 0) /
                                       (jar.allocatedAmount || 1)) *
-                                      100
-                                  : 0
-                              )}%`,
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-
-                      {/* Transactions */}
-                      {jar.transactions && jar.transactions.length > 0 && (
-                        <div>
-                          <h5 className="font-medium mb-2">
-                            Giao dịch trong tháng ({jar.transactions.length})
-                          </h5>
-                          <div className="max-h-40 overflow-y-auto space-y-2">
-                            {jar.transactions.map(
-                              (
-                                transaction: ReportTransaction,
-                                txIndex: number
-                              ) => (
-                                <div
-                                  key={`transaction-${
-                                    transaction.transactionId || txIndex
-                                  }-${getStringId(jar.jarId, index)}`}
-                                  className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm"
-                                >
-                                  <div>
-                                    <p className="font-medium">
-                                      {transaction.description}
-                                    </p>
-                                    <p className="text-gray-600">
-                                      {transaction.category}
-                                    </p>
-                                  </div>
-                                  <div className="text-right">
-                                    <p
-                                      className={`font-semibold ${
-                                        transaction.type === "expense"
-                                          ? "text-red-600"
-                                          : "text-green-600"
-                                      }`}
-                                    >
-                                      {transaction.type === "expense"
-                                        ? "-"
-                                        : "+"}
-                                      {formatCurrency(transaction.amount)}
-                                    </p>
-                                    <p className="text-gray-500 text-xs">
-                                      {formatDate(transaction.date)}
-                                    </p>
-                                  </div>
-                                </div>
-                              )
-                            )}
+                                    100
+                                  ).toFixed(1)
+                                : "0"}
+                              %
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className={`h-2 rounded-full transition-all ${
+                                (jar.allocatedAmount || 0) > 0 &&
+                                (jar.actualSpent || 0) /
+                                  (jar.allocatedAmount || 1) >
+                                  1
+                                  ? "bg-red-500"
+                                  : (jar.allocatedAmount || 0) > 0 &&
+                                    (jar.actualSpent || 0) /
+                                      (jar.allocatedAmount || 1) >
+                                      0.8
+                                  ? "bg-orange-500"
+                                  : "bg-green-500"
+                              }`}
+                              style={{
+                                width: `${Math.min(
+                                  100,
+                                  (jar.allocatedAmount || 0) > 0
+                                    ? ((jar.actualSpent || 0) /
+                                        (jar.allocatedAmount || 1)) *
+                                        100
+                                    : 0
+                                )}%`,
+                              }}
+                            ></div>
                           </div>
                         </div>
-                      )}
-                    </div>
+
+                        {/* Transactions */}
+                        {jar.transactions && jar.transactions.length > 0 && (
+                          <div>
+                            <h5 className="font-medium mb-2">
+                              Giao dịch trong tháng ({jar.transactions.length})
+                            </h5>
+                            <div className="max-h-40 overflow-y-auto space-y-2">
+                              {jar.transactions.map(
+                                (
+                                  transaction: ReportTransaction,
+                                  txIndex: number
+                                ) => (
+                                  <div
+                                    key={`transaction-${
+                                      transaction.transactionId || txIndex
+                                    }-${getStringId(jar.jarId, index)}`}
+                                    className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm"
+                                  >
+                                    <div>
+                                      <p className="font-medium">
+                                        {transaction.description}
+                                      </p>
+                                      <p className="text-gray-600">
+                                        {transaction.category}
+                                      </p>
+                                    </div>
+                                    <div className="text-right">
+                                      <p
+                                        className={`font-semibold ${
+                                          transaction.type === "expense"
+                                            ? "text-red-600"
+                                            : "text-green-600"
+                                        }`}
+                                      >
+                                        {transaction.type === "expense"
+                                          ? "-"
+                                          : "+"}
+                                        {formatCurrency(transaction.amount)}
+                                      </p>
+                                      <p className="text-gray-500 text-xs">
+                                        {formatDate(transaction.date)}
+                                      </p>
+                                    </div>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     );
                   }
                 )}

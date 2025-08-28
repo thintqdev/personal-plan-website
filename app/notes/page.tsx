@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Table } from "@tiptap/extension-table";
@@ -7,6 +7,19 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableCell } from "@tiptap/extension-table-cell";
 import UserLayout from "@/components/layouts/UserLayout";
+import {
+  getNotesTree,
+  createNoteFolder,
+  deleteNoteFolder,
+  createNote,
+  updateNote,
+  deleteNote as deleteNoteAPI,
+  searchNotes,
+  type NotesTree,
+  type CreateNoteFolderRequest,
+  type CreateNoteRequest,
+  type UpdateNoteRequest,
+} from "@/lib/note-service";
 
 // Icons as SVG components
 const StickyNote = ({ className = "w-4 h-4" }) => (
@@ -555,47 +568,6 @@ const Eye = ({ className = "w-4 h-4" }) => (
   </svg>
 );
 
-const initialNotesTree = [
-  {
-    id: "folder-1",
-    label: "Tài chính",
-    children: [
-      {
-        id: "1",
-        title: "Báo cáo chi tiêu tháng 8",
-        content: `### Bảng tổng hợp chi tiêu\n\n| Hạng mục   | Số tiền     |\n|------------|-------------|\n| Ăn uống    | 3.000.000đ  |\n| Giải trí   | 1.200.000đ  |\n| Di chuyển  | 800.000đ    |\n\n- Tiết kiệm: 2.000.000đ\n- Đầu tư: 1.000.000đ`,
-        createdAt: "2025-08-10T09:00:00Z",
-      },
-      {
-        id: "2",
-        title: "Kế hoạch tiết kiệm",
-        content: `1. Đặt mục tiêu tiết kiệm 20% thu nhập mỗi tháng\n2. Chia khoản tiết kiệm thành các mục tiêu nhỏ\n3. Theo dõi tiến độ hàng tuần`,
-        createdAt: "2025-08-12T10:00:00Z",
-      },
-    ],
-  },
-  {
-    id: "folder-2",
-    label: "Cá nhân",
-    children: [
-      {
-        id: "3",
-        title: "Danh sách việc cần làm",
-        content: `- Đọc sách mỗi ngày\n- Tập thể dục 30 phút\n- Viết nhật ký`,
-        createdAt: "2025-08-15T14:30:00Z",
-      },
-      {
-        id: "4",
-        title: "Ghi chú meeting",
-        content: `#### Buổi họp ngày 20/8\n- Thảo luận về dự án mới\n- Phân công nhiệm vụ\n- Thống nhất deadline`,
-        createdAt: "2025-08-20T18:45:00Z",
-      },
-    ],
-  },
-];
-
-import { useEffect } from "react";
-
 // Helper function to extract plain text from HTML content
 const getPlainText = (html: string): string => {
   // Create a temporary div element to parse HTML
@@ -609,6 +581,22 @@ const getPlainText = (html: string): string => {
 };
 
 export default function NotesPage() {
+  // Theme colors - can be changed based on selected theme
+  const themeColors = {
+    primary: "blue-500",
+    primaryHover: "blue-600",
+    primaryLight: "blue-50",
+    primaryText: "blue-600",
+    primaryTextHover: "blue-700",
+    primaryBorder: "blue-100",
+    primaryGradient: "from-white to-blue-50",
+  };
+
+  // Helper function to generate theme-aware class names
+  const getThemeClass = (type: keyof typeof themeColors) => {
+    return themeColors[type];
+  };
+
   const coverImages = [
     "/peaceful-pink-sunset-landscape.png",
     "/soft-pink-abstract-pattern-for-personal-planning.png",
@@ -619,9 +607,11 @@ export default function NotesPage() {
 
   // Use deterministic initial state for SSR
   const [coverImage, setCoverImage] = useState(coverImages[0]);
-  const [notesTree, setNotesTree] = useState(initialNotesTree);
+  const [notesTree, setNotesTree] = useState<NotesTree[]>([]);
   const [selectedNote, setSelectedNote] = useState<any>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   type EditingNote = {
     id?: string;
     title: string;
@@ -638,6 +628,9 @@ export default function NotesPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAddFolderModal, setShowAddFolderModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [showDeleteFolderModal, setShowDeleteFolderModal] = useState<
+    string | null
+  >(null);
   const [editorMode, setEditorMode] = useState<"edit" | "preview">("edit");
 
   // Initialize TipTap editor with SSR compatibility
@@ -663,6 +656,23 @@ export default function NotesPage() {
   useEffect(() => {
     // On mount, pick a random cover image (client only)
     setCoverImage(coverImages[Math.floor(Math.random() * coverImages.length)]);
+
+    // Load notes tree from API
+    const loadNotesTree = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await getNotesTree();
+        setNotesTree(data);
+      } catch (err) {
+        console.error("Failed to load notes tree:", err);
+        setError("Failed to load notes. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadNotesTree();
   }, []);
 
   // Update editor content when editingNote changes
@@ -676,7 +686,7 @@ export default function NotesPage() {
   const totalFolders = notesTree.length;
   const totalNotes = notesTree.reduce((sum, f) => sum + f.children.length, 0);
 
-  // Flat notes with search
+  // Flat notes with search - handle both API search and local filtering
   const allNotes = notesTree
     .flatMap((folder) =>
       folder.children.map((note) => ({
@@ -688,7 +698,9 @@ export default function NotesPage() {
     .filter(
       (note) =>
         note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getPlainText(note.content)
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
         note.folder.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -698,16 +710,25 @@ export default function NotesPage() {
     setCoverImage(coverImages[idx]);
   };
 
-  const deleteNote = (noteId: string) => {
+  const deleteNote = async (noteId: string) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa ghi chú này?")) {
-      setNotesTree((prev) =>
-        prev.map((folder) => ({
-          ...folder,
-          children: folder.children.filter((note) => note.id !== noteId),
-        }))
-      );
-      if (selectedNote?.id === noteId) {
-        setSelectedNote(null);
+      try {
+        await deleteNoteAPI(noteId);
+
+        // Update local state
+        setNotesTree((prev) =>
+          prev.map((folder) => ({
+            ...folder,
+            children: folder.children.filter((note) => note.id !== noteId),
+          }))
+        );
+
+        if (selectedNote?.id === noteId) {
+          setSelectedNote(null);
+        }
+      } catch (err) {
+        console.error("Failed to delete note:", err);
+        alert("Failed to delete note. Please try again.");
       }
     }
   };
@@ -722,42 +743,81 @@ export default function NotesPage() {
     setIsEditMode(true);
   };
 
-  const saveNote = () => {
-    if (editingNote.id) {
-      // Update existing note
-      setNotesTree((prev) =>
-        prev.map((folder) => ({
-          ...folder,
-          children: folder.children.map((note) =>
-            note.id === editingNote.id
-              ? {
-                  ...note,
-                  title: editingNote.title,
-                  content: editingNote.content,
-                }
-              : note
-          ),
-        }))
-      );
-    } else {
-      // Add new note (generate id and createdAt on client only)
-      const newNote = {
-        id: `${Date.now()}-${Math.floor(Math.random() * 100000)}`,
-        title: editingNote.title,
-        content: editingNote.content,
-        createdAt: new Date().toISOString(),
-      };
-      setNotesTree((prev) =>
-        prev.map((folder) =>
-          folder.id === editingNote.folderId
-            ? { ...folder, children: [...folder.children, newNote] }
-            : folder
-        )
-      );
+  const saveNote = async () => {
+    if (!editingNote.title.trim() || !editingNote.content.trim()) {
+      alert("Please fill in both title and content.");
+      return;
     }
-    setIsEditMode(false);
-    setShowAddModal(false);
-    setEditingNote({ id: undefined, title: "", content: "", folderId: "" });
+
+    try {
+      if (editingNote.id) {
+        // Update existing note
+        const updateData: UpdateNoteRequest = {
+          title: editingNote.title,
+          content: editingNote.content,
+          folderId: editingNote.folderId,
+        };
+
+        const updatedNote = await updateNote(editingNote.id, updateData);
+
+        // Update local state
+        setNotesTree((prev) =>
+          prev.map((folder) => ({
+            ...folder,
+            children: folder.children.map((note) =>
+              note.id === editingNote.id
+                ? {
+                    id: updatedNote._id,
+                    title: updatedNote.title,
+                    content: updatedNote.content,
+                    tags: updatedNote.tags,
+                    isFavorite: updatedNote.isFavorite,
+                    lastViewedAt: updatedNote.lastViewedAt,
+                    createdAt: updatedNote.createdAt,
+                    updatedAt: updatedNote.updatedAt,
+                  }
+                : note
+            ),
+          }))
+        );
+      } else {
+        // Create new note
+        const noteData: CreateNoteRequest = {
+          title: editingNote.title,
+          content: editingNote.content,
+          folderId: editingNote.folderId,
+        };
+
+        const newNote = await createNote(noteData);
+
+        // Add to local state
+        const newNoteForTree = {
+          id: newNote._id,
+          title: newNote.title,
+          content: newNote.content,
+          tags: newNote.tags,
+          isFavorite: newNote.isFavorite,
+          lastViewedAt: newNote.lastViewedAt,
+          createdAt: newNote.createdAt,
+          updatedAt: newNote.updatedAt,
+        };
+
+        setNotesTree((prev) =>
+          prev.map((folder) =>
+            folder.id === editingNote.folderId
+              ? { ...folder, children: [newNoteForTree, ...folder.children] }
+              : folder
+          )
+        );
+      }
+
+      setIsEditMode(false);
+      setShowAddModal(false);
+      setEditingNote({ id: undefined, title: "", content: "", folderId: "" });
+    } catch (err) {
+      console.error("Failed to save note:", err);
+      alert("Failed to save note. Please try again.");
+    }
   };
 
   const addNewNote = (folderId: string) => {
@@ -766,17 +826,58 @@ export default function NotesPage() {
     setShowAddModal(true);
   };
 
-  const addNewFolder = () => {
+  const addNewFolder = async () => {
     if (newFolderName.trim()) {
-      // Generate id on client only
-      const newFolder = {
-        id: `folder-${Date.now()}-${Math.floor(Math.random() * 100000)}`,
-        label: newFolderName,
-        children: [],
-      };
-      setNotesTree((prev) => [...prev, newFolder]);
-      setNewFolderName("");
-      setShowAddFolderModal(false);
+      try {
+        const folderData: CreateNoteFolderRequest = {
+          label: newFolderName.trim(),
+          color: "#6B7280",
+          icon: "folder",
+        };
+
+        const newFolder = await createNoteFolder(folderData);
+
+        // Add to local state
+        const newTreeFolder: NotesTree = {
+          id: newFolder._id,
+          label: newFolder.label,
+          color: newFolder.color,
+          icon: newFolder.icon,
+          isDefault: newFolder.isDefault,
+          sortOrder: newFolder.sortOrder,
+          createdAt: newFolder.createdAt,
+          updatedAt: newFolder.updatedAt,
+          children: [],
+        };
+
+        setNotesTree((prev) => [newTreeFolder, ...prev]);
+        setNewFolderName("");
+        setShowAddFolderModal(false);
+      } catch (err) {
+        console.error("Failed to create folder:", err);
+        alert("Failed to create folder. Please try again.");
+      }
+    }
+  };
+
+  const deleteFolder = async (folderId: string) => {
+    try {
+      await deleteNoteFolder(folderId);
+
+      // Remove from local state
+      setNotesTree((prev) => prev.filter((f) => f.id !== folderId));
+      setShowDeleteFolderModal(null);
+
+      // If currently viewing a note from deleted folder, clear selection
+      if (selectedNote) {
+        const folderToDelete = notesTree.find((f) => f.id === folderId);
+        if (folderToDelete?.children.some((n) => n.id === selectedNote.id)) {
+          setSelectedNote(null);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to delete folder:", err);
+      alert("Failed to delete folder. Please try again.");
     }
   };
 
@@ -799,22 +900,25 @@ export default function NotesPage() {
           <input
             type="text"
             placeholder="Tìm kiếm ghi chú..."
-            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            disabled={isLoading}
           />
         </div>
         <div className="flex gap-3">
           <button
             onClick={() => setShowAddFolderModal(true)}
-            className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+            disabled={isLoading}
+            className="flex items-center gap-2 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <FolderPlus className="w-4 h-4" />
             <span className="hidden sm:inline">Thêm thư mục</span>
           </button>
           <button
             onClick={() => addNewNote(notesTree[0]?.id)}
-            className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+            disabled={isLoading || notesTree.length === 0}
+            className="flex items-center gap-2 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Thêm ghi chú</span>
@@ -822,157 +926,228 @@ export default function NotesPage() {
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-        <div className="bg-gradient-to-br from-white to-pink-50 border border-pink-100 shadow-lg rounded-lg p-6 text-center">
-          <Folder className="w-8 h-8 text-pink-500 mx-auto mb-2" />
-          <div className="text-3xl font-bold text-gray-800 mb-1">
-            {totalFolders}
+      {/* Loading and Error States */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mx-auto mb-4"></div>
+            <div className="text-pink-400 font-medium">Loading notes...</div>
           </div>
-          <div className="text-sm text-gray-600">Thư mục</div>
         </div>
-        <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg rounded-lg p-6 text-center">
-          <StickyNote className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-          <div className="text-3xl font-bold text-gray-800 mb-1">
-            {totalNotes}
-          </div>
-          <div className="text-sm text-gray-600">Ghi chú</div>
-        </div>
-        <div className="bg-gradient-to-br from-white to-green-50 border border-green-100 shadow-lg rounded-lg p-6 text-center">
-          <Calendar className="w-8 h-8 text-green-500 mx-auto mb-2" />
-          <div className="text-3xl font-bold text-gray-800 mb-1">
-            {notesTree[0]?.children.length || 0}
-          </div>
-          <div className="text-sm text-gray-600">Tài chính</div>
-        </div>
-        <div className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 shadow-lg rounded-lg p-6 text-center">
-          <FileText className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-          <div className="text-3xl font-bold text-gray-800 mb-1">
-            {notesTree[1]?.children.length || 0}
-          </div>
-          <div className="text-sm text-gray-600">Cá nhân</div>
-        </div>
-      </div>
+      )}
 
-      {/* Folders and Notes */}
-      <div className="space-y-8">
-        {notesTree.map((folder) => (
-          <div key={folder.id} className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg">
-                  <Folder className="w-5 h-5 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-800">
-                  {folder.label}
-                </h2>
-                <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                  {folder.children.length} ghi chú
-                </span>
+      {error && (
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center">
+            <div className="text-red-500 font-medium mb-2">{error}</div>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Content */}
+      {!isLoading && !error && (
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg rounded-lg p-6 text-center">
+              <Folder className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-gray-800 mb-1">
+                {totalFolders}
               </div>
+              <div className="text-sm text-gray-600">Thư mục</div>
+            </div>
+            <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg rounded-lg p-6 text-center">
+              <StickyNote className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-gray-800 mb-1">
+                {totalNotes}
+              </div>
+              <div className="text-sm text-gray-600">Ghi chú</div>
+            </div>
+            <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg rounded-lg p-6 text-center">
+              <Calendar className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-gray-800 mb-1">
+                {allNotes.filter((note) => note.isFavorite).length}
+              </div>
+              <div className="text-sm text-gray-600">Yêu thích</div>
+            </div>
+            <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg rounded-lg p-6 text-center">
+              <FileText className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-gray-800 mb-1">
+                {
+                  allNotes.filter((note) => {
+                    const noteDate = new Date(note.createdAt);
+                    const weekAgo = new Date();
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    return noteDate >= weekAgo;
+                  }).length
+                }
+              </div>
+              <div className="text-sm text-gray-600">Tuần này</div>
+            </div>
+          </div>
+
+          {/* Folders and Notes */}
+          <div className="space-y-8">
+            {notesTree.map((folder) => (
+              <div key={folder.id} className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500 rounded-lg">
+                      <Folder className="w-5 h-5 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      {folder.label}
+                    </h2>
+                    <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                      {folder.children.length} ghi chú
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => addNewNote(folder.id)}
+                      className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium px-3 py-1 hover:bg-blue-50 rounded-lg transition-all"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Thêm ghi chú
+                    </button>
+                    {!folder.isDefault && (
+                      <button
+                        onClick={() => setShowDeleteFolderModal(folder.id)}
+                        className="flex items-center gap-1 text-red-600 hover:text-red-700 text-sm font-medium px-3 py-1 hover:bg-red-50 rounded-lg transition-all"
+                        title="Xóa thư mục"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {folder.children
+                    .filter(
+                      (note) =>
+                        note.title
+                          .toLowerCase()
+                          .includes(searchTerm.toLowerCase()) ||
+                        getPlainText(note.content)
+                          .toLowerCase()
+                          .includes(searchTerm.toLowerCase())
+                    )
+                    .map((note) => (
+                      <div
+                        key={note.id}
+                        className="bg-white border border-gray-100 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group rounded-lg overflow-hidden"
+                      >
+                        <div className="bg-gradient-to-r from-gray-50 to-white px-6 py-4 border-b border-gray-100">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 flex-1">
+                              <StickyNote className="w-5 h-5 text-blue-400" />
+                              <h3 className="text-lg font-bold text-gray-900 truncate">
+                                {note.title}
+                              </h3>
+                            </div>
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() =>
+                                  editNote({ ...note, folderId: folder.id })
+                                }
+                                className="p-1 text-blue-500 hover:bg-blue-50 rounded transition-all"
+                                title="Chỉnh sửa"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => deleteNote(note.id)}
+                                className="p-1 text-red-500 hover:bg-red-50 rounded transition-all"
+                                title="Xóa"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="px-6 py-4 flex flex-col">
+                          <div className="text-xs text-blue-500 mb-3 font-semibold uppercase tracking-wide flex items-center gap-1">
+                            <Layers className="w-3 h-3" />
+                            {folder.label}
+                          </div>
+                          <div className="text-gray-700 text-sm mb-4 min-h-[80px] line-clamp-4">
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html:
+                                  getPlainText(note.content).length > 120
+                                    ? `${getPlainText(note.content).substring(
+                                        0,
+                                        120
+                                      )}...`
+                                    : note.content,
+                              }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
+                            <span className="text-xs text-gray-400 flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {new Date(note.createdAt).toLocaleDateString(
+                                "vi-VN"
+                              )}
+                            </span>
+                            <button
+                              onClick={() =>
+                                viewNoteDetail({
+                                  ...note,
+                                  folder: folder.label,
+                                })
+                              }
+                              className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-xs font-medium px-2 py-1 hover:bg-blue-50 rounded transition-all"
+                            >
+                              <FileText className="w-3 h-3" />
+                              Xem chi tiết
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Empty State */}
+          {!isLoading && !error && allNotes.length === 0 && searchTerm && (
+            <div className="text-center py-16">
+              <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                Không tìm thấy kết quả
+              </h3>
+              <p className="text-gray-500">Thử tìm kiếm với từ khóa khác</p>
+            </div>
+          )}
+
+          {/* Empty State - No folders */}
+          {!isLoading && !error && notesTree.length === 0 && (
+            <div className="text-center py-16">
+              <Folder className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                Chưa có thư mục nào
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Tạo thư mục đầu tiên để bắt đầu ghi chú
+              </p>
               <button
-                onClick={() => addNewNote(folder.id)}
-                className="flex items-center gap-1 text-pink-600 hover:text-pink-700 text-sm font-medium px-3 py-1 hover:bg-pink-50 rounded-lg transition-all"
+                onClick={() => setShowAddFolderModal(true)}
+                className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
               >
-                <Plus className="w-4 h-4" />
-                Thêm ghi chú
+                <FolderPlus className="w-5 h-5 inline mr-2" />
+                Tạo thư mục
               </button>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {folder.children
-                .filter(
-                  (note) =>
-                    note.title
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase()) ||
-                    getPlainText(note.content)
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
-                )
-                .map((note) => (
-                  <div
-                    key={note.id}
-                    className="bg-white border border-gray-100 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group rounded-lg overflow-hidden"
-                  >
-                    <div className="bg-gradient-to-r from-gray-50 to-white px-6 py-4 border-b border-gray-100">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 flex-1">
-                          <StickyNote className="w-5 h-5 text-pink-400" />
-                          <h3 className="text-lg font-bold text-gray-900 truncate">
-                            {note.title}
-                          </h3>
-                        </div>
-                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() =>
-                              editNote({ ...note, folderId: folder.id })
-                            }
-                            className="p-1 text-blue-500 hover:bg-blue-50 rounded transition-all"
-                            title="Chỉnh sửa"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => deleteNote(note.id)}
-                            className="p-1 text-red-500 hover:bg-red-50 rounded transition-all"
-                            title="Xóa"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="px-6 py-4 flex flex-col">
-                      <div className="text-xs text-pink-500 mb-3 font-semibold uppercase tracking-wide flex items-center gap-1">
-                        <Layers className="w-3 h-3" />
-                        {folder.label}
-                      </div>
-                      <div className="text-gray-700 text-sm mb-4 min-h-[80px] line-clamp-4">
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html:
-                              getPlainText(note.content).length > 120
-                                ? `${getPlainText(note.content).substring(
-                                    0,
-                                    120
-                                  )}...`
-                                : note.content,
-                          }}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {new Date(note.createdAt).toLocaleDateString("vi-VN")}
-                        </span>
-                        <button
-                          onClick={() =>
-                            viewNoteDetail({ ...note, folder: folder.label })
-                          }
-                          className="flex items-center gap-1 text-pink-600 hover:text-pink-700 text-xs font-medium px-2 py-1 hover:bg-pink-50 rounded transition-all"
-                        >
-                          <FileText className="w-3 h-3" />
-                          Xem chi tiết
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {allNotes.length === 0 && searchTerm && (
-        <div className="text-center py-16">
-          <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">
-            Không tìm thấy kết quả
-          </h3>
-          <p className="text-gray-500">Thử tìm kiếm với từ khóa khác</p>
-        </div>
+          )}
+        </>
       )}
 
       {/* Enhanced Rich Text Editor Modal */}
@@ -1260,9 +1435,12 @@ export default function NotesPage() {
               <button
                 onClick={saveNote}
                 disabled={
-                  !editingNote.title.trim() || !editingNote.content.trim()
+                  !editingNote.title.trim() ||
+                  !editingNote.content.trim() ||
+                  !editingNote.folderId ||
+                  isLoading
                 }
-                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Save className="w-4 h-4" />
                 {editingNote.id ? "Cập nhật" : "Thêm mới"}
@@ -1312,8 +1490,8 @@ export default function NotesPage() {
               </button>
               <button
                 onClick={addNewFolder}
-                disabled={!newFolderName.trim()}
-                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                disabled={!newFolderName.trim() || isLoading}
+                className="flex items-center gap-2 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FolderPlus className="w-4 h-4" />
                 Thêm thư mục
@@ -1374,9 +1552,52 @@ export default function NotesPage() {
               </button>
               <button
                 onClick={() => setSelectedNote(null)}
-                className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:shadow-lg transition-all"
+                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg hover:shadow-lg transition-all"
               >
                 Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Folder Confirmation Modal */}
+      {showDeleteFolderModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-red-700">
+                Xác nhận xóa thư mục
+              </h3>
+              <button
+                onClick={() => setShowDeleteFolderModal(null)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="text-gray-600 mb-4">
+                Bạn có chắc chắn muốn xóa thư mục này? Tất cả ghi chú bên trong
+                sẽ bị xóa vĩnh viễn.
+              </div>
+              <div className="text-sm text-gray-500">
+                Hành động này không thể hoàn tác.
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setShowDeleteFolderModal(null)}
+                className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={() => deleteFolder(showDeleteFolderModal)}
+                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:shadow-lg transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+                Xóa thư mục
               </button>
             </div>
           </div>

@@ -30,61 +30,22 @@ import {
   getUser,
   type Quote,
   type User,
-  getTasksByDay,
-  toggleTaskCompletion as apiToggleTaskCompletion,
-  getStatistics,
   getTodayStatistics,
   getUserPreferences,
   updateUserPreferences,
-  type DayTasks,
-  type Task,
   type Statistics,
   type UserPreferences,
+} from "@/lib/user-service";
+import {
+  getTasksByDay,
+  toggleTaskCompletion as apiToggleTaskCompletion,
+  type DayTasks,
   getDayNameFromIndex,
   getCurrentDayIndex,
-} from "@/lib/service";
+} from "@/lib/task-service";
+import { COLOR_THEME, DAY_OF_WEEK } from "@/constants";
 
-const colorThemes = [
-  {
-    name: "Blue",
-    value: "blue",
-    gradient: "from-gray-50 to-blue-50",
-    primary: "blue",
-    cardBg: "bg-white border border-gray-200",
-    text: "text-gray-900",
-    textSecondary: "text-gray-600",
-    textMuted: "text-gray-500",
-    button: "bg-blue-600 text-white hover:bg-blue-700",
-    accent: "text-blue-600",
-    progressBg: "bg-blue-600",
-  },
-  {
-    name: "Green",
-    value: "green",
-    gradient: "from-gray-50 to-green-50",
-    primary: "green",
-    cardBg: "bg-white border border-gray-200",
-    text: "text-gray-900",
-    textSecondary: "text-gray-600",
-    textMuted: "text-gray-500",
-    button: "bg-green-600 text-white hover:bg-green-700",
-    accent: "text-green-600",
-    progressBg: "bg-green-600",
-  },
-  {
-    name: "Purple",
-    value: "purple",
-    gradient: "from-gray-50 to-purple-50",
-    primary: "purple",
-    cardBg: "bg-white border border-gray-200",
-    text: "text-gray-900",
-    textSecondary: "text-gray-600",
-    textMuted: "text-gray-500",
-    button: "bg-purple-600 text-white hover:bg-purple-700",
-    accent: "text-purple-600",
-    progressBg: "bg-purple-600",
-  },
-];
+const colorThemes = COLOR_THEME;
 
 export default function ThinPlanPage() {
   const coverImages = [
@@ -135,15 +96,7 @@ export default function ThinPlanPage() {
     const targetDate = new Date(monday);
     targetDate.setDate(monday.getDate() + dayIndex);
 
-    const dayNames = [
-      "Thứ Hai",
-      "Thứ Ba",
-      "Thứ Tư",
-      "Thứ Năm",
-      "Thứ Sáu",
-      "Thứ Bảy",
-      "Chủ Nhật",
-    ];
+    const dayNames = DAY_OF_WEEK;
     const dayName = dayNames[dayIndex];
     const dateString = targetDate.toLocaleDateString("vi-VN", {
       day: "2-digit",
@@ -895,156 +848,6 @@ export default function ThinPlanPage() {
         {/* Sidebar */}
         <div className="lg:col-span-1">
           <div className="lg:sticky lg:top-8 space-y-6">
-            {/* User Profile Card */}
-            <Card className={currentTheme.cardBg}>
-              <CardContent className="p-6">
-                {isLoadingUser ? (
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 animate-pulse"></div>
-                    <div className="h-4 bg-gray-200 rounded w-32 mx-auto mb-2 animate-pulse"></div>
-                    <div className="h-3 bg-gray-200 rounded w-24 mx-auto animate-pulse"></div>
-                  </div>
-                ) : user ? (
-                  <div className="text-center">
-                    <Avatar className="w-16 h-16 mx-auto mb-4">
-                      <AvatarImage
-                        src={user.avatar || "/friendly-person-avatar.png"}
-                      />
-                      <AvatarFallback className="text-lg bg-blue-500 text-white">
-                        {user.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <h2 className="text-lg font-semibold text-gray-900 mb-1">
-                      {user.name}
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4">{user.role}</p>
-
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Calendar className="w-4 h-4" />
-                        <span>Tham gia: 25/08/2025</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Clock className="w-4 h-4" />
-                        <span>Streak: {user.streak} ngày</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Link href="/goals" className="block">
-                        <Button variant="outline" className="w-full">
-                          <Goal className="w-4 h-4 mr-2" />
-                          Mục tiêu
-                        </Button>
-                      </Link>
-                      <Link href="/finance" className="block">
-                        <Button variant="outline" className="w-full">
-                          <Wallet className="w-4 h-4 mr-2" />
-                          Tài chính
-                        </Button>
-                      </Link>
-                      <Link href="/notes" className="block">
-                        <Button variant="outline" className="w-full">
-                          <BookOpen className="w-4 h-4 mr-2" />
-                          Ghi chú
-                        </Button>
-                      </Link>
-                      <Link href="/admin" className="block">
-                        <Button className={`w-full ${currentTheme.button}`}>
-                          <Settings className="w-4 h-4 mr-2" />
-                          Quản lý
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center text-gray-500">
-                    Không thể tải thông tin người dùng
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Theme Selector */}
-            <Card className={currentTheme.cardBg}>
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg text-gray-900">
-                  <Palette className="w-5 h-5 mr-2 inline" />
-                  Chủ đề
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 gap-3">
-                  {colorThemes.map((theme) => (
-                    <button
-                      key={theme.value}
-                      onClick={async () => {
-                        setCurrentTheme(theme);
-                        try {
-                          await updateUserPreferences({ theme: theme.value });
-                        } catch (error) {
-                          console.error(
-                            "Failed to save theme preference:",
-                            error
-                          );
-                        }
-                      }}
-                      className={`w-full h-10 rounded-lg border-2 transition-all ${
-                        currentTheme.value === theme.value
-                          ? "border-gray-900 scale-105"
-                          : "border-gray-300 hover:border-gray-400"
-                      }`}
-                      style={{
-                        background:
-                          theme.value === "blue"
-                            ? "#3b82f6"
-                            : theme.value === "green"
-                            ? "#10b981"
-                            : "#8b5cf6",
-                      }}
-                      title={theme.name}
-                    />
-                  ))}
-                </div>
-                <p className="text-sm text-gray-500 mt-3 text-center">
-                  Hiện tại: {currentTheme.name}
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Digital Clock */}
-            <Card className={currentTheme.cardBg}>
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg text-gray-900">
-                  <Timer className="w-5 h-5 mr-2 inline" />
-                  Thời gian
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center">
-                  <div className="text-2xl font-mono font-bold text-gray-900 mb-2">
-                    {formatTime(currentTime)}
-                  </div>
-                  <div className="text-sm text-gray-600 mb-3">
-                    {formatDate(currentTime)}
-                  </div>
-                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                    {isDaytime ? (
-                      <>
-                        <Sun className="w-4 h-4" />
-                        <span>Ban ngày</span>
-                      </>
-                    ) : (
-                      <>
-                        <Moon className="w-4 h-4" />
-                        <span>Ban đêm</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Quick Stats Card */}
             <Card className={currentTheme.cardBg}>
               <CardHeader className="pb-4">

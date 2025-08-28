@@ -40,18 +40,20 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import {
-  getQuotes,
-  getUser,
   getGoals,
   updateGoal,
-  getUserPreferences,
-  updateUserPreferences,
-  type Quote,
-  type User,
   type Goal as GoalType,
   type SubGoal,
+} from "@/lib/goal-service";
+import {
+  getUserPreferences,
+  updateUserPreferences,
+  getQuotes,
+  getUser,
+  type Quote,
+  type User,
   type UserPreferences,
-} from "@/lib/service";
+} from "@/lib/user-service";
 
 const colorThemes = [
   {
@@ -432,441 +434,328 @@ export default function GoalsPage() {
           </Card>
 
           {/* Goals Tree View */}
-          {isLoadingGoals ? (
-            <div className="space-y-4">
-              {[...Array(3)].map((_, i) => (
-                <Card key={i} className={currentTheme.cardBg}>
-                  <CardContent className="p-6">
-                    <div className="space-y-3">
-                      <div className="h-5 bg-gray-200 rounded w-1/3"></div>
-                      <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : goals.length === 0 ? (
-            <Card className={currentTheme.cardBg}>
-              <CardContent className="p-12 text-center">
-                <div className="relative">
-                  <div className="w-24 h-24 mx-auto mb-6 relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                      <Target className="w-12 h-12 text-gray-400" />
-                    </div>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                      <Plus className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                    Chưa có mục tiêu nào
-                  </h3>
-                  <p className="text-gray-500 mb-6">
-                    Hãy tạo mục tiêu đầu tiên để bắt đầu xây dựng cây mục tiêu
-                    của bạn!
-                  </p>
-                  <Link href="/admin/goals">
-                    <Button className={currentTheme.button}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Tạo mục tiêu đầu tiên
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-8">
-              {goals.map((goal, goalIndex) => (
-                <div key={goal._id} className="relative">
-                  {/* Tree structure */}
-                  <div className="relative">
-                    {/* Main Goal Card */}
-                    <Card
-                      className={`${currentTheme.cardBg} shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500`}
-                    >
+          {(() => {
+            if (isLoadingGoals) {
+              return (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <Card key={`loading-${i}`} className={currentTheme.cardBg}>
                       <CardContent className="p-6">
-                        <div className="flex items-start gap-4">
-                          {/* Tree Icon */}
-                          <div className="flex-shrink-0 mt-1">
-                            <div className="relative">
-                              <div
-                                className={`w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg`}
-                              >
-                                <Target className="w-5 h-5 text-white" />
-                              </div>
-                              {goal.subGoals && goal.subGoals.length > 0 && (
-                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
-                                  <GitBranch className="w-3 h-3 text-white" />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Goal Content */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-2">
-                                  <h3 className="text-xl font-bold text-gray-900 truncate">
-                                    {goal.title}
-                                  </h3>
-                                  {goal.subGoals &&
-                                    goal.subGoals.length > 0 && (
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() =>
-                                          toggleGoalExpansion(goal._id)
-                                        }
-                                        className="p-1 h-auto rounded-full hover:bg-blue-100"
-                                      >
-                                        {expandedGoals.has(goal._id) ? (
-                                          <ChevronDown className="w-4 h-4 text-blue-600" />
-                                        ) : (
-                                          <ChevronRight className="w-4 h-4 text-blue-600" />
-                                        )}
-                                      </Button>
-                                    )}
-                                </div>
-                                <p className="text-gray-600 mb-4 leading-relaxed">
-                                  {goal.description}
-                                </p>
-
-                                {/* Progress Section */}
-                                {goal.subGoals && goal.subGoals.length > 0 && (
-                                  <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                                    <div className="flex items-center justify-between mb-2">
-                                      <span className="text-sm font-medium text-gray-700">
-                                        Tiến độ hoàn thành
-                                      </span>
-                                      <span className="text-sm font-bold text-gray-900">
-                                        {getGoalProgress(goal)}%
-                                        <span className="text-gray-500 ml-1">
-                                          (
-                                          {
-                                            goal.subGoals.filter(
-                                              (sg) => sg.status === "Completed"
-                                            ).length
-                                          }
-                                          /{goal.subGoals.length})
-                                        </span>
-                                      </span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                                      <div
-                                        className={`h-3 rounded-full transition-all duration-500 ease-out bg-gradient-to-r from-blue-500 to-blue-600`}
-                                        style={{
-                                          width: `${getGoalProgress(goal)}%`,
-                                        }}
-                                      />
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Badges */}
-                                <div className="flex flex-wrap gap-2">
-                                  <Badge
-                                    className={getPriorityColor(goal.priority)}
-                                  >
-                                    {
-                                      priorityOptions.find(
-                                        (p) => p.value === goal.priority
-                                      )?.icon
-                                    }{" "}
-                                    {
-                                      priorityOptions.find(
-                                        (p) => p.value === goal.priority
-                                      )?.label
-                                    }
-                                  </Badge>
-                                  <Badge
-                                    className={getStatusColor(goal.status)}
-                                  >
-                                    {
-                                      statusOptions.find(
-                                        (s) => s.value === goal.status
-                                      )?.icon
-                                    }{" "}
-                                    {
-                                      statusOptions.find(
-                                        (s) => s.value === goal.status
-                                      )?.label
-                                    }
-                                  </Badge>
-                                  {goal.category && (
-                                    <Badge
-                                      variant="outline"
-                                      className="border-gray-300"
-                                    >
-                                      <BookOpen className="w-3 h-3 mr-1" />
-                                      {goal.category}
-                                    </Badge>
-                                  )}
-                                  {goal.targetDate && (
-                                    <Badge
-                                      variant="outline"
-                                      className="border-blue-300 text-blue-700"
-                                    >
-                                      <Calendar className="w-3 h-3 mr-1" />
-                                      {new Date(
-                                        goal.targetDate
-                                      ).toLocaleDateString("vi-VN")}
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                        <div className="space-y-3">
+                          <div className="h-5 bg-gray-200 rounded w-1/3"></div>
+                          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
                         </div>
                       </CardContent>
                     </Card>
+                  ))}
+                </div>
+              );
+            }
 
-                    {/* Sub-goals Tree */}
-                    {expandedGoals.has(goal._id) &&
-                      goal.subGoals &&
-                      goal.subGoals.length > 0 && (
-                        <div className="relative mt-4 ml-8">
-                          {/* Vertical Line */}
-                          <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-300 to-gray-300"></div>
+            if (goals.length === 0) {
+              return (
+                <Card className={currentTheme.cardBg}>
+                  <CardContent className="p-12 text-center">
+                    <div className="relative">
+                      <div className="w-24 h-24 mx-auto mb-6 relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                          <Target className="w-12 h-12 text-gray-400" />
+                        </div>
+                        <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                          <Plus className="w-4 h-4 text-white" />
+                        </div>
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                        Chưa có mục tiêu nào
+                      </h3>
+                      <p className="text-gray-500 mb-6">
+                        Hãy tạo mục tiêu đầu tiên để bắt đầu xây dựng cây mục
+                        tiêu của bạn!
+                      </p>
+                      <Link href="/admin/goals">
+                        <Button className={currentTheme.button}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Tạo mục tiêu đầu tiên
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            }
 
-                          <div className="space-y-3">
-                            {goal.subGoals.map((subGoal, index) => (
-                              <div key={index} className="relative">
-                                {/* Horizontal Line */}
-                                <div className="absolute left-2 top-6 w-6 h-0.5 bg-gray-300"></div>
+            return (
+              <div className="space-y-8">
+                {goals.map((goal, goalIndex) => (
+                  <div key={goal._id} className="relative">
+                    {/* Tree structure */}
+                    <div className="relative">
+                      {/* Main Goal Card */}
+                      <Card
+                        className={`${currentTheme.cardBg} shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500`}
+                      >
+                        <CardContent className="p-6">
+                          <div className="flex items-start gap-4">
+                            {/* Tree Icon */}
+                            <div className="flex-shrink-0 mt-1">
+                              <div className="relative">
+                                <div
+                                  className={`w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg`}
+                                >
+                                  <Target className="w-5 h-5 text-white" />
+                                </div>
+                                {goal.subGoals && goal.subGoals.length > 0 && (
+                                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
+                                    <GitBranch className="w-3 h-3 text-white" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
 
-                                {/* Sub-goal Card */}
-                                <div className="ml-8">
-                                  <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                                    <CardContent className="p-4">
-                                      <div className="flex items-start gap-3">
-                                        {/* Sub-goal Status Icon */}
-                                        <div className="flex-shrink-0 mt-0.5">
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() =>
-                                              updateSubGoal(goal._id, index, {
-                                                ...subGoal,
-                                                status:
-                                                  subGoal.status === "Completed"
-                                                    ? "Not Started"
-                                                    : "Completed",
-                                              })
-                                            }
-                                            className="p-1 h-auto rounded-full hover:bg-green-100"
-                                          >
-                                            {subGoal.status === "Completed" ? (
-                                              <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                                                <CheckCircle className="w-4 h-4 text-white" />
-                                              </div>
-                                            ) : (
-                                              <div className="w-6 h-6 border-2 border-gray-300 rounded-full flex items-center justify-center hover:border-green-400 transition-colors">
-                                                <Circle className="w-4 h-4 text-gray-400" />
-                                              </div>
-                                            )}
-                                          </Button>
-                                        </div>
+                            {/* Goal Content */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <h3 className="text-xl font-bold text-gray-900 truncate">
+                                      {goal.title}
+                                    </h3>
+                                    {goal.subGoals &&
+                                      goal.subGoals.length > 0 && (
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() =>
+                                            toggleGoalExpansion(goal._id)
+                                          }
+                                          className="p-1 h-auto rounded-full hover:bg-blue-100"
+                                        >
+                                          {expandedGoals.has(goal._id) ? (
+                                            <ChevronDown className="w-4 h-4 text-blue-600" />
+                                          ) : (
+                                            <ChevronRight className="w-4 h-4 text-blue-600" />
+                                          )}
+                                        </Button>
+                                      )}
+                                  </div>
+                                  <p className="text-gray-600 mb-4 leading-relaxed">
+                                    {goal.description}
+                                  </p>
 
-                                        {/* Sub-goal Content */}
-                                        <div className="flex-1 min-w-0">
-                                          <div className="flex items-center gap-2 mb-1">
-                                            <ArrowRight className="w-3 h-3 text-gray-400" />
-                                            <span
-                                              className={`font-medium ${
-                                                subGoal.status === "Completed"
-                                                  ? "line-through text-gray-500"
-                                                  : "text-gray-900"
-                                              }`}
-                                            >
-                                              {subGoal.title}
-                                            </span>
-                                            <Badge
-                                              className={getStatusColor(
-                                                subGoal.status
-                                              )}
-                                              variant="secondary"
-                                            >
+                                  {/* Progress Section */}
+                                  {goal.subGoals &&
+                                    goal.subGoals.length > 0 && (
+                                      <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <span className="text-sm font-medium text-gray-700">
+                                            Tiến độ hoàn thành
+                                          </span>
+                                          <span className="text-sm font-bold text-gray-900">
+                                            {getGoalProgress(goal)}%
+                                            <span className="text-gray-500 ml-1">
+                                              (
                                               {
-                                                statusOptions.find(
-                                                  (s) =>
-                                                    s.value === subGoal.status
-                                                )?.icon
+                                                goal.subGoals.filter(
+                                                  (sg) =>
+                                                    sg.status === "Completed"
+                                                ).length
                                               }
-                                            </Badge>
-                                          </div>
-
-                                          {subGoal.description && (
-                                            <p className="text-sm text-gray-600 mb-2 ml-5">
-                                              {subGoal.description}
-                                            </p>
-                                          )}
-
-                                          {subGoal.targetDate && (
-                                            <div className="flex items-center gap-1 ml-5">
-                                              <Calendar className="w-3 h-3 text-gray-400" />
-                                              <span className="text-xs text-gray-500">
-                                                Hạn:{" "}
-                                                {new Date(
-                                                  subGoal.targetDate
-                                                ).toLocaleDateString("vi-VN")}
-                                              </span>
-                                            </div>
-                                          )}
+                                              /{goal.subGoals.length})
+                                            </span>
+                                          </span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                                          <div
+                                            className={`h-3 rounded-full transition-all duration-500 ease-out bg-gradient-to-r from-blue-500 to-blue-600`}
+                                            style={{
+                                              width: `${getGoalProgress(
+                                                goal
+                                              )}%`,
+                                            }}
+                                          />
                                         </div>
                                       </div>
-                                    </CardContent>
-                                  </Card>
+                                    )}
+
+                                  {/* Badges */}
+                                  <div className="flex flex-wrap gap-2">
+                                    <Badge
+                                      className={getPriorityColor(
+                                        goal.priority
+                                      )}
+                                    >
+                                      {
+                                        priorityOptions.find(
+                                          (p) => p.value === goal.priority
+                                        )?.icon
+                                      }{" "}
+                                      {
+                                        priorityOptions.find(
+                                          (p) => p.value === goal.priority
+                                        )?.label
+                                      }
+                                    </Badge>
+                                    <Badge
+                                      className={getStatusColor(goal.status)}
+                                    >
+                                      {
+                                        statusOptions.find(
+                                          (s) => s.value === goal.status
+                                        )?.icon
+                                      }{" "}
+                                      {
+                                        statusOptions.find(
+                                          (s) => s.value === goal.status
+                                        )?.label
+                                      }
+                                    </Badge>
+                                    {goal.category && (
+                                      <Badge
+                                        variant="outline"
+                                        className="border-gray-300"
+                                      >
+                                        <BookOpen className="w-3 h-3 mr-1" />
+                                        {goal.category}
+                                      </Badge>
+                                    )}
+                                    {goal.targetDate && (
+                                      <Badge
+                                        variant="outline"
+                                        className="border-blue-300 text-blue-700"
+                                      >
+                                        <Calendar className="w-3 h-3 mr-1" />
+                                        {new Date(
+                                          goal.targetDate
+                                        ).toLocaleDateString("vi-VN")}
+                                      </Badge>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        </CardContent>
+                      </Card>
+
+                      {/* Sub-goals Tree */}
+                      {expandedGoals.has(goal._id) &&
+                        goal.subGoals &&
+                        goal.subGoals.length > 0 && (
+                          <div className="relative mt-4 ml-8">
+                            {/* Vertical Line */}
+                            <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-300 to-gray-300"></div>
+
+                            <div className="space-y-3">
+                              {goal.subGoals.map((subGoal, index) => (
+                                <div
+                                  key={`${goal._id}-subgoal-${index}`}
+                                  className="relative"
+                                >
+                                  {/* Horizontal Line */}
+                                  <div className="absolute left-2 top-6 w-6 h-0.5 bg-gray-300"></div>
+
+                                  {/* Sub-goal Card */}
+                                  <div className="ml-8">
+                                    <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                                      <CardContent className="p-4">
+                                        <div className="flex items-start gap-3">
+                                          {/* Sub-goal Status Icon */}
+                                          <div className="flex-shrink-0 mt-0.5">
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              onClick={() =>
+                                                updateSubGoal(goal._id, index, {
+                                                  ...subGoal,
+                                                  status:
+                                                    subGoal.status ===
+                                                    "Completed"
+                                                      ? "Not Started"
+                                                      : "Completed",
+                                                })
+                                              }
+                                              className="p-1 h-auto rounded-full hover:bg-green-100"
+                                            >
+                                              {subGoal.status ===
+                                              "Completed" ? (
+                                                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                                  <CheckCircle className="w-4 h-4 text-white" />
+                                                </div>
+                                              ) : (
+                                                <div className="w-6 h-6 border-2 border-gray-300 rounded-full flex items-center justify-center hover:border-green-400 transition-colors">
+                                                  <Circle className="w-4 h-4 text-gray-400" />
+                                                </div>
+                                              )}
+                                            </Button>
+                                          </div>
+
+                                          {/* Sub-goal Content */}
+                                          <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <ArrowRight className="w-3 h-3 text-gray-400" />
+                                              <span
+                                                className={`font-medium ${
+                                                  subGoal.status === "Completed"
+                                                    ? "line-through text-gray-500"
+                                                    : "text-gray-900"
+                                                }`}
+                                              >
+                                                {subGoal.title}
+                                              </span>
+                                              <Badge
+                                                className={getStatusColor(
+                                                  subGoal.status
+                                                )}
+                                                variant="secondary"
+                                              >
+                                                {
+                                                  statusOptions.find(
+                                                    (s) =>
+                                                      s.value === subGoal.status
+                                                  )?.icon
+                                                }
+                                              </Badge>
+                                            </div>
+
+                                            {subGoal.description && (
+                                              <p className="text-sm text-gray-600 mb-2 ml-5">
+                                                {subGoal.description}
+                                              </p>
+                                            )}
+
+                                            {subGoal.targetDate && (
+                                              <div className="flex items-center gap-1 ml-5">
+                                                <Calendar className="w-3 h-3 text-gray-400" />
+                                                <span className="text-xs text-gray-500">
+                                                  Hạn:{" "}
+                                                  {new Date(
+                                                    subGoal.targetDate
+                                                  ).toLocaleDateString("vi-VN")}
+                                                </span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </CardContent>
+                                    </Card>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Sidebar */}
         <div className="lg:col-span-1">
-          <div className="lg:sticky lg:top-8 space-y-6">
-            {/* User Profile Card */}
-            <Card className={currentTheme.cardBg}>
-              <CardContent className="p-6">
-                {isLoadingUser ? (
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4"></div>
-                    <div className="h-4 bg-gray-200 rounded w-32 mx-auto mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-24 mx-auto"></div>
-                  </div>
-                ) : user ? (
-                  <div className="text-center">
-                    <Avatar className="w-16 h-16 mx-auto mb-4">
-                      <AvatarImage
-                        src={user.avatar || "/friendly-person-avatar.png"}
-                      />
-                      <AvatarFallback className="text-lg">
-                        {user.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <h2 className="text-lg font-semibold text-gray-900 mb-1">
-                      {user.name}
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4">{user.role}</p>
-
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Target className="w-4 h-4" />
-                        <span>Mục tiêu: {user.goal}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Clock className="w-4 h-4" />
-                        <span>Streak: {user.streak} ngày</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Link href="/" className="block">
-                        <Button variant="outline" className="w-full">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          Kế hoạch hàng ngày
-                        </Button>
-                      </Link>
-                      <Link href="/admin" className="block">
-                        <Button className={`w-full ${currentTheme.button}`}>
-                          <Settings className="w-4 h-4 mr-2" />
-                          Quản lý
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center text-gray-500">
-                    Không thể tải thông tin người dùng
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Theme Selector */}
-            <Card className={currentTheme.cardBg}>
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg text-gray-900">Chủ đề</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 gap-3">
-                  {colorThemes.map((theme) => (
-                    <button
-                      key={theme.value}
-                      onClick={async () => {
-                        setCurrentTheme(theme);
-                        try {
-                          await updateUserPreferences({ theme: theme.value });
-                        } catch (error) {
-                          console.error(
-                            "Failed to save theme preference:",
-                            error
-                          );
-                        }
-                      }}
-                      className={`w-full h-10 rounded-lg border-2 transition-all ${
-                        currentTheme.value === theme.value
-                          ? "border-gray-900 scale-105"
-                          : "border-gray-300 hover:border-gray-400"
-                      }`}
-                      style={{
-                        background:
-                          theme.value === "blue"
-                            ? "#3b82f6"
-                            : theme.value === "green"
-                            ? "#10b981"
-                            : "#8b5cf6",
-                      }}
-                      title={theme.name}
-                    />
-                  ))}
-                </div>
-                <p className="text-sm text-gray-500 mt-3 text-center">
-                  Hiện tại: {currentTheme.name}
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Clock */}
-            <Card className={currentTheme.cardBg}>
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg text-gray-900">
-                  Thời gian
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center">
-                  <div className="text-2xl font-mono font-bold text-gray-900 mb-2">
-                    {formatTime(currentTime)}
-                  </div>
-                  <div className="text-sm text-gray-600 mb-3">
-                    {formatDate(currentTime)}
-                  </div>
-                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                    {isDaytime ? (
-                      <>
-                        <Sun className="w-4 h-4" />
-                        <span>Ban ngày</span>
-                      </>
-                    ) : (
-                      <>
-                        <Moon className="w-4 h-4" />
-                        <span>Ban đêm</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <div className="lg:sticky lg:top-8 space-y-6"></div>
         </div>
       </div>
     </UserLayout>

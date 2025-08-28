@@ -19,7 +19,7 @@ import {
   addQuote,
   deleteQuote,
   type Quote as QuoteType,
-} from "@/lib/service";
+} from "@/lib/user-service";
 
 export default function QuotesAdminPage() {
   const [quotes, setQuotes] = useState<QuoteType[]>([]);

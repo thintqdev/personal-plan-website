@@ -33,7 +33,7 @@ import {
   type Task,
   type CreateTaskRequest,
   type UpdateTaskRequest,
-} from "@/lib/service";
+} from "@/lib/task-service";
 
 export default function AdminTasksPage() {
   const [isMounted, setIsMounted] = useState(false);
