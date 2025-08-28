@@ -86,7 +86,7 @@ export default function AdminDashboardPage() {
             </h1>
           </div>
           <p className="text-gray-600">Tổng quan và quản lý toàn bộ hệ thống</p>
-          <Link href="/" className="inline-block mt-4">
+          <Link href="/tasks" className="inline-block mt-4">
             <Button
               variant="outline"
               className="text-blue-600 border-blue-300 hover:bg-blue-50"
@@ -243,10 +243,6 @@ export default function AdminDashboardPage() {
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <p className="text-gray-600 text-sm">Tên</p>
                   <p className="font-semibold text-gray-900">{user.name}</p>
-                </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <p className="text-gray-600 text-sm">Vai trò</p>
-                  <p className="font-semibold text-gray-900">{user.role}</p>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <p className="text-gray-600 text-sm">Mục tiêu</p>

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Menu, Notebook, Settings } from "lucide-react";
 import {
@@ -11,6 +11,7 @@ import {
   Quote,
   ListChecks,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const adminNav = [
   {
@@ -59,11 +60,35 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
+  const { user, logout, isLoading, isAuthenticated } = useAuth();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render content if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const handleLogout = () => {
-    // Xử lý logout thực tế ở đây nếu có auth, ví dụ clear token, call API, ...
-    // Ở đây chỉ redirect về trang chủ
-    router.push("/");
+    logout();
+    router.push('/login');
   };
 
   return (
@@ -106,6 +131,21 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
+        
+        {/* User Info */}
+        {sidebarOpen && user && (
+          <div className="bg-indigo-50 rounded-lg p-3 text-sm">
+            <div className="font-medium text-indigo-700">{user.name}</div>
+            <div className="text-indigo-600">{user.email}</div>
+            {!user.isEmailVerified && (
+              <div className="text-orange-600 text-xs mt-1">
+                <Link href="/verify-email" className="hover:underline">
+                  ⚠️ Email not verified
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
         <div className="mt-auto flex flex-col gap-2 pt-8">
           <button
             onClick={handleLogout}

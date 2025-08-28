@@ -30,8 +30,8 @@ interface UserLayoutProps {
 
 const navigationItems = [
   {
-    name: "Trang chủ",
-    href: "/",
+    name: "Kế hoạch tuần",
+    href: "/tasks",
     icon: Home,
     description: "Dashboard tổng quan",
   },
@@ -138,10 +138,22 @@ export default function UserLayout({
         setUser({
           _id: "default",
           name: "Người dùng",
-          role: "user",
+          email: "user@example.com",
           goal: "Phát triển bản thân",
           streak: 0,
           avatar: "/friendly-person-avatar.png",
+          income: 0,
+          isEmailVerified: false,
+          isActive: true,
+          lastLogin: new Date().toISOString(),
+          preferences: {
+            theme: "blue",
+            coverImage: "/mountain-peak-sunrise-motivation-success.png",
+            notifications: true,
+            language: "vi",
+          },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           __v: 0,
         });
       } finally {
@@ -275,9 +287,6 @@ export default function UserLayout({
                   <p className="text-sm font-medium text-gray-900">
                     {user?.name || "Đang tải..."}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    {user?.role || "user"}
-                  </p>
                 </div>
               </div>
 
@@ -341,9 +350,6 @@ export default function UserLayout({
                   <div>
                     <p className="text-sm font-medium text-gray-900">
                       {user?.name || "Đang tải..."}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {user?.role || "user"}
                     </p>
                   </div>
                 </div>

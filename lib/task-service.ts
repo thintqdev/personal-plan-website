@@ -1,4 +1,21 @@
 import { API_URL } from "./types";
+import { authService } from "./auth-service";
+
+/**
+ * Get authenticated headers for API calls
+ */
+function getAuthHeaders(): HeadersInit {
+    const headers: HeadersInit = {
+        "Content-Type": "application/json",
+    };
+
+    const token = authService.getToken();
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return headers;
+}
 
 // Task-specific types
 export interface Task {
@@ -44,9 +61,7 @@ export async function getTasksByDay(day: string): Promise<DayTasks> {
             `${API_URL}/api/tasks?day=${encodeURIComponent(day)}`,
             {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
             }
         );
 
@@ -76,9 +91,7 @@ export async function getTasks(day?: string): Promise<Task[]> {
 
         const response = await fetch(url, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -115,9 +128,7 @@ export async function addTask(taskData: CreateTaskRequest): Promise<Task> {
     try {
         const response = await fetch(`${API_URL}/api/tasks`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(taskData),
         });
 
@@ -145,9 +156,7 @@ export async function updateTask(
     try {
         const response = await fetch(`${API_URL}/api/tasks/${taskId}`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(taskData),
         });
 
@@ -172,9 +181,7 @@ export async function deleteTask(taskId: string): Promise<void> {
     try {
         const response = await fetch(`${API_URL}/api/tasks/${taskId}`, {
             method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -198,9 +205,7 @@ export async function toggleTaskCompletion(
     try {
         const response = await fetch(`${API_URL}/api/tasks/${taskId}/complete`, {
             method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify({ completed }),
         });
 
@@ -225,9 +230,7 @@ export async function getTaskStatus(taskId: string): Promise<Task> {
     try {
         const response = await fetch(`${API_URL}/api/tasks/${taskId}/status`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
