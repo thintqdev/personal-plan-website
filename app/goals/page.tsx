@@ -146,10 +146,21 @@ export default function GoalsPage() {
         setUser({
           _id: "",
           name: "Nguyễn Văn A",
+          email: "user@example.com",
           role: "Lập trình viên & Học viên tiếng Nhật",
           goal: "JLPT N3",
           streak: 45,
           avatar: "/friendly-person-avatar.png",
+          isEmailVerified: true,
+          isActive: true,
+          preferences: {
+            theme: "blue",
+            coverImage: "/mountain-peak-sunrise-motivation-success.png",
+            notifications: true,
+            language: "vi",
+          },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           __v: 0,
         });
       } finally {

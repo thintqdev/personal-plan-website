@@ -16,6 +16,7 @@ export interface User {
     _id: string;
     name: string;
     email: string;
+    role?: string;
     goal: string;
     streak: number;
     avatar: string;
@@ -31,6 +32,7 @@ export interface User {
 
 export interface UpdateUserRequest {
     name?: string;
+    role?: string;
     goal?: string;
     streak?: number;
     avatar?: string;
