@@ -332,41 +332,54 @@ export default function GoalsAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Header Section */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <Target className="w-8 h-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">
-              Quản lý mục tiêu
-            </h1>
-          </div>
-          <p className="text-gray-600">
-            Tạo, chỉnh sửa và theo dõi các mục tiêu của bạn
-          </p>
-          <Link href="/admin" className="inline-block mt-4">
+          <Link href="/admin" className="inline-block mb-6">
             <Button
-              variant="outline"
-              className="text-blue-600 border-blue-300 hover:bg-blue-50"
+              variant="ghost"
+              className="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200 group"
             >
-              ← Quay lại Admin
+              <Target className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+              Quay lại Dashboard
             </Button>
           </Link>
+
+          <div className="bg-white/80 backdrop-blur-sm border-0 shadow-lg rounded-2xl p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Target className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    Quản lý mục tiêu
+                  </h1>
+                  <p className="text-gray-600 mt-1">
+                    Tạo, chỉnh sửa và theo dõi các mục tiêu của bạn
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Add New Goal Form */}
-        <Card className="mb-8 bg-white/80 backdrop-blur-sm border-blue-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-800">
+        <Card className="mb-8 bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl overflow-hidden">
+          <CardHeader className="bg-indigo-600 text-white">
+            <CardTitle className="flex items-center gap-2">
               <Plus className="w-5 h-5" />
               Thêm mục tiêu mới
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <CardContent className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="title" className="text-gray-700">
+                <Label
+                  htmlFor="title"
+                  className="text-gray-700 font-medium mb-2 block"
+                >
                   Tiêu đề mục tiêu *
                 </Label>
                 <Input
@@ -376,11 +389,14 @@ export default function GoalsAdminPage() {
                   onChange={(e) =>
                     setNewGoal((prev) => ({ ...prev, title: e.target.value }))
                   }
-                  className="border-blue-200 focus:border-blue-400"
+                  className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl h-12"
                 />
               </div>
               <div>
-                <Label htmlFor="category" className="text-gray-700">
+                <Label
+                  htmlFor="category"
+                  className="text-gray-700 font-medium mb-2 block"
+                >
                   Danh mục
                 </Label>
                 <Input
@@ -393,13 +409,16 @@ export default function GoalsAdminPage() {
                       category: e.target.value,
                     }))
                   }
-                  className="border-blue-200 focus:border-blue-400"
+                  className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl h-12"
                 />
               </div>
             </div>
 
-            <div className="mb-4">
-              <Label htmlFor="description" className="text-gray-700">
+            <div>
+              <Label
+                htmlFor="description"
+                className="text-gray-700 font-medium mb-2 block"
+              >
                 Mô tả mục tiêu *
               </Label>
               <Textarea
@@ -412,24 +431,26 @@ export default function GoalsAdminPage() {
                     description: e.target.value,
                   }))
                 }
-                className="border-blue-200 focus:border-blue-400"
+                className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl resize-none"
                 rows={3}
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <Label className="text-gray-700">Độ ưu tiên</Label>
+                <Label className="text-gray-700 font-medium mb-2 block">
+                  Độ ưu tiên
+                </Label>
                 <Select
                   value={newGoal.priority}
                   onValueChange={(value: any) =>
                     setNewGoal((prev) => ({ ...prev, priority: value }))
                   }
                 >
-                  <SelectTrigger className="border-blue-200">
+                  <SelectTrigger className="border-gray-200 focus:border-indigo-400 rounded-xl h-12 bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
                     {priorityOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.icon} {option.label}
@@ -440,17 +461,19 @@ export default function GoalsAdminPage() {
               </div>
 
               <div>
-                <Label className="text-gray-700">Trạng thái</Label>
+                <Label className="text-gray-700 font-medium mb-2 block">
+                  Trạng thái
+                </Label>
                 <Select
                   value={newGoal.status}
                   onValueChange={(value: any) =>
                     setNewGoal((prev) => ({ ...prev, status: value }))
                   }
                 >
-                  <SelectTrigger className="border-blue-200">
+                  <SelectTrigger className="border-gray-200 focus:border-indigo-400 rounded-xl h-12 bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
                     {statusOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.icon} {option.label}
@@ -461,7 +484,10 @@ export default function GoalsAdminPage() {
               </div>
 
               <div>
-                <Label htmlFor="targetDate" className="text-gray-700">
+                <Label
+                  htmlFor="targetDate"
+                  className="text-gray-700 font-medium mb-2 block"
+                >
                   Ngày mục tiêu
                 </Label>
                 <Input
@@ -474,25 +500,27 @@ export default function GoalsAdminPage() {
                       targetDate: e.target.value,
                     }))
                   }
-                  className="border-blue-200 focus:border-blue-400"
+                  className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl h-12"
                 />
               </div>
             </div>
 
             {/* Sub-goals section for new goal */}
-            <div className="mb-4">
-              <Label className="text-gray-700 mb-2 block">Mục tiêu con</Label>
+            <div>
+              <Label className="text-gray-700 font-medium mb-3 block">
+                Mục tiêu con
+              </Label>
 
               {/* Display existing sub-goals */}
               {newGoal.subGoals && newGoal.subGoals.length > 0 && (
-                <div className="space-y-2 mb-4 p-3 bg-blue-50 rounded-lg">
+                <div className="space-y-3 mb-4 p-4 bg-indigo-50 rounded-xl">
                   {newGoal.subGoals.map((subGoal, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-2 p-2 bg-white rounded border"
+                      className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 shadow-sm"
                     >
                       <div className="flex-1">
-                        <span className="font-medium text-sm">
+                        <span className="font-medium text-sm text-gray-900">
                           {subGoal.title}
                         </span>
                         {subGoal.description && (
@@ -503,12 +531,12 @@ export default function GoalsAdminPage() {
                       </div>
                       <Button
                         type="button"
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() => removeSubGoalFromNewGoal(index)}
-                        className="text-red-600 border-red-300 hover:bg-red-50"
+                        className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl"
                       >
-                        <Minus className="w-3 h-3" />
+                        <Minus className="w-4 h-4" />
                       </Button>
                     </div>
                   ))}
@@ -516,7 +544,7 @@ export default function GoalsAdminPage() {
               )}
 
               {/* Add new sub-goal form */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <Input
                   placeholder="Tiêu đề mục tiêu con"
                   value={newSubGoal.title}
@@ -526,7 +554,7 @@ export default function GoalsAdminPage() {
                       title: e.target.value,
                     }))
                   }
-                  className="border-blue-200"
+                  className="border-gray-200 focus:border-indigo-400 rounded-xl h-10"
                 />
                 <Input
                   placeholder="Mô tả (tùy chọn)"
