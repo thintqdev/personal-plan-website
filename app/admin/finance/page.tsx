@@ -456,16 +456,19 @@ export default function AdminFinancePage() {
 
   if (!isMounted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-2 sm:p-4 md:p-6">
-        <div className="max-w-6xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className="h-32 bg-white/80 rounded-xl shadow-lg"
+                ></div>
               ))}
             </div>
-            <div className="h-96 bg-gray-200 rounded-lg"></div>
+            <div className="h-96 bg-white/80 rounded-2xl shadow-lg"></div>
           </div>
         </div>
       </div>
@@ -474,336 +477,389 @@ export default function AdminFinancePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-2 sm:p-4 md:p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
-              ))}
-            </div>
-            <div className="h-96 bg-gray-200 rounded-lg"></div>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg rounded-2xl">
+            <CardContent className="p-12 text-center">
+              <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600 font-medium">
+                Đang tải dữ liệu tài chính...
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-2 sm:p-4 md:p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Quản lý Tài chính
-          </h1>
-          <p className="text-gray-600 text-sm sm:text-base">
-            Quản lý các hủ chi tiêu trong tháng
-          </p>
-        </div>
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0">
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <Link href="/admin">
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Quay lại
-              </Button>
-            </Link>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-            <Link href="/admin/finance/report">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Header Section */}
+        <div className="mb-8">
+          <Link href="/admin" className="inline-block mb-6">
+            <Button
+              variant="ghost"
+              className="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200 group"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+              Quay lại Dashboard
+            </Button>
+          </Link>
+
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Wallet className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Quản lý Tài chính
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Quản lý các hủ chi tiêu và ngân sách tháng
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Link href="/admin/finance/report">
+                <Button
+                  variant="outline"
+                  className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600 px-4 py-2 rounded-xl"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Báo cáo
+                </Button>
+              </Link>
               <Button
+                onClick={handleCreateFromTemplate}
                 variant="outline"
-                size="sm"
-                className="bg-purple-500 text-white hover:bg-purple-600"
+                className="bg-green-600 hover:bg-green-700 text-white border-green-600 px-4 py-2 rounded-xl"
               >
-                <FileText className="w-4 h-4 mr-2" />
-                Báo cáo tài chính
+                <Settings className="w-4 h-4 mr-2" />
+                Template
               </Button>
-            </Link>
-            <Button
-              onClick={handleCreateFromTemplate}
-              variant="outline"
-              className="bg-green-500 text-white hover:bg-green-600"
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Tạo từ Template
-            </Button>
-            <Button
-              onClick={() => setShowCreateForm(true)}
-              className="bg-blue-500 text-white hover:bg-blue-600"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Thêm Hủ Chi tiêu
-            </Button>
+              <Button
+                onClick={() => setShowCreateForm(true)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Thêm Hủ
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Overview Cards */}
+        {/* Stats Overview */}
         {overview && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
-            {/* Monthly Income Card - Enhanced with Edit Feature */}
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-green-500 rounded-lg">
-                      <DollarSign className="w-6 h-6 text-white" />
+          <div className="mb-8">
+            {/* Main Stats Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              {/* Monthly Income Card - Enhanced with Edit Feature */}
+              <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+                <div className="bg-gradient-to-r from-green-500 to-emerald-600 h-1"></div>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center">
+                        <DollarSign className="w-7 h-7 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                          Thu nhập tháng
+                        </p>
+                      </div>
+                    </div>
+                    {!isEditingIncome && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsEditingIncome(true)}
+                        className="h-9 w-9 p-0 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-xl"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+
+                  {!isEditingIncome ? (
+                    <div>
+                      <p className="text-3xl font-bold text-gray-900 mb-2">
+                        {formatCurrency(monthlyIncome)}
+                      </p>
+                      <p className="text-sm text-gray-500 font-medium">
+                        Nhấn biểu tượng để chỉnh sửa
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <Input
+                        type="number"
+                        value={tempIncome}
+                        onChange={(e) =>
+                          setTempIncome(parseFloat(e.target.value) || 0)
+                        }
+                        className="w-full border-gray-200 focus:border-green-400 rounded-xl h-12"
+                        placeholder="20,000,000"
+                      />
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          onClick={handleUpdateIncome}
+                          disabled={isUpdatingIncome}
+                          className="flex-1 h-9 bg-green-600 hover:bg-green-700 text-white rounded-xl"
+                        >
+                          {isUpdatingIncome ? (
+                            <>
+                              <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1" />
+                              Lưu...
+                            </>
+                          ) : (
+                            <>
+                              <Save className="w-3 h-3 mr-1" />
+                              Lưu
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCancelEditIncome}
+                          disabled={isUpdatingIncome}
+                          className="h-9 px-3 border-gray-200 hover:bg-gray-50 rounded-xl"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Total Expenses */}
+              <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+                <div className="bg-gradient-to-r from-red-500 to-rose-600 h-1"></div>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center">
+                      <TrendingDown className="w-7 h-7 text-red-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-green-700 font-medium">
-                        Thu nhập
+                      <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                        Tổng chi tiêu
                       </p>
                     </div>
                   </div>
-                  {!isEditingIncome && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsEditingIncome(true)}
-                      className="h-8 px-2 text-green-600 hover:text-green-800 hover:bg-green-100/50"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
+                  <p className="text-3xl font-bold text-gray-900 mb-2">
+                    {formatCurrency(overview.totalExpenses)}
+                  </p>
+                  <p className="text-sm text-red-600 font-medium">
+                    {overview.totalExpenses > 0 && monthlyIncome > 0
+                      ? `${(
+                          (overview.totalExpenses / monthlyIncome) *
+                          100
+                        ).toFixed(1)}% thu nhập`
+                      : "Chưa có chi tiêu"}
+                  </p>
+                </CardContent>
+              </Card>
 
-                {!isEditingIncome ? (
-                  <div>
-                    <p className="text-xl font-bold text-green-800">
-                      {monthlyIncome.toLocaleString("vi-VN")} VND
-                    </p>
-                    <p className="text-xs text-green-600 mt-1">
-                      Nhấn để chỉnh sửa
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <Input
-                      type="number"
-                      value={tempIncome}
-                      onChange={(e) =>
-                        setTempIncome(parseFloat(e.target.value) || 0)
-                      }
-                      className="w-full border-green-300 focus:border-green-500 focus:ring-green-500"
-                      placeholder="20,000,000"
-                    />
-                    <div className="flex space-x-2">
-                      <Button
-                        size="sm"
-                        onClick={handleUpdateIncome}
-                        disabled={isUpdatingIncome}
-                        className="flex-1 h-8 bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        {isUpdatingIncome ? (
-                          <>
-                            <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1" />
-                            Lưu...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="w-3 h-3 mr-1" />
-                            Lưu
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCancelEditIncome}
-                        disabled={isUpdatingIncome}
-                        className="h-8 px-3 border-green-300 text-green-600 hover:bg-green-50"
-                      >
-                        <X className="w-3 h-3" />
-                      </Button>
+              {/* Total Savings */}
+              <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-500 to-cyan-600 h-1"></div>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center">
+                      <TrendingUp className="w-7 h-7 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                        Tổng tiết kiệm
+                      </p>
                     </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                  <p className="text-3xl font-bold text-gray-900 mb-2">
+                    {formatCurrency(overview.totalSavings)}
+                  </p>
+                  <p className="text-sm text-blue-600 font-medium">
+                    {overview.totalSavings > 0 && monthlyIncome > 0
+                      ? `${(
+                          (overview.totalSavings / monthlyIncome) *
+                          100
+                        ).toFixed(1)}% thu nhập`
+                      : "Chưa có tiết kiệm"}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
 
-            <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-red-500 rounded-lg">
-                    <TrendingDown className="w-6 h-6 text-white" />
+            {/* Secondary Stats Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Jar Count & Allocation Status */}
+              <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+                <div className="bg-gradient-to-r from-purple-500 to-violet-600 h-1"></div>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center">
+                        <PiggyBank className="w-7 h-7 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                          Quản lý hũ
+                        </p>
+                        <p className="text-3xl font-bold text-gray-900">
+                          {jars.length}
+                        </p>
+                        <p className="text-sm text-purple-600 font-medium">
+                          {jars.filter((jar) => jar.isActive).length} đang hoạt
+                          động
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-red-700 font-medium">Chi tiêu</p>
-                    <p className="text-xl font-bold text-red-800">
-                      {formatCurrency(overview.totalExpenses)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-blue-500 rounded-lg">
-                    <PiggyBank className="w-6 h-6 text-white" />
+              {/* Allocation Percentage */}
+              <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+                <div
+                  className={`h-1 ${
+                    getTotalPercentage() > 100
+                      ? "bg-gradient-to-r from-red-500 to-rose-600"
+                      : getTotalPercentage() === 100
+                      ? "bg-gradient-to-r from-green-500 to-emerald-600"
+                      : "bg-gradient-to-r from-orange-500 to-amber-600"
+                  }`}
+                ></div>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
+                          getTotalPercentage() > 100
+                            ? "bg-red-100"
+                            : getTotalPercentage() === 100
+                            ? "bg-green-100"
+                            : "bg-orange-100"
+                        }`}
+                      >
+                        <Target
+                          className={`w-7 h-7 ${
+                            getTotalPercentage() > 100
+                              ? "text-red-600"
+                              : getTotalPercentage() === 100
+                              ? "text-green-600"
+                              : "text-orange-600"
+                          }`}
+                        />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                          Phân bổ ngân sách
+                        </p>
+                        <p
+                          className={`text-3xl font-bold ${
+                            getTotalPercentage() === 100
+                              ? "text-green-600"
+                              : getTotalPercentage() > 100
+                              ? "text-red-600"
+                              : "text-orange-600"
+                          }`}
+                        >
+                          {getTotalPercentage()}%
+                        </p>
+                        <p
+                          className={`text-sm font-medium ${
+                            getTotalPercentage() > 100
+                              ? "text-red-600"
+                              : getTotalPercentage() === 100
+                              ? "text-green-600"
+                              : "text-orange-600"
+                          }`}
+                        >
+                          {getTotalPercentage() > 100
+                            ? `Vượt mức ${getTotalPercentage() - 100}%`
+                            : getTotalPercentage() === 100
+                            ? "Phân bổ hoàn hảo!"
+                            : `Còn lại ${100 - getTotalPercentage()}%`}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-blue-700 font-medium">
-                      Tiết kiệm
-                    </p>
-                    <p className="text-xl font-bold text-blue-800">
-                      {formatCurrency(overview.totalSavings)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-purple-500 rounded-lg">
-                    <Users className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-purple-700 font-medium">
-                      Số Hủ Chi tiêu
-                    </p>
-                    <p className="text-xl font-bold text-purple-800">
-                      {overview.activeJarsCount}/{overview.jarsCount}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card
-              className={`bg-gradient-to-br ${
-                getTotalPercentage() > 100
-                  ? "from-red-50 to-red-100 border-red-200"
-                  : getTotalPercentage() === 100
-                  ? "from-green-50 to-green-100 border-green-200"
-                  : "from-yellow-50 to-yellow-100 border-yellow-200"
-              }`}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3">
-                  <div
-                    className={`p-2 rounded-lg ${
-                      getTotalPercentage() > 100
-                        ? "bg-red-500"
-                        : getTotalPercentage() === 100
-                        ? "bg-green-500"
-                        : "bg-yellow-500"
-                    }`}
-                  >
-                    <Target className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p
-                      className={`text-sm font-medium ${
-                        getTotalPercentage() > 100
-                          ? "text-red-700"
-                          : getTotalPercentage() === 100
-                          ? "text-green-700"
-                          : "text-yellow-700"
-                      }`}
-                    >
-                      Phân bổ
-                    </p>
-                    <p
-                      className={`text-xl font-bold ${
-                        getTotalPercentage() > 100
-                          ? "text-red-800"
-                          : getTotalPercentage() === 100
-                          ? "text-green-800"
-                          : "text-yellow-800"
-                      }`}
-                    >
-                      {getTotalPercentage()}%
-                    </p>
-                    <p className="text-xs text-gray-600">
-                      {getTotalPercentage() > 100
-                        ? `Vượt ${getTotalPercentage() - 100}%`
-                        : getTotalPercentage() === 100
-                        ? "Hoàn hảo!"
-                        : `Còn ${100 - getTotalPercentage()}%`}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
 
         {/* Jars List */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-base sm:text-lg md:text-xl">
-              <Wallet className="w-5 h-5" />
-              <span>Danh sách Hủ Chi tiêu Tháng</span>
+        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl overflow-hidden">
+          <CardHeader className="bg-indigo-600 text-white">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Wallet className="w-6 h-6" />
+              <span>Danh sách Hủ Chi tiêu</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             {jars.length === 0 ? (
-              <div className="text-center py-8 sm:py-12">
-                <PiggyBank className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
+              <div className="text-center py-12">
+                <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <PiggyBank className="w-10 h-10 text-indigo-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
                   Chưa có hủ chi tiêu nào
                 </h3>
-                <p className="text-gray-500 mb-6 text-sm">
+                <p className="text-gray-600 mb-6">
                   Tạo hủ đầu tiên để bắt đầu quản lý tài chính
                 </p>
-                <Button onClick={() => setShowCreateForm(true)}>
+                <Button
+                  onClick={() => setShowCreateForm(true)}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl"
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Tạo Hủ Đầu tiên
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {jars.map((jar) => {
                   // Map color to Tailwind color classes
                   const colorMap: Record<string, string> = {
-                    blue: "from-blue-400 to-blue-600 bg-blue-100 text-blue-700",
-                    green:
-                      "from-green-400 to-green-600 bg-green-100 text-green-700",
-                    purple:
-                      "from-purple-400 to-purple-600 bg-purple-100 text-purple-700",
-                    orange:
-                      "from-orange-400 to-orange-600 bg-orange-100 text-orange-700",
-                    pink: "from-pink-400 to-pink-600 bg-pink-100 text-pink-700",
-                    indigo:
-                      "from-indigo-400 to-indigo-600 bg-indigo-100 text-indigo-700",
-                    // fallback
-                    default:
-                      "from-gray-400 to-gray-600 bg-gray-100 text-gray-700",
+                    blue: "bg-blue-600 bg-blue-100 text-blue-700",
+                    green: "bg-green-600 bg-green-100 text-green-700",
+                    purple: "bg-purple-600 bg-purple-100 text-purple-700",
+                    orange: "bg-orange-600 bg-orange-100 text-orange-700",
+                    pink: "bg-pink-600 bg-pink-100 text-pink-700",
+                    indigo: "bg-indigo-600 bg-indigo-100 text-indigo-700",
+                    default: "bg-gray-600 bg-gray-100 text-gray-700",
                   };
-                  const gradient = colorMap[jar.color] || colorMap.default;
-                  const bg = gradient.split(" ")[2];
-                  const text = gradient.split(" ")[3];
+                  const colors = colorMap[jar.color] || colorMap.default;
+                  const [solidColor, bgColor, textColor] = colors.split(" ");
+
                   return (
-                    <div
+                    <Card
                       key={jar._id}
-                      className={`group relative bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 overflow-hidden`}
+                      className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden group"
                     >
-                      <div
-                        className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${gradient}`}
-                      ></div>
-                      <div className="p-6 flex flex-col h-full">
-                        <div className="flex items-center space-x-4 mb-4">
-                          <div
-                            className={`p-4 rounded-xl bg-gradient-to-br ${bg} shadow-sm`}
-                          >
-                            {renderIcon(jar.icon, `w-8 h-8 ${text}`)}
+                      <div className={`w-full h-1 ${solidColor}`}></div>
+                      <CardContent className="p-6">
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className={`p-3 ${bgColor} rounded-xl`}>
+                            {renderIcon(jar.icon, `w-6 h-6 ${textColor}`)}
                           </div>
                           <div className="flex-1">
-                            <h3 className="text-xl font-bold text-gray-900 mb-1">
+                            <h3 className="text-lg font-bold text-gray-900 mb-1">
                               {jar.name}
                             </h3>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-600">
                               {jar.description}
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2 mb-2">
+
+                        <div className="flex items-center gap-2 mb-4">
                           <Badge
                             variant={
                               jar.priority === "High"
@@ -820,31 +876,32 @@ export default function AdminFinancePage() {
                               ? "Ưu tiên vừa"
                               : "Ưu tiên thấp"}
                           </Badge>
-                          <span
-                            className={`text-xs font-semibold text-${jar.color}-600`}
+                          <Badge
+                            className={`text-xs ${bgColor} ${textColor} border-0`}
                           >
                             {jar.percentage}%
-                          </span>
-                          <span className="text-xs text-gray-400">
+                          </Badge>
+                          <span className="text-xs text-gray-500">
                             {jar.category}
                           </span>
                         </div>
-                        <div className="mt-2 mb-4">
-                          <div className="flex justify-between text-xs text-gray-500 mb-1">
-                            <span>Đã tiêu dùng</span>
-                            <span>Ngân sách</span>
+
+                        <div className="space-y-3">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600">Đã tiêu dùng</span>
+                            <span className="text-gray-600">Ngân sách</span>
                           </div>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-medium text-gray-900">
+                          <div className="flex justify-between items-center">
+                            <span className="font-semibold text-gray-900">
                               {formatCurrency(jar.currentAmount)}
                             </span>
-                            <span className="font-medium text-gray-900">
+                            <span className="font-semibold text-gray-900">
                               {formatCurrency(jar.targetAmount)}
                             </span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                             <div
-                              className={`bg-gradient-to-r from-${jar.color}-400 to-${jar.color}-600 h-3 rounded-full transition-all duration-500 ease-out`}
+                              className={`${solidColor} h-3 rounded-full transition-all duration-500 ease-out`}
                               style={{
                                 width:
                                   jar.targetAmount > 0
@@ -857,7 +914,7 @@ export default function AdminFinancePage() {
                               }}
                             ></div>
                           </div>
-                          <div className="flex justify-between text-xs text-gray-400 mt-1">
+                          <div className="flex justify-between text-xs text-gray-500">
                             <span>
                               {jar.targetAmount > 0
                                 ? `${Math.round(
@@ -879,36 +936,37 @@ export default function AdminFinancePage() {
                             </span>
                           </div>
                         </div>
-                        <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
+
+                        <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100">
                           <Badge
                             variant={jar.isActive ? "default" : "secondary"}
                             className="text-xs"
                           >
                             {jar.isActive ? "🟢 Hoạt động" : "⏸️ Tạm dừng"}
                           </Badge>
-                          <div className="flex space-x-2">
+                          <div className="flex gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => startEdit(jar)}
-                              className="h-8 w-8 p-0 hover:bg-blue-100"
+                              className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
                               title="Chỉnh sửa"
                             >
-                              <Edit2 className="w-4 h-4 text-blue-600" />
+                              <Edit2 className="w-4 h-4" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDeleteJar(jar._id)}
-                              className="h-8 w-8 p-0 hover:bg-red-100"
+                              className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
                               title="Xóa"
                             >
-                              <Trash2 className="w-4 h-4 text-red-600" />
+                              <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </div>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   );
                 })}
               </div>
@@ -918,15 +976,15 @@ export default function AdminFinancePage() {
 
         {/* Create/Edit Modal */}
         {(showCreateForm || editingJar) && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-2 sm:p-4 z-50 backdrop-blur-sm">
-            <Card className="w-full max-w-xs sm:max-w-md md:max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border-0">
-              <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+            <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-2xl">
+              <CardHeader className="bg-indigo-600 text-white rounded-t-2xl">
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-xl font-bold">
                       {editingJar ? "✏️ Chỉnh sửa Hủ" : "🆕 Tạo Hủ Chi tiêu"}
                     </CardTitle>
-                    <p className="text-blue-100 text-sm mt-1">
+                    <p className="text-indigo-100 text-sm mt-1">
                       {editingJar
                         ? "Cập nhật thông tin hủ chi tiêu"
                         : "Thêm hủ chi tiêu mới vào danh sách"}
@@ -951,13 +1009,13 @@ export default function AdminFinancePage() {
                         category: "",
                       });
                     }}
-                    className="text-white hover:bg-white hover:bg-opacity-20"
+                    className="text-white hover:bg-white hover:bg-opacity-20 rounded-xl"
                   >
                     <X className="w-5 h-5" />
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="p-4 sm:p-8 space-y-4 sm:space-y-8 bg-gray-50">
+              <CardContent className="p-6 space-y-6 bg-white">
                 {/* Percentage Warning */}
                 {getTotalPercentage() > 85 && (
                   <div
@@ -1019,10 +1077,10 @@ export default function AdminFinancePage() {
                         value={selectedTemplate}
                         onValueChange={handleTemplateSelect}
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full bg-white border-gray-200 rounded-xl shadow-lg">
                           <SelectValue placeholder="🔽 Chọn template phù hợp" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
                           {jarTemplates.map((template, index) => (
                             <SelectItem key={index} value={index.toString()}>
                               <div className="flex items-center space-x-3 py-2">
@@ -1083,10 +1141,10 @@ export default function AdminFinancePage() {
                           setFormData((prev) => ({ ...prev, category: value }))
                         }
                       >
-                        <SelectTrigger className="h-12">
+                        <SelectTrigger className="h-12 bg-white border-gray-200 rounded-xl shadow-lg">
                           <SelectValue placeholder="Chọn loại hũ" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
                           {FINANCE_CATEGORIES.map((cat) => {
                             const Icon = categoryIconMap[cat.value];
                             const colorClass = categoryColorMap[cat.value];
@@ -1218,10 +1276,10 @@ export default function AdminFinancePage() {
                           setFormData((prev) => ({ ...prev, color: value }))
                         }
                       >
-                        <SelectTrigger className="h-12">
+                        <SelectTrigger className="h-12 bg-white border-gray-200 rounded-xl shadow-lg">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
                           {colorOptions.map((color) => (
                             <SelectItem key={color.value} value={color.value}>
                               <div className="flex items-center space-x-3">
@@ -1246,10 +1304,10 @@ export default function AdminFinancePage() {
                           setFormData((prev) => ({ ...prev, icon: value }))
                         }
                       >
-                        <SelectTrigger className="h-12">
+                        <SelectTrigger className="h-12 bg-white border-gray-200 rounded-xl shadow-lg">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
                           {iconOptions.map((icon) => (
                             <SelectItem key={icon.value} value={icon.value}>
                               <div className="flex items-center space-x-3">
@@ -1272,10 +1330,10 @@ export default function AdminFinancePage() {
                           setFormData((prev) => ({ ...prev, priority: value }))
                         }
                       >
-                        <SelectTrigger className="h-12">
+                        <SelectTrigger className="h-12 bg-white border-gray-200 rounded-xl shadow-lg">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
                           <SelectItem value="High">🔴 Cao</SelectItem>
                           <SelectItem value="Medium">🟡 Trung bình</SelectItem>
                           <SelectItem value="Low">🟢 Thấp</SelectItem>
@@ -1304,7 +1362,7 @@ export default function AdminFinancePage() {
                         category: "",
                       });
                     }}
-                    className="px-8 py-3"
+                    className="px-8 py-3 rounded-xl border-gray-200 hover:bg-gray-50"
                   >
                     ❌ Hủy bỏ
                   </Button>
@@ -1316,7 +1374,7 @@ export default function AdminFinancePage() {
                       !formData.percentage ||
                       !isPercentageValid(parseFloat(formData.percentage) || 0)
                     }
-                    className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                    className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl"
                   >
                     <Save className="w-5 h-5 mr-2" />
                     {editingJar ? "💾 Cập nhật" : "✨ Tạo mới"}
