@@ -98,36 +98,46 @@ export default function ProfileAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <User className="w-8 h-8 text-green-600" />
-            <h1 className="text-3xl font-bold text-gray-900">
-              Quản lý thông tin cá nhân
-            </h1>
-          </div>
-          <p className="text-gray-600">
-            Cập nhật thông tin profile và avatar của bạn
-          </p>
-          <Link href="/admin" className="inline-block mt-4">
+          <Link href="/admin" className="inline-block mb-6">
             <Button
-              variant="outline"
-              className="text-green-600 border-green-300 hover:bg-green-50"
+              variant="ghost"
+              className="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200 group"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Quay lại Admin
+              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+              Quay lại Dashboard
             </Button>
           </Link>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <User className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Quản lý thông tin cá nhân
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Cập nhật thông tin profile và avatar của bạn
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Profile Management */}
         <div className="max-w-2xl mx-auto">
-          <Card className="bg-white/80 backdrop-blur-sm border-green-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-800">
-                <User className="w-5 h-5" />
+          <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 h-1"></div>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl font-semibold text-gray-800">
+                <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">
+                  <User className="w-5 h-5 text-white" />
+                </div>
                 Thông tin cá nhân
               </CardTitle>
             </CardHeader>
@@ -140,9 +150,9 @@ export default function ProfileAdminPage() {
               ) : profile ? (
                 <>
                   <div className="flex flex-col items-center gap-4">
-                    <Avatar className="w-24 h-24 border-4 border-green-500">
+                    <Avatar className="w-24 h-24 border-4 border-indigo-200 shadow-lg">
                       <AvatarImage src={profile.avatar || "/placeholder.svg"} />
-                      <AvatarFallback className="text-2xl bg-green-500 text-white">
+                      <AvatarFallback className="text-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
                         TP
                       </AvatarFallback>
                     </Avatar>
@@ -157,12 +167,12 @@ export default function ProfileAdminPage() {
                           placeholder="Nhập URL hình ảnh..."
                           value={tempAvatarUrl}
                           onChange={(e) => setTempAvatarUrl(e.target.value)}
-                          className="border-green-200 focus:border-green-400"
+                          className="border-indigo-200 focus:border-indigo-400 focus:ring-indigo-200"
                         />
                         <div className="flex gap-2">
                           <Button
                             onClick={handleSaveAvatar}
-                            className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                            className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                           >
                             <Save className="w-4 h-4 mr-2" />
                             Lưu
@@ -170,7 +180,7 @@ export default function ProfileAdminPage() {
                           <Button
                             onClick={handleCancelAvatar}
                             variant="outline"
-                            className="flex-1 border-gray-300"
+                            className="flex-1 border-gray-200 text-gray-600 hover:bg-gray-50"
                           >
                             Hủy
                           </Button>
@@ -180,7 +190,7 @@ export default function ProfileAdminPage() {
                       <Button
                         variant="outline"
                         onClick={handleShowAvatarInput}
-                        className="border-green-300 text-green-700 hover:bg-green-50"
+                        className="border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 transition-all duration-200"
                       >
                         <Upload className="w-4 h-4 mr-2" />
                         Đổi avatar
@@ -200,7 +210,7 @@ export default function ProfileAdminPage() {
                         onChange={(e) =>
                           handleProfileUpdate("name", e.target.value)
                         }
-                        className="border-green-200 focus:border-green-400"
+                        className="border-indigo-200 focus:border-indigo-400 focus:ring-indigo-200 transition-all duration-200"
                       />
                     </div>
 
@@ -215,7 +225,7 @@ export default function ProfileAdminPage() {
                         onChange={(e) =>
                           handleProfileUpdate("role", e.target.value)
                         }
-                        className="border-green-200 focus:border-green-400"
+                        className="border-indigo-200 focus:border-indigo-400 focus:ring-indigo-200 transition-all duration-200"
                       />
                     </div>
                   </div>
@@ -232,7 +242,7 @@ export default function ProfileAdminPage() {
                         onChange={(e) =>
                           handleProfileUpdate("goal", e.target.value)
                         }
-                        className="border-green-200 focus:border-green-400"
+                        className="border-indigo-200 focus:border-indigo-400 focus:ring-indigo-200 transition-all duration-200"
                       />
                     </div>
 
@@ -248,16 +258,16 @@ export default function ProfileAdminPage() {
                         onChange={(e) =>
                           handleProfileUpdate("streak", e.target.value)
                         }
-                        className="border-green-200 focus:border-green-400"
+                        className="border-indigo-200 focus:border-indigo-400 focus:ring-indigo-200 transition-all duration-200"
                       />
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-green-200">
+                  <div className="pt-4 border-t border-indigo-200">
                     <Button
                       onClick={handleSaveProfile}
                       disabled={isSavingProfile}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                     >
                       <Save className="w-4 h-4 mr-2" />
                       {isSavingProfile ? "Đang lưu..." : "Lưu thông tin"}

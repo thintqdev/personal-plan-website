@@ -8,6 +8,7 @@ export interface SubGoal {
     status: "Not Started" | "In Progress" | "Completed" | "On Hold";
     targetDate?: string;
     completedAt?: string;
+    subGoals?: SubGoal[];
 }
 
 export interface Goal {

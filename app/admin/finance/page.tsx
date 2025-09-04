@@ -797,7 +797,7 @@ export default function AdminFinancePage() {
         {/* Jars List */}
         <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl overflow-hidden">
           <CardHeader className="bg-indigo-600 text-white">
-            <CardTitle className="flex items-center gap-2 text-xl">
+            <CardTitle className="flex items-center gap-2 text-xl py-1">
               <Wallet className="w-6 h-6" />
               <span>Danh sách Hủ Chi tiêu</span>
             </CardTitle>
