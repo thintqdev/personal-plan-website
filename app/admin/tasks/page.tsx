@@ -343,7 +343,7 @@ export default function AdminTasksPage() {
             </Button>
           </Link>
 
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <ListTodo className="w-6 h-6 text-white" />
@@ -369,69 +369,87 @@ export default function AdminTasksPage() {
               Thêm nhiệm vụ
             </Button>
           </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">
-                      Tổng nhiệm vụ
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {tasks.length}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
-                    <ListTodo className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">
-                      Đã hoàn thành
-                    </p>
-                    <p className="text-3xl font-bold text-green-600">
-                      {getCompletedTasksCount()}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center">
-                    <CheckCircle2 className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Còn lại</p>
-                    <p className="text-3xl font-bold text-orange-600">
-                      {tasks.length - getCompletedTasksCount()}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-orange-600 rounded-xl flex items-center justify-center">
-                    <Clock className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
+
+        {/* Stats Cards */}
+        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden mb-8">
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 h-1"></div>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-1"></div>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">
+                        Tổng nhiệm vụ
+                      </p>
+                      <p className="text-3xl font-bold text-gray-900">
+                        {tasks.length}
+                      </p>
+                    </div>
+                    <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
+                      <ListTodo className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+                <div className="bg-gradient-to-r from-green-500 to-emerald-600 h-1"></div>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">
+                        Đã hoàn thành
+                      </p>
+                      <p className="text-3xl font-bold text-green-600">
+                        {getCompletedTasksCount()}
+                      </p>
+                    </div>
+                    <div className="p-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl">
+                      <CheckCircle2 className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+                <div className="bg-gradient-to-r from-amber-500 to-orange-600 h-1"></div>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">
+                        Tỷ lệ hoàn thành
+                      </p>
+                      <p className="text-3xl font-bold text-amber-600">
+                        {tasks.length > 0
+                          ? Math.round(
+                              (getCompletedTasksCount() / tasks.length) * 100
+                            )
+                          : 0}
+                        %
+                      </p>
+                    </div>
+                    <div className="p-3 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl">
+                      <Target className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Add Task Form */}
         {isAdding && (
-          <Card className="mb-8 bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl overflow-hidden">
-            <CardHeader className="bg-indigo-600 text-white">
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5" />
+          <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden mb-8">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 h-1"></div>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl font-semibold text-gray-800">
+                <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
                 Tạo nhiệm vụ mới
               </CardTitle>
             </CardHeader>
@@ -562,7 +580,7 @@ export default function AdminTasksPage() {
               <div className="flex gap-3 pt-2">
                 <Button
                   onClick={handleAddTask}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl flex-1"
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl flex-1 shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Tạo nhiệm vụ

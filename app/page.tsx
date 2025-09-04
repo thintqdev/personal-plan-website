@@ -667,8 +667,26 @@ export default function ThinPlanPage() {
   };
 
   // Get quotes text for marquee
-  const displayQuotes =
-    quotes.length > 0 ? quotes.map((q) => q.text) : motivationalQuotes;
+  // const displayQuotes =
+  //   quotes.length > 0 ? quotes.map((q) => q.text) : motivationalQuotes;
+
+  // Get a single quote for the day based on date
+  const getDailyQuote = () => {
+    const today = new Date();
+    const startOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    const dayIndex =
+      Math.floor(startOfDay.getTime() / (1000 * 60 * 60 * 24)) %
+      (quotes.length > 0 ? quotes.length : motivationalQuotes.length);
+    return quotes.length > 0
+      ? quotes[dayIndex].text
+      : motivationalQuotes[dayIndex];
+  };
+
+  const dailyQuote = getDailyQuote();
 
   // Helper function to get task color based on type
   const getTaskColor = (type: string) => {
@@ -707,8 +725,8 @@ export default function ThinPlanPage() {
 
   return (
     <UserLayout
-      title="ThinPlan"
-      description="Kế hoạch thông minh, cuộc sống ý nghĩa"
+      title="Kế hoạch trong tuần"
+      description="Lên kế hoạch trong tuần hiệu quả"
       icon={<Home className="w-8 h-8 text-white" />}
       coverImage={coverImage}
       onCoverImageChange={changeCoverImage}
@@ -719,15 +737,7 @@ export default function ThinPlanPage() {
           {/* Motivational Quotes Section */}
           <Card className={`${currentTheme.cardBg} mb-8`}>
             <CardContent className="p-6 text-center">
-              <div className="text-lg text-gray-700 italic">
-                "
-                {
-                  displayQuotes[
-                    Math.floor(Math.random() * displayQuotes.length)
-                  ]
-                }
-                "
-              </div>
+              <div className="text-lg text-gray-700 italic">"{dailyQuote}"</div>
             </CardContent>
           </Card>
 
@@ -739,7 +749,7 @@ export default function ThinPlanPage() {
                   className={`flex items-center gap-2 text-xl ${currentTheme.text}`}
                 >
                   <Calendar className={`w-5 h-5 ${currentTheme.accent}`} />
-                  <span>Kế hoạch hôm nay</span>
+                  <span>Kế hoạch</span>
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   <Button
@@ -805,12 +815,12 @@ export default function ThinPlanPage() {
                       <div
                         key={taskId}
                         onClick={() => toggleTaskCompletion(taskId)}
-                        className={`cursor-pointer flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 ${
+                        className={`cursor-pointer flex items-start gap-3 p-4 rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 ${
                           completed ? `opacity-60 line-through bg-gray-50` : ""
                         }`}
                       >
                         <div
-                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
                             completed
                               ? `bg-green-500 border-green-500 text-white`
                               : `border-gray-300 hover:border-green-400`
@@ -818,23 +828,25 @@ export default function ThinPlanPage() {
                         >
                           {completed && <Check className="w-4 h-4" />}
                         </div>
-                        <div
-                          className={`text-sm font-mono ${currentTheme.textMuted} font-medium bg-gray-50 px-3 py-1 rounded-lg border border-gray-200 flex-shrink-0`}
-                        >
-                          {task.time}
-                        </div>
-                        <div className="flex items-center justify-between flex-1">
-                          <span
-                            className={`text-base font-medium break-words ${currentTheme.text}`}
+                        <div className="flex-1 min-w-0">
+                          <div
+                            className={`text-sm font-mono ${currentTheme.textMuted} font-medium bg-gray-50 px-2 py-1 rounded-lg border border-gray-200 inline-block mb-2`}
                           >
-                            {task.task}
-                          </span>
-                          <Badge
-                            variant="secondary"
-                            className={`${taskColor} text-xs flex-shrink-0 rounded-full px-3 py-1 ml-4`}
-                          >
-                            {task.type}
-                          </Badge>
+                            {task.time}
+                          </div>
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span
+                              className={`text-base font-medium break-words ${currentTheme.text} flex-1 min-w-0`}
+                            >
+                              {task.task}
+                            </span>
+                            <Badge
+                              variant="secondary"
+                              className={`${taskColor} text-xs flex-shrink-0 rounded-full px-2.5 py-0.5 whitespace-nowrap`}
+                            >
+                              {task.type}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                     );
@@ -847,70 +859,7 @@ export default function ThinPlanPage() {
 
         {/* Sidebar */}
         <div className="lg:col-span-1">
-          <div className="lg:sticky lg:top-8 space-y-6">
-            {/* Quick Stats Card */}
-            <Card className={currentTheme.cardBg}>
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg text-gray-900">
-                  Thống kê nhanh
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {isLoadingStats ? (
-                  <div className="space-y-3">
-                    {[...Array(3)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="flex justify-between items-center"
-                      >
-                        <div className="h-4 bg-gray-200 rounded w-24 animate-pulse" />
-                        <div className="h-6 bg-gray-200 rounded w-16 animate-pulse" />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">
-                        Hoàn thành hôm nay
-                      </span>
-                      <Badge
-                        variant="secondary"
-                        className="bg-green-100 text-green-800 rounded-full"
-                      >
-                        {statistics?.todayProgress ||
-                          `${
-                            Object.values(completedTasks).filter(Boolean).length
-                          }/${currentDay?.tasks.length || 0}`}
-                      </Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">
-                        Tiến độ tuần
-                      </span>
-                      <Badge
-                        variant="secondary"
-                        className="bg-blue-100 text-blue-800 rounded-full"
-                      >
-                        {statistics?.weekProgress || 75}%
-                      </Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">
-                        Streak hiện tại
-                      </span>
-                      <Badge
-                        variant="secondary"
-                        className="bg-orange-100 text-orange-800 rounded-full"
-                      >
-                        {statistics?.currentStreak || user?.streak || 45} ngày
-                      </Badge>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+          <div className="lg:sticky lg:top-8 space-y-6"></div>
         </div>
       </div>
     </UserLayout>

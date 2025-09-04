@@ -34,6 +34,9 @@ import {
   Calendar as CalendarIcon,
   Target,
   Wallet,
+  ArrowLeft,
+  Save,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
@@ -303,42 +306,57 @@ export default function MonthlyReportPage() {
 
   if (showDetail && selectedReport) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-        <div className="max-w-6xl mx-auto space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                📊 Chi tiết báo cáo tháng {selectedReport.month}/
-                {selectedReport.year}
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Báo cáo tài chính chi tiết và phân tích theo từng jar
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setShowDetail(false)}>
-                ← Quay lại
-              </Button>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          {/* Header Section */}
+          <div className="mb-8">
+            <Link href="/admin/finance/report" className="inline-block mb-6">
               <Button
-                onClick={() =>
-                  downloadPDF(selectedReport.year, selectedReport.month)
-                }
-                className="bg-green-600 hover:bg-green-700"
+                variant="ghost"
+                className="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200 group"
               >
-                <Download className="w-4 h-4 mr-2" />
-                Tải PDF
+                <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+                Quay lại Báo cáo
               </Button>
+            </Link>
+
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <BarChart3 className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    Chi tiết báo cáo tháng {selectedReport.month}/
+                    {selectedReport.year}
+                  </h1>
+                  <p className="text-gray-600 mt-1">
+                    Báo cáo tài chính chi tiết và phân tích theo từng jar
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() =>
+                    downloadPDF(selectedReport.year, selectedReport.month)
+                  }
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Tải PDF
+                </Button>
+              </div>
             </div>
           </div>
 
           {/* Report Status */}
-          <Card>
+          <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden mb-8">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 h-1"></div>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div
-                    className={`p-3 rounded-lg ${
+                    className={`p-3 rounded-xl ${
                       selectedReport.isFinalized
                         ? "bg-green-100"
                         : "bg-orange-100"
@@ -367,7 +385,7 @@ export default function MonthlyReportPage() {
                     onClick={() =>
                       finalizeReport(selectedReport.year, selectedReport.month)
                     }
-                    className="bg-orange-600 hover:bg-orange-700"
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-xl"
                   >
                     <Lock className="w-4 h-4 mr-2" />
                     Khóa báo cáo
@@ -378,18 +396,19 @@ export default function MonthlyReportPage() {
           </Card>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-600 h-1"></div>
               <CardContent className="p-6">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-blue-500 rounded-lg">
-                    <DollarSign className="w-6 h-6 text-white" />
+                  <div className="p-3 bg-green-100 rounded-xl">
+                    <DollarSign className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-blue-700 font-medium">
+                    <p className="text-sm text-gray-600 font-medium">
                       Thu nhập tháng
                     </p>
-                    <p className="text-xl font-bold text-blue-800">
+                    <p className="text-xl font-bold text-gray-900">
                       {formatCurrency(selectedReport.userIncome)}
                     </p>
                   </div>
@@ -397,17 +416,18 @@ export default function MonthlyReportPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+            <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-500 to-cyan-600 h-1"></div>
               <CardContent className="p-6">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-green-500 rounded-lg">
-                    <TrendingUp className="w-6 h-6 text-white" />
+                  <div className="p-3 bg-blue-100 rounded-xl">
+                    <Target className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-green-700 font-medium">
+                    <p className="text-sm text-gray-600 font-medium">
                       Tổng phân bổ
                     </p>
-                    <p className="text-xl font-bold text-green-800">
+                    <p className="text-xl font-bold text-gray-900">
                       {formatCurrency(selectedReport.totalAllocated)}
                     </p>
                   </div>
@@ -415,17 +435,18 @@ export default function MonthlyReportPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
+            <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+              <div className="bg-gradient-to-r from-red-500 to-rose-600 h-1"></div>
               <CardContent className="p-6">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-red-500 rounded-lg">
-                    <TrendingDown className="w-6 h-6 text-white" />
+                  <div className="p-3 bg-red-100 rounded-xl">
+                    <TrendingDown className="w-6 h-6 text-red-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-red-700 font-medium">
+                    <p className="text-sm text-gray-600 font-medium">
                       Tổng chi tiêu
                     </p>
-                    <p className="text-xl font-bold text-red-800">
+                    <p className="text-xl font-bold text-gray-900">
                       {formatCurrency(selectedReport.totalSpent)}
                     </p>
                   </div>
@@ -433,17 +454,18 @@ export default function MonthlyReportPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+            <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-violet-600 h-1"></div>
               <CardContent className="p-6">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-purple-500 rounded-lg">
-                    <PiggyBank className="w-6 h-6 text-white" />
+                  <div className="p-3 bg-purple-100 rounded-xl">
+                    <PiggyBank className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-purple-700 font-medium">
+                    <p className="text-sm text-gray-600 font-medium">
                       Tổng tiết kiệm
                     </p>
-                    <p className="text-xl font-bold text-purple-800">
+                    <p className="text-xl font-bold text-gray-900">
                       {formatCurrency(selectedReport.totalSavings)}
                     </p>
                   </div>
@@ -453,16 +475,17 @@ export default function MonthlyReportPage() {
           </div>
 
           {/* Carry Over Information */}
-          <Card>
+          <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden mb-8">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 h-1"></div>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-xl font-semibold text-gray-800">
                 <Calendar className="w-5 h-5" />
                 Thông tin chuyển tháng
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
                   <span className="font-medium text-blue-800">
                     Từ tháng trước:
                   </span>
@@ -470,7 +493,7 @@ export default function MonthlyReportPage() {
                     {formatCurrency(selectedReport.carryOverFromPreviousMonth)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
                   <span className="font-medium text-green-800">
                     Chuyển tháng sau:
                   </span>
@@ -483,9 +506,10 @@ export default function MonthlyReportPage() {
           </Card>
 
           {/* Jars Report */}
-          <Card>
+          <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 h-1"></div>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-xl font-semibold text-gray-800">
                 <BarChart3 className="w-5 h-5" />
                 Chi tiết theo hũ ({selectedReport.jarsReport.length} hũ)
               </CardTitle>
@@ -501,7 +525,7 @@ export default function MonthlyReportPage() {
                           jar.jarId,
                           jar.jarName || index
                         )}`}
-                        className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                        className="border rounded-xl p-4 hover:shadow-md transition-shadow bg-white"
                       >
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex items-center gap-3">
@@ -548,25 +572,25 @@ export default function MonthlyReportPage() {
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                          <div className="text-center p-3 bg-blue-50 rounded-lg">
+                          <div className="text-center p-3 bg-blue-50 rounded-xl">
                             <p className="text-sm text-gray-600">Phân bổ</p>
                             <p className="font-semibold text-blue-600">
                               {formatCurrency(jar.allocatedAmount || 0)}
                             </p>
                           </div>
-                          <div className="text-center p-3 bg-red-50 rounded-lg">
+                          <div className="text-center p-3 bg-red-50 rounded-xl">
                             <p className="text-sm text-gray-600">Chi tiêu</p>
                             <p className="font-semibold text-red-600">
                               {formatCurrency(jar.actualSpent || 0)}
                             </p>
                           </div>
-                          <div className="text-center p-3 bg-green-50 rounded-lg">
+                          <div className="text-center p-3 bg-green-50 rounded-xl">
                             <p className="text-sm text-gray-600">Thu nhập</p>
                             <p className="font-semibold text-green-600">
                               {formatCurrency(jar.actualIncome || 0)}
                             </p>
                           </div>
-                          <div className="text-center p-3 bg-purple-50 rounded-lg">
+                          <div className="text-center p-3 bg-purple-50 rounded-xl">
                             <p className="text-sm text-gray-600">Tiết kiệm</p>
                             <p
                               className={`font-semibold ${
@@ -693,30 +717,51 @@ export default function MonthlyReportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              📊 Báo cáo tài chính hàng tháng
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Quản lý và theo dõi báo cáo tài chính chi tiết theo từng tháng
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Link href="/admin/finance">
-              <Button variant="outline">← Quay lại Tài chính</Button>
-            </Link>
-            {/* Đã xóa nút tạo báo cáo mới */}
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Header Section */}
+        <div className="mb-8">
+          <Link href="/admin/finance" className="inline-block mb-6">
+            <Button
+              variant="ghost"
+              className="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200 group"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+              Quay lại Tài chính
+            </Button>
+          </Link>
+
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Báo cáo tài chính hàng tháng
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Quản lý và theo dõi báo cáo tài chính chi tiết theo từng tháng
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowGenerateForm(true)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Tạo báo cáo mới
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Filters */}
-        <Card>
+        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden mb-8">
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 h-1"></div>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-xl font-semibold text-gray-800">
               <Filter className="w-5 h-5" />
               Bộ lọc
             </CardTitle>
@@ -726,10 +771,10 @@ export default function MonthlyReportPage() {
               <div className="flex-1">
                 <Label htmlFor="filter-year">Năm</Label>
                 <Select value={filterYear} onValueChange={setFilterYear}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-12 bg-white border-gray-200 rounded-xl shadow-lg">
                     <SelectValue placeholder="Chọn năm" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
                     <SelectItem value="all">Tất cả năm</SelectItem>
                     {getYearOptions().map((year) => (
                       <SelectItem key={year} value={year}>
@@ -742,10 +787,10 @@ export default function MonthlyReportPage() {
               <div className="flex-1">
                 <Label htmlFor="filter-month">Tháng</Label>
                 <Select value={filterMonth} onValueChange={setFilterMonth}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-12 bg-white border-gray-200 rounded-xl shadow-lg">
                     <SelectValue placeholder="Chọn tháng" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
                     <SelectItem value="all">Tất cả tháng</SelectItem>
                     {Array.from({ length: 12 }, (_, i) => i + 1).map(
                       (month) => (
@@ -763,9 +808,9 @@ export default function MonthlyReportPage() {
               <Button
                 onClick={loadReports}
                 variant="outline"
-                className="flex items-center gap-2"
+                className="h-12 px-6 bg-white border-gray-200 hover:bg-gray-50 rounded-xl"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-4 h-4 mr-2" />
                 Làm mới
               </Button>
             </div>
@@ -773,9 +818,10 @@ export default function MonthlyReportPage() {
         </Card>
 
         {/* Reports List */}
-        <Card>
+        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 h-1"></div>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-xl font-semibold text-gray-800">
               <FileText className="w-5 h-5" />
               Danh sách báo cáo ({reports.length})
             </CardTitle>
@@ -783,8 +829,8 @@ export default function MonthlyReportPage() {
           <CardContent>
             {isLoading ? (
               <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Đang tải báo cáo...</p>
+                <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-600 font-medium">Đang tải báo cáo...</p>
               </div>
             ) : reports.length === 0 ? (
               <div className="text-center py-12">
@@ -792,12 +838,12 @@ export default function MonthlyReportPage() {
                 <p className="text-gray-500 text-lg mb-2">
                   Không có báo cáo nào
                 </p>
-                <p className="text-gray-400">
+                <p className="text-gray-400 mb-6">
                   Hãy tạo báo cáo đầu tiên để bắt đầu theo dõi tài chính
                 </p>
                 <Button
                   onClick={() => setShowGenerateForm(true)}
-                  className="mt-4 bg-purple-600 hover:bg-purple-700"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Tạo báo cáo mới
@@ -808,12 +854,12 @@ export default function MonthlyReportPage() {
                 {reports.map((report) => (
                   <div
                     key={report._id}
-                    className="border rounded-lg p-6 hover:shadow-md transition-all bg-white"
+                    className="border rounded-xl p-6 hover:shadow-md transition-all bg-white"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div
-                          className={`p-3 rounded-lg ${
+                          className={`p-3 rounded-xl ${
                             report.isFinalized
                               ? "bg-green-100"
                               : "bg-orange-100"
@@ -827,8 +873,7 @@ export default function MonthlyReportPage() {
                         </div>
                         <div>
                           <h3 className="text-xl font-semibold text-gray-900">
-                            📊 Báo cáo {getMonthName(report.month)}{" "}
-                            {report.year}
+                            Báo cáo {getMonthName(report.month)} {report.year}
                           </h3>
                           <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
                             <span>Tạo: {formatDate(report.createdAt)}</span>
@@ -850,6 +895,7 @@ export default function MonthlyReportPage() {
                           onClick={() =>
                             viewReportDetail(report.year, report.month)
                           }
+                          className="border-gray-200 hover:bg-gray-50 px-4 py-2 rounded-xl"
                         >
                           <Eye className="w-4 h-4 mr-2" />
                           Xem chi tiết
@@ -858,6 +904,7 @@ export default function MonthlyReportPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => downloadPDF(report.year, report.month)}
+                          className="border-gray-200 hover:bg-gray-50 px-4 py-2 rounded-xl"
                         >
                           <Download className="w-4 h-4 mr-2" />
                           PDF
@@ -868,7 +915,7 @@ export default function MonthlyReportPage() {
                             onClick={() =>
                               finalizeReport(report.year, report.month)
                             }
-                            className="bg-orange-600 hover:bg-orange-700"
+                            className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-xl"
                           >
                             <Lock className="w-4 h-4 mr-2" />
                             Khóa
@@ -879,25 +926,25 @@ export default function MonthlyReportPage() {
 
                     {/* Quick Stats */}
                     <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="text-center p-3 bg-blue-50 rounded-lg">
+                      <div className="text-center p-3 bg-blue-50 rounded-xl">
                         <p className="text-sm text-gray-600">Thu nhập</p>
                         <p className="font-semibold text-blue-600">
                           {formatCurrency(report.userIncome)}
                         </p>
                       </div>
-                      <div className="text-center p-3 bg-red-50 rounded-lg">
+                      <div className="text-center p-3 bg-red-50 rounded-xl">
                         <p className="text-sm text-gray-600">Chi tiêu</p>
                         <p className="font-semibold text-red-600">
                           {formatCurrency(report.totalSpent)}
                         </p>
                       </div>
-                      <div className="text-center p-3 bg-green-50 rounded-lg">
+                      <div className="text-center p-3 bg-green-50 rounded-xl">
                         <p className="text-sm text-gray-600">Tiết kiệm</p>
                         <p className="font-semibold text-green-600">
                           {formatCurrency(report.totalSavings)}
                         </p>
                       </div>
-                      <div className="text-center p-3 bg-purple-50 rounded-lg">
+                      <div className="text-center p-3 bg-purple-50 rounded-xl">
                         <p className="text-sm text-gray-600">Tỷ lệ tiết kiệm</p>
                         <p className="font-semibold text-purple-600">
                           {(
@@ -915,7 +962,95 @@ export default function MonthlyReportPage() {
           </CardContent>
         </Card>
 
-        {/* Đã xóa modal tạo báo cáo mới */}
+        {/* Generate Report Modal */}
+        {showGenerateForm && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 className="text-xl font-bold text-gray-800">
+                  Tạo báo cáo mới
+                </h3>
+                <button
+                  onClick={() => setShowGenerateForm(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-all"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <Label className="font-medium text-gray-700 mb-2 block">
+                    Năm
+                  </Label>
+                  <Select
+                    value={generateYear.toString()}
+                    onValueChange={(value) => setGenerateYear(parseInt(value))}
+                  >
+                    <SelectTrigger className="h-12 bg-white border-gray-200 rounded-xl shadow-lg">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
+                      {getYearOptions().map((year) => (
+                        <SelectItem key={year} value={year}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label className="font-medium text-gray-700 mb-2 block">
+                    Tháng
+                  </Label>
+                  <Select
+                    value={generateMonth.toString()}
+                    onValueChange={(value) => setGenerateMonth(parseInt(value))}
+                  >
+                    <SelectTrigger className="h-12 bg-white border-gray-200 rounded-xl shadow-lg">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map(
+                        (month) => (
+                          <SelectItem key={month} value={month.toString()}>
+                            {getMonthName(month)}
+                          </SelectItem>
+                        )
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+                <Button
+                  onClick={() => setShowGenerateForm(false)}
+                  variant="outline"
+                  className="px-6 py-2 rounded-xl border-gray-200 hover:bg-gray-50"
+                >
+                  Hủy
+                </Button>
+                <Button
+                  onClick={generateReport}
+                  disabled={isGenerating}
+                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl"
+                >
+                  {isGenerating ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Đang tạo...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Tạo báo cáo
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <ConfirmDialog

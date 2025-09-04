@@ -107,23 +107,27 @@ export default function UserLayout({
   showCoverImageButton = true,
 }: UserLayoutProps) {
   const pathname = usePathname();
+  const [isClient, setIsClient] = useState(false);
   const [user, setUser] = useState<UserType | null>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [currentTheme, setCurrentTheme] = useState(colorThemes[0]);
-  const [currentCoverImage, setCurrentCoverImage] = useState(
-    coverImage || "/mountain-peak-sunrise-motivation-success.png"
-  );
+  const [currentCoverImage, setCurrentCoverImage] = useState("");
 
   // Update time every second
   useEffect(() => {
+    setIsClient(true);
+    setCurrentCoverImage(
+      coverImage || "/mountain-peak-sunrise-motivation-success.png"
+    );
+
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000); // Update every second
 
     return () => clearInterval(timer);
-  }, []);
+  }, [coverImage]);
 
   // Load user data
   useEffect(() => {
@@ -171,7 +175,11 @@ export default function UserLayout({
     }
   };
 
-  const displayCoverImage = coverImage || currentCoverImage;
+  const displayCoverImage = isClient
+    ? coverImage ||
+      currentCoverImage ||
+      "/mountain-peak-sunrise-motivation-success.png"
+    : "/mountain-peak-sunrise-motivation-success.png";
 
   return (
     <div
@@ -184,20 +192,22 @@ export default function UserLayout({
         <div className="container mx-auto flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4" />
-            <span>
-              {currentTime.toLocaleTimeString("vi-VN", {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              })}{" "}
-              -{" "}
-              {currentTime.toLocaleDateString("vi-VN", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </span>
+            {isClient && (
+              <span>
+                {currentTime.toLocaleTimeString("vi-VN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })}{" "}
+                -{" "}
+                {currentTime.toLocaleDateString("vi-VN", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
+            )}
           </div>
 
           {/* Theme Selector */}
