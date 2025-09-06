@@ -34,6 +34,8 @@ import {
   Camera,
   Target,
   Wallet,
+  Bot,
+  Sparkles,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
@@ -50,6 +52,8 @@ import {
 import { User, getUser } from "@/lib/user-service";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import AIExpenseChat from "@/components/AIExpenseChat";
+import { AIExpenseParseResult } from "@/lib/ai-expense-service";
 
 // Icon mapping cho các jars
 const iconMap = {
@@ -79,6 +83,7 @@ export default function FinancePage() {
   const [selectedMonth, setSelectedMonth] = useState<string>(
     new Date().toISOString().slice(0, 7)
   ); // YYYY-MM format
+  const [showAIChat, setShowAIChat] = useState(false);
 
   // Cover image and user states
   const [coverImage, setCoverImage] = useState<string>(
@@ -490,6 +495,20 @@ export default function FinancePage() {
     }
   };
 
+  // Handle AI expense result
+  const handleAIExpenseResult = (result: AIExpenseParseResult) => {
+    setFormData({
+      jarId: result.jarId || "",
+      amount: result.amount?.toString() || "",
+      description: result.description || "",
+      category: result.category || "",
+    });
+
+    setShowAIChat(false);
+    setShowAddForm(true);
+    setEditingTransaction(null);
+  };
+
   if (!isMounted) {
     return <div>Loading...</div>;
   }
@@ -605,22 +624,31 @@ export default function FinancePage() {
                 </Badge>
               </div>
             </div>
-            <Button
-              onClick={() => {
-                setShowAddForm(true);
-                setEditingTransaction(null);
-                setFormData({
-                  jarId: "",
-                  amount: "",
-                  description: "",
-                  category: "",
-                });
-              }}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Thêm chi tiêu
-            </Button>
+            <div className="flex space-x-3">
+              <Button
+                onClick={() => setShowAIChat(true)}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+              >
+                <Bot className="w-4 h-4 mr-2" />
+                AI Trợ lý
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowAddForm(true);
+                  setEditingTransaction(null);
+                  setFormData({
+                    jarId: "",
+                    amount: "",
+                    description: "",
+                    category: "",
+                  });
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Thêm chi tiêu
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -1082,6 +1110,14 @@ export default function FinancePage() {
         config={config}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
+      />
+
+      {/* AI Expense Chat */}
+      <AIExpenseChat
+        isOpen={showAIChat}
+        onClose={() => setShowAIChat(false)}
+        onExpenseParsed={handleAIExpenseResult}
+        jars={jars}
       />
     </UserLayout>
   );
