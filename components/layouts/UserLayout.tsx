@@ -11,6 +11,7 @@ import {
   X,
   Clock,
   Palette,
+  PiggyBank,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -46,6 +47,12 @@ const navigationItems = [
     href: "/finance",
     icon: Wallet,
     description: "Quản lý chi tiêu & tiết kiệm",
+  },
+  {
+    name: "Tiết kiệm",
+    href: "/saving",
+    icon: PiggyBank,
+    description: "Theo dõi mục tiêu tiết kiệm",
   },
   {
     name: "Ghi chú",

@@ -18,6 +18,7 @@ import {
   User,
   Quote,
   ListChecks,
+  Wallet,
 } from "lucide-react";
 
 const adminNav = [
@@ -30,6 +31,11 @@ const adminNav = [
     href: "/admin/finance",
     label: "Quản lý chi tiêu",
     icon: <PiggyBank className="w-4 h-4" />,
+  },
+  {
+    href: "/admin/saving",
+    label: "Tiết kiệm",
+    icon: <Wallet className="w-4 h-4" />,
   },
   {
     href: "/admin/goals",
