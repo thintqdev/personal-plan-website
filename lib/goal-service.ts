@@ -1,4 +1,5 @@
 import { API_URL } from "./types";
+import { getAuthHeaders } from "./utils";
 
 // Goal-specific types
 export interface SubGoal {
@@ -52,9 +53,7 @@ export async function getGoals(): Promise<Goal[]> {
     try {
         const response = await fetch(`${API_URL}/api/goals`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -87,9 +86,7 @@ export async function createGoal(goal: CreateGoalRequest): Promise<Goal> {
     try {
         const response = await fetch(`${API_URL}/api/goals`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(goal),
         });
 
@@ -117,9 +114,7 @@ export async function updateGoal(
     try {
         const response = await fetch(`${API_URL}/api/goals/${goalId}`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(updates),
         });
 
@@ -144,9 +139,7 @@ export async function deleteGoal(goalId: string): Promise<void> {
     try {
         const response = await fetch(`${API_URL}/api/goals/${goalId}`, {
             method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -167,9 +160,7 @@ export async function getGoal(goalId: string): Promise<Goal> {
     try {
         const response = await fetch(`${API_URL}/api/goals/${goalId}`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {

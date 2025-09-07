@@ -1,4 +1,5 @@
 import { API_URL } from "./types";
+import { getAuthHeaders } from "./utils";
 
 // Finance Management Types
 export interface FinanceJar {
@@ -194,9 +195,7 @@ export async function getFinanceJars(): Promise<FinanceJar[]> {
     try {
         const response = await fetch(`${API_URL}/api/finance/jars`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -220,9 +219,7 @@ export async function getFinanceJar(jarId: string): Promise<FinanceJar> {
     try {
         const response = await fetch(`${API_URL}/api/finance/jars/${jarId}`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -248,9 +245,7 @@ export async function createFinanceJar(
     try {
         const response = await fetch(`${API_URL}/api/finance/jars`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(jarData),
         });
 
@@ -278,9 +273,7 @@ export async function updateFinanceJar(
     try {
         const response = await fetch(`${API_URL}/api/finance/jars/${jarId}`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(updates),
         });
 
@@ -305,9 +298,7 @@ export async function deleteFinanceJar(jarId: string): Promise<void> {
     try {
         const response = await fetch(`${API_URL}/api/finance/jars/${jarId}`, {
             method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -334,9 +325,7 @@ export async function getTransactions(jarId?: string): Promise<Transaction[]> {
 
         const response = await fetch(url, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -364,9 +353,7 @@ export async function getTransaction(
             `${API_URL}/api/finance/transactions/${transactionId}`,
             {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
             }
         );
 
@@ -393,9 +380,7 @@ export async function createTransaction(
     try {
         const response = await fetch(`${API_URL}/api/finance/transactions`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(transactionData),
         });
 
@@ -425,9 +410,7 @@ export async function updateTransaction(
             `${API_URL}/api/finance/transactions/${transactionId}`,
             {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
                 body: JSON.stringify(updates),
             }
         );
@@ -455,9 +438,7 @@ export async function deleteTransaction(transactionId: string): Promise<void> {
             `${API_URL}/api/finance/transactions/${transactionId}`,
             {
                 method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
             }
         );
 
@@ -483,9 +464,7 @@ export async function getTransactionsByJar(
             `${API_URL}/api/finance/jars/${jarId}/transactions`,
             {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
             }
         );
 
@@ -510,9 +489,7 @@ export async function getTransactionStats(): Promise<any> {
     try {
         const response = await fetch(`${API_URL}/api/finance/transactions/stats`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -536,9 +513,7 @@ export async function getFinanceOverview(): Promise<FinanceOverview> {
     try {
         const response = await fetch(`${API_URL}/api/finance/overview`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -576,9 +551,7 @@ export async function getMonthlyReports(
 
         const response = await fetch(url, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -607,9 +580,7 @@ export async function getMonthlyReport(
             `${API_URL}/api/finance/reports/${year}/${month}`,
             {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
             }
         );
 
@@ -636,9 +607,7 @@ export async function generateMonthlyReport(
     try {
         const response = await fetch(`${API_URL}/api/finance/reports/generate`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(requestData),
         });
 
@@ -668,9 +637,7 @@ export async function finalizeMonthlyReport(
             `${API_URL}/api/finance/reports/${year}/${month}/finalize`,
             {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
             }
         );
 
@@ -700,9 +667,7 @@ export async function getMonthlyReportPDFData(
             `${API_URL}/api/finance/reports/${year}/${month}/pdf`,
             {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
             }
         );
 

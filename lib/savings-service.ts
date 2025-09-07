@@ -1,3 +1,6 @@
+import { API_URL } from "./types";
+import { getAuthHeaders } from "./utils";
+
 export interface SavingsGoal {
     _id: string;
     name: string;
@@ -52,12 +55,13 @@ export interface AddMoneyRequest {
     description?: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
 // Get all savings goals
 export async function getSavingsGoals(): Promise<SavingsGoal[]> {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/savings-goals`);
+        const response = await fetch(`${API_URL}/api/savings-goals`, {
+            method: 'GET',
+            headers: getAuthHeaders(),
+        });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -70,9 +74,10 @@ export async function getSavingsGoals(): Promise<SavingsGoal[]> {
 }// Create a new savings goal
 export async function createSavingsGoal(goal: CreateSavingsGoalRequest): Promise<SavingsGoal> {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/savings-goals`, {
+        const response = await fetch(`${API_URL}/api/savings-goals`, {
             method: 'POST',
             headers: {
+                ...getAuthHeaders(),
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(goal),
@@ -91,9 +96,10 @@ export async function createSavingsGoal(goal: CreateSavingsGoalRequest): Promise
 // Update a savings goal
 export async function updateSavingsGoal(id: string, updates: UpdateSavingsGoalRequest): Promise<SavingsGoal> {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/savings-goals/${id}`, {
+        const response = await fetch(`${API_URL}/api/savings-goals/${id}`, {
             method: 'PUT',
             headers: {
+                ...getAuthHeaders(),
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(updates),
@@ -112,8 +118,9 @@ export async function updateSavingsGoal(id: string, updates: UpdateSavingsGoalRe
 // Delete a savings goal
 export async function deleteSavingsGoal(id: string): Promise<void> {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/savings-goals/${id}`, {
+        const response = await fetch(`${API_URL}/api/savings-goals/${id}`, {
             method: 'DELETE',
+            headers: getAuthHeaders(),
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -127,9 +134,10 @@ export async function deleteSavingsGoal(id: string): Promise<void> {
 // Add money to a savings goal
 export async function addMoneyToGoal(id: string, request: AddMoneyRequest): Promise<SavingsGoal> {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/savings-goals/${id}/add-money`, {
+        const response = await fetch(`${API_URL}/api/savings-goals/${id}/add-money`, {
             method: 'POST',
             headers: {
+                ...getAuthHeaders(),
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(request),
@@ -148,9 +156,10 @@ export async function addMoneyToGoal(id: string, request: AddMoneyRequest): Prom
 // Withdraw money from a savings goal
 export async function withdrawMoneyFromGoal(id: string, request: AddMoneyRequest): Promise<SavingsGoal> {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/savings-goals/${id}/withdraw-money`, {
+        const response = await fetch(`${API_URL}/api/savings-goals/${id}/withdraw-money`, {
             method: 'POST',
             headers: {
+                ...getAuthHeaders(),
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(request),
@@ -169,7 +178,10 @@ export async function withdrawMoneyFromGoal(id: string, request: AddMoneyRequest
 // Get transactions for a savings goal
 export async function getSavingsGoalTransactions(id: string): Promise<SavingsTransaction[]> {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/savings-goals/${id}/transactions`);
+        const response = await fetch(`${API_URL}/api/savings-goals/${id}/transactions`, {
+            method: 'GET',
+            headers: getAuthHeaders(),
+        });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

@@ -535,18 +535,18 @@ export default function FinancePage() {
       onCoverImageChange={changeCoverImage}
     >
       {/* Quick Stats Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
+          <CardContent className="p-3 lg:p-4 text-center">
+            <div className="text-lg lg:text-2xl font-bold text-gray-900 mb-1">
               {jars.length}
             </div>
-            <div className="text-sm text-gray-600">Tổng số hủ</div>
+            <div className="text-xs lg:text-sm text-gray-600">Tổng số hủ</div>
           </CardContent>
         </Card>
         <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600 mb-1">
+          <CardContent className="p-3 lg:p-4 text-center">
+            <div className="text-lg lg:text-2xl font-bold text-green-600 mb-1">
               {
                 jars.filter((jar) => {
                   const spent = Math.abs(jar.currentAmount);
@@ -555,12 +555,12 @@ export default function FinancePage() {
                 }).length
               }
             </div>
-            <div className="text-sm text-gray-600">An toàn</div>
+            <div className="text-xs lg:text-sm text-gray-600">An toàn</div>
           </CardContent>
         </Card>
         <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-orange-600 mb-1">
+          <CardContent className="p-3 lg:p-4 text-center">
+            <div className="text-lg lg:text-2xl font-bold text-orange-600 mb-1">
               {
                 jars.filter((jar) => {
                   const spent = Math.abs(jar.currentAmount);
@@ -569,12 +569,12 @@ export default function FinancePage() {
                 }).length
               }
             </div>
-            <div className="text-sm text-gray-600">Cảnh báo</div>
+            <div className="text-xs lg:text-sm text-gray-600">Cảnh báo</div>
           </CardContent>
         </Card>
         <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-red-600 mb-1">
+          <CardContent className="p-3 lg:p-4 text-center">
+            <div className="text-lg lg:text-2xl font-bold text-red-600 mb-1">
               {
                 jars.filter((jar) => {
                   const spent = Math.abs(jar.currentAmount);
@@ -583,31 +583,35 @@ export default function FinancePage() {
                 }).length
               }
             </div>
-            <div className="text-sm text-gray-600">Vượt ngân sách</div>
+            <div className="text-xs lg:text-sm text-gray-600">
+              Vượt ngân sách
+            </div>
           </CardContent>
         </Card>
       </div>
 
       {/* User Profile Card */}
       <Card className="bg-white border border-gray-200">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <Avatar className="w-16 h-16">
+        <CardContent className="p-4 lg:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <Avatar className="w-12 h-12 lg:w-16 lg:h-16 mx-auto sm:mx-0">
               <AvatarImage
                 src={user?.avatar || "/friendly-person-avatar.png"}
                 alt={user?.name || "User"}
               />
               <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
             </Avatar>
-            <div className="flex-1">
-              <h3 className="text-xl font-semibold text-gray-900">
+            <div className="flex-1 text-center sm:text-left">
+              <h3 className="text-lg lg:text-xl font-semibold text-gray-900">
                 {user?.name || "Người dùng"}
               </h3>
-              <p className="text-gray-600">{user?.role || "Người dùng"}</p>
-              <div className="flex items-center gap-2 mt-2">
+              <p className="text-sm lg:text-base text-gray-600">
+                {user?.role || "Người dùng"}
+              </p>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
                 <Badge
                   variant="outline"
-                  className="text-blue-600 border-blue-200"
+                  className="text-blue-600 border-blue-200 text-xs"
                 >
                   <Calendar className="w-3 h-3 mr-1" />
                   {new Date().toLocaleDateString("vi-VN", {
@@ -617,17 +621,17 @@ export default function FinancePage() {
                 </Badge>
                 <Badge
                   variant="outline"
-                  className="text-green-600 border-green-200"
+                  className="text-green-600 border-green-200 text-xs"
                 >
                   <PiggyBank className="w-3 h-3 mr-1" />
                   {transactions.length} giao dịch
                 </Badge>
               </div>
             </div>
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
               <Button
                 onClick={() => setShowAIChat(true)}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-sm px-3 py-2"
               >
                 <Bot className="w-4 h-4 mr-2" />
                 AI Trợ lý
@@ -643,7 +647,7 @@ export default function FinancePage() {
                     category: "",
                   });
                 }}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-2"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Thêm chi tiêu
@@ -654,18 +658,18 @@ export default function FinancePage() {
       </Card>
 
       {/* Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-          <CardContent className="p-6">
+          <CardContent className="p-4 lg:p-6">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-red-500 rounded-lg">
-                <TrendingDown className="w-6 h-6 text-white" />
+              <div className="p-2 bg-red-500 rounded-lg flex-shrink-0">
+                <TrendingDown className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <div>
-                <p className="text-sm text-red-700 font-medium">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs lg:text-sm text-red-700 font-medium">
                   Chi tiêu tháng này
                 </p>
-                <p className="text-xl font-bold text-red-800">
+                <p className="text-base lg:text-xl font-bold text-red-800 truncate">
                   {formatCurrency(getTotalExpenses())}
                 </p>
               </div>
@@ -674,32 +678,34 @@ export default function FinancePage() {
         </Card>
 
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-6">
+          <CardContent className="p-4 lg:p-6">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-500 rounded-lg">
-                <PiggyBank className="w-6 h-6 text-white" />
+              <div className="p-2 bg-blue-500 rounded-lg flex-shrink-0">
+                <PiggyBank className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <div>
-                <p className="text-sm text-blue-700 font-medium">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs lg:text-sm text-blue-700 font-medium">
                   Số hủ đang sử dụng
                 </p>
-                <p className="text-xl font-bold text-blue-800">{jars.length}</p>
+                <p className="text-base lg:text-xl font-bold text-blue-800">
+                  {jars.length}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <CardContent className="p-6">
+          <CardContent className="p-4 lg:p-6">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-purple-500 rounded-lg">
-                <CalendarDays className="w-6 h-6 text-white" />
+              <div className="p-2 bg-purple-500 rounded-lg flex-shrink-0">
+                <CalendarDays className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <div>
-                <p className="text-sm text-purple-700 font-medium">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs lg:text-sm text-purple-700 font-medium">
                   Giao dịch tháng này
                 </p>
-                <p className="text-xl font-bold text-purple-800">
+                <p className="text-base lg:text-xl font-bold text-purple-800">
                   {transactions.length}
                 </p>
               </div>
@@ -714,18 +720,18 @@ export default function FinancePage() {
               : "from-green-50 to-green-100 border-green-200"
           }`}
         >
-          <CardContent className="p-6">
+          <CardContent className="p-4 lg:p-6">
             <div className="flex items-center space-x-3">
               <div
-                className={`p-2 rounded-lg ${
+                className={`p-2 rounded-lg flex-shrink-0 ${
                   getOverspentJarsCount() > 0 ? "bg-orange-500" : "bg-green-500"
                 }`}
               >
-                <DollarSign className="w-6 h-6 text-white" />
+                <DollarSign className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <p
-                  className={`text-sm font-medium ${
+                  className={`text-xs lg:text-sm font-medium ${
                     getOverspentJarsCount() > 0
                       ? "text-orange-700"
                       : "text-green-700"
@@ -734,7 +740,7 @@ export default function FinancePage() {
                   {getOverspentJarsCount() > 0 ? "Hủ vượt chi" : "Tình trạng"}
                 </p>
                 <p
-                  className={`text-xl font-bold ${
+                  className={`text-base lg:text-xl font-bold ${
                     getOverspentJarsCount() > 0
                       ? "text-orange-800"
                       : "text-green-800"
@@ -752,23 +758,23 @@ export default function FinancePage() {
 
       {/* Jar Status Overview */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <PiggyBank className="w-5 h-5" />
+        <CardHeader className="p-4 lg:p-6">
+          <CardTitle className="flex items-center space-x-2 text-base lg:text-lg">
+            <PiggyBank className="w-4 h-4 lg:w-5 lg:h-5" />
             <span>Tình trạng các Hủ Chi tiêu</span>
           </CardTitle>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-xs lg:text-sm text-gray-600 mt-1">
             Theo dõi ngân sách và chi tiêu thực tế của từng hủ trong tháng
           </p>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <CardContent className="p-4 lg:p-6 pt-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-4">
             {jars.map((jar) => {
               const status = getJarStatus(jar);
               return (
                 <div
                   key={jar._id}
-                  className={`p-4 rounded-lg border-2 transition-all hover:shadow-md ${
+                  className={`p-3 lg:p-4 rounded-lg border-2 transition-all hover:shadow-md ${
                     status.color === "red"
                       ? "border-red-200 bg-red-50"
                       : status.color === "orange"
@@ -777,15 +783,17 @@ export default function FinancePage() {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <div className={`p-2 rounded-lg bg-${jar.color}-100`}>
+                    <div className="flex items-center space-x-2 min-w-0 flex-1">
+                      <div
+                        className={`p-1.5 lg:p-2 rounded-lg bg-${jar.color}-100 flex-shrink-0`}
+                      >
                         {renderIcon(jar.icon)}
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-gray-900 text-sm lg:text-base truncate">
                           {jar.name}
                         </h3>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-xs lg:text-sm text-gray-500">
                           {jar.percentage}% ngân sách
                         </p>
                       </div>
@@ -793,14 +801,14 @@ export default function FinancePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs lg:text-sm">
                       <span className="text-gray-600">Ngân sách:</span>
                       <span className="font-medium">
                         {formatCurrency(jar.targetAmount)}
                       </span>
                     </div>
 
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs lg:text-sm">
                       <span className="text-gray-600">Đã chi:</span>
                       <span className="font-medium text-red-600">
                         {formatCurrency(status.spentAmount)}
@@ -808,7 +816,7 @@ export default function FinancePage() {
                     </div>
 
                     <div
-                      className={`flex justify-between text-sm font-semibold ${
+                      className={`flex justify-between text-xs lg:text-sm font-semibold ${
                         status.color === "red"
                           ? "text-red-600"
                           : status.color === "orange"
@@ -817,7 +825,7 @@ export default function FinancePage() {
                       }`}
                     >
                       <span>Tình trạng:</span>
-                      <span>{status.message}</span>
+                      <span className="truncate ml-2">{status.message}</span>
                     </div>
 
                     {/* Progress Bar */}
@@ -871,67 +879,70 @@ export default function FinancePage() {
 
       {/* Transactions List */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Clock className="w-5 h-5" />
+        <CardHeader className="p-4 lg:p-6">
+          <CardTitle className="flex items-center space-x-2 text-base lg:text-lg">
+            <Clock className="w-4 h-4 lg:w-5 lg:h-5" />
             <span>Lịch sử Chi tiêu</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 lg:p-6 pt-0">
           {transactions.length === 0 ? (
             <div className="text-center py-8">
               <PiggyBank className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">
+              <p className="text-gray-500 text-sm lg:text-base">
                 Chưa có giao dịch nào trong tháng này
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 lg:space-y-4">
               {transactions.map((transaction) => {
                 const jarInfo = getJarInfo(transaction);
                 return (
                   <div
                     key={transaction._id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="flex items-center justify-between p-3 lg:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                   >
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-3 lg:space-x-4 min-w-0 flex-1">
                       <div
-                        className={`p-2 rounded-lg bg-${
+                        className={`p-1.5 lg:p-2 rounded-lg bg-${
                           jarInfo?.color || "gray"
-                        }-100`}
+                        }-100 flex-shrink-0`}
                       >
                         {jarInfo ? renderIcon(jarInfo.icon) : <span>💰</span>}
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <h3 className="font-medium text-gray-900">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-2">
+                          <h3 className="font-medium text-gray-900 text-sm lg:text-base truncate">
                             {transaction.description}
                           </h3>
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge
+                            variant="secondary"
+                            className="text-xs w-fit mt-1 lg:mt-0"
+                          >
                             {jarInfo?.name || "Unknown Jar"}
                           </Badge>
                         </div>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 text-xs lg:text-sm text-gray-500 mt-1">
                           <span>{transaction.category}</span>
-                          <span>•</span>
+                          <span className="hidden lg:inline">•</span>
                           <span>{formatDate(transaction.date)}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
                       <div className="text-right">
-                        <p className="font-semibold text-red-600">
+                        <p className="font-semibold text-red-600 text-sm lg:text-base">
                           -{formatCurrency(transaction.amount)}
                         </p>
                       </div>
-                      <div className="flex space-x-2">
+                      <div className="flex space-x-1 lg:space-x-2">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => startEdit(transaction)}
-                          className="h-8 w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-100"
+                          className="h-6 w-6 lg:h-8 lg:w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-100"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="w-3 h-3 lg:w-4 lg:h-4" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -939,9 +950,9 @@ export default function FinancePage() {
                           onClick={() =>
                             handleDeleteTransaction(transaction._id)
                           }
-                          className="h-8 w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-100"
+                          className="h-6 w-6 lg:h-8 lg:w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-100"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
                         </Button>
                       </div>
                     </div>
@@ -955,17 +966,17 @@ export default function FinancePage() {
 
       {/* Add/Edit Transaction Modal */}
       {showAddForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-md bg-white">
-            <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-t-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 lg:p-4 z-50">
+          <Card className="w-full max-w-md bg-white max-h-[90vh] overflow-y-auto">
+            <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-t-lg p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-xl">
+                  <CardTitle className="text-lg lg:text-xl">
                     {editingTransaction
                       ? "✏️ Sửa Chi tiêu"
                       : "💰 Thêm Chi tiêu"}
                   </CardTitle>
-                  <p className="text-purple-100 text-sm mt-1">
+                  <p className="text-purple-100 text-xs lg:text-sm mt-1">
                     {editingTransaction
                       ? "Cập nhật thông tin chi tiêu"
                       : "Ghi lại khoản chi tiêu mới"}
@@ -978,15 +989,17 @@ export default function FinancePage() {
                     setShowAddForm(false);
                     setEditingTransaction(null);
                   }}
-                  className="text-white hover:bg-purple-600"
+                  className="text-white hover:bg-purple-600 h-8 w-8 p-0"
                 >
                   <X className="w-4 h-4" />
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="p-6 space-y-4">
+            <CardContent className="p-4 lg:p-6 space-y-4">
               <div>
-                <Label htmlFor="jar-select">Chọn hủ chi tiêu *</Label>
+                <Label htmlFor="jar-select" className="text-sm lg:text-base">
+                  Chọn hủ chi tiêu *
+                </Label>
                 <Select
                   value={formData.jarId}
                   onValueChange={(value) =>
@@ -994,7 +1007,7 @@ export default function FinancePage() {
                   }
                   disabled={!!editingTransaction}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Chọn hủ để chi tiêu" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1002,8 +1015,10 @@ export default function FinancePage() {
                       <SelectItem key={jar._id} value={jar._id}>
                         <div className="flex items-center space-x-2">
                           {renderIcon(jar.icon)}
-                          <span>{jar.name}</span>
-                          <Badge variant="outline" className="ml-2">
+                          <span className="text-sm lg:text-base">
+                            {jar.name}
+                          </span>
+                          <Badge variant="outline" className="ml-2 text-xs">
                             {jar.percentage}%
                           </Badge>
                         </div>
@@ -1014,7 +1029,9 @@ export default function FinancePage() {
               </div>
 
               <div>
-                <Label htmlFor="amount">Số tiền *</Label>
+                <Label htmlFor="amount" className="text-sm lg:text-base">
+                  Số tiền *
+                </Label>
                 <Input
                   id="amount"
                   type="number"
@@ -1026,12 +1043,14 @@ export default function FinancePage() {
                     }))
                   }
                   placeholder="Nhập số tiền đã chi"
-                  className="text-lg"
+                  className="text-base lg:text-lg mt-1"
                 />
               </div>
 
               <div>
-                <Label htmlFor="description">Mục đích chi tiêu *</Label>
+                <Label htmlFor="description" className="text-sm lg:text-base">
+                  Mục đích chi tiêu *
+                </Label>
                 <Textarea
                   id="description"
                   value={formData.description}
@@ -1043,12 +1062,14 @@ export default function FinancePage() {
                   }
                   placeholder="Mô tả chi tiết về khoản chi tiêu này..."
                   rows={3}
-                  className="resize-none"
+                  className="resize-none mt-1 text-sm lg:text-base"
                 />
               </div>
 
               <div>
-                <Label htmlFor="category">Danh mục</Label>
+                <Label htmlFor="category" className="text-sm lg:text-base">
+                  Danh mục
+                </Label>
                 <Select
                   value={formData.category}
                   onValueChange={(value) =>
@@ -1058,7 +1079,7 @@ export default function FinancePage() {
                     }))
                   }
                 >
-                  <SelectTrigger id="category">
+                  <SelectTrigger id="category" className="mt-1">
                     <SelectValue placeholder="Chọn danh mục chi tiêu" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1075,14 +1096,14 @@ export default function FinancePage() {
                 </Select>
               </div>
 
-              <div className="flex space-x-3 pt-4">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
                 <Button
                   onClick={
                     editingTransaction
                       ? handleUpdateTransaction
                       : handleAddTransaction
                   }
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-sm lg:text-base"
                 >
                   <Save className="w-4 h-4 mr-2" />
                   {editingTransaction ? "Cập nhật" : "Thêm Chi tiêu"}
@@ -1093,7 +1114,7 @@ export default function FinancePage() {
                     setShowAddForm(false);
                     setEditingTransaction(null);
                   }}
-                  className="flex-1"
+                  className="flex-1 text-sm lg:text-base"
                 >
                   <X className="w-4 h-4 mr-2" />
                   Hủy

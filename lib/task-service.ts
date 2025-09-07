@@ -1,4 +1,5 @@
 import { API_URL } from "./types";
+import { getAuthHeaders } from "./utils";
 
 // Task-specific types
 export interface Task {
@@ -35,6 +36,27 @@ export interface TaskCompletion {
     completed: boolean;
 }
 
+export interface DailyStat {
+    day: string;
+    totalTasks: number;
+    completedTasks: number;
+    completionRate: number;
+}
+
+export interface WeeklyStats {
+    totalTasks: number;
+    completedTasks: number;
+    completionRate: number;
+    currentStreak: number;
+    longestStreak: number;
+    dailyStats: DailyStat[];
+    summary: {
+        bestDay: DailyStat;
+        activeDays: number;
+        perfectDays: number;
+    };
+}
+
 /**
  * Get tasks by day from the API (Main API endpoint)
  */
@@ -44,9 +66,7 @@ export async function getTasksByDay(day: string): Promise<DayTasks> {
             `${API_URL}/api/tasks?day=${encodeURIComponent(day)}`,
             {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
             }
         );
 
@@ -76,9 +96,7 @@ export async function getTasks(day?: string): Promise<Task[]> {
 
         const response = await fetch(url, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -115,9 +133,7 @@ export async function addTask(taskData: CreateTaskRequest): Promise<Task> {
     try {
         const response = await fetch(`${API_URL}/api/tasks`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(taskData),
         });
 
@@ -145,9 +161,7 @@ export async function updateTask(
     try {
         const response = await fetch(`${API_URL}/api/tasks/${taskId}`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(taskData),
         });
 
@@ -172,9 +186,7 @@ export async function deleteTask(taskId: string): Promise<void> {
     try {
         const response = await fetch(`${API_URL}/api/tasks/${taskId}`, {
             method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -198,9 +210,7 @@ export async function toggleTaskCompletion(
     try {
         const response = await fetch(`${API_URL}/api/tasks/${taskId}/complete`, {
             method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify({ completed }),
         });
 
@@ -225,9 +235,7 @@ export async function getTaskStatus(taskId: string): Promise<Task> {
     try {
         const response = await fetch(`${API_URL}/api/tasks/${taskId}/status`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -286,4 +294,31 @@ export function getCurrentDayIndex(): number {
     const today = new Date();
     const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
     return currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1; // Convert to our 0-6 index (Mon-Sun)
+}
+
+/**
+ * Get weekly statistics for tasks
+ */
+export async function getWeeklyStats(): Promise<WeeklyStats> {
+    try {
+        const response = await fetch(
+            `${API_URL}/api/tasks/weekly-stats`,
+            {
+                method: "GET",
+                headers: getAuthHeaders(),
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `Failed to fetch weekly stats: ${response.status} ${response.statusText}`
+            );
+        }
+
+        const weeklyStats = await response.json();
+        return weeklyStats;
+    } catch (error) {
+        console.error("Error fetching weekly stats:", error);
+        throw error;
+    }
 }
