@@ -1,41 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import UserLayout from "@/components/layouts/UserLayout";
 import {
   Calendar,
-  Clock,
   Target,
-  Settings,
-  Camera,
-  Timer,
-  Sun,
-  Moon,
-  Palette,
-  Goal,
-  Plus,
-  Edit2,
-  Trash2,
   CheckCircle,
   Circle,
   ChevronDown,
   ChevronRight,
-  Flag,
-  TrendingUp,
-  Award,
-  Star,
-  Zap,
-  Trophy,
-  Heart,
   BookOpen,
-  Rocket,
-  Sparkles,
   GitBranch,
-  MoreHorizontal,
+  Plus,
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
@@ -121,14 +100,6 @@ export default function GoalsPage() {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [isLoadingQuotes, setIsLoadingQuotes] = useState(true);
   const [isLoadingGoals, setIsLoadingGoals] = useState(true);
-
-  const motivationalQuotes = [
-    "Mỗi ngày là một cơ hội mới để tiến gần hơn đến ước mơ của bạn",
-    "Thành công bắt đầu từ việc dám ước mơ và hành động",
-    "Không có gì là không thể khi bạn có quyết tâm và kiên trì",
-    "Mục tiêu rõ ràng là la bàn dẫn lối cho hành trình thành công",
-    "Hôm nay bạn có thể làm những điều mà ngày mai sẽ tự hào",
-  ];
 
   useEffect(() => {
     setIsMounted(true);
@@ -248,27 +219,6 @@ export default function GoalsPage() {
       console.error("Failed to save cover image preference:", error);
     }
   };
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    });
-  };
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("vi-VN", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const displayQuotes =
-    quotes.length > 0 ? quotes.map((q) => q.text) : motivationalQuotes;
 
   const toggleGoalExpansion = (goalId: string) => {
     const newExpanded = new Set(expandedGoals);
@@ -417,21 +367,6 @@ export default function GoalsPage() {
               </CardContent>
             </Card>
           </div>
-
-          {/* Motivational Quote */}
-          <Card className={`${currentTheme.cardBg} mb-8`}>
-            <CardContent className="p-6 text-center">
-              <div className="text-lg text-gray-700 italic">
-                "
-                {
-                  displayQuotes[
-                    Math.floor(Math.random() * displayQuotes.length)
-                  ]
-                }
-                "
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Goals Tree View */}
           {(() => {

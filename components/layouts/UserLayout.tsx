@@ -18,6 +18,7 @@ import {
   ChevronDown,
   User,
   Quote as QuoteIcon,
+  BookA,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -75,6 +76,12 @@ const navigationItems = [
     href: "/notes",
     icon: BookOpen,
     description: "Ghi chú & tài liệu cá nhân",
+  },
+  {
+    name: "Nhật ký",
+    href: "/dairy",
+    icon: BookA,
+    description: "Nhật ký",
   },
 ];
 
@@ -406,11 +413,11 @@ export default function UserLayout({
                   <DropdownMenuSeparator className="bg-gray-200" />
                   <DropdownMenuItem asChild>
                     <Link
-                      href="/profile"
+                      href="/admin"
                       className="flex items-center gap-2 text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus:bg-gray-50 focus:text-gray-900"
                     >
                       <User className="w-4 h-4" />
-                      Thông tin cá nhân
+                      Quản lý tài khoản
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>

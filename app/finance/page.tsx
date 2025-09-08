@@ -43,8 +43,13 @@ import {
   FinanceJar,
   Transaction,
   CreateTransactionRequest,
+  TransactionFilters,
+  TransactionResponse,
+  PaginationInfo,
   getFinanceJars,
   getTransactions,
+  getTransactionsWithPagination,
+  getTransactionStats,
   createTransaction,
   updateTransaction,
   deleteTransaction,
@@ -75,6 +80,18 @@ export default function FinancePage() {
   const [isMounted, setIsMounted] = useState(false);
   const [jars, setJars] = useState<FinanceJar[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [monthlyStats, setMonthlyStats] = useState({
+    totalExpenses: 0,
+    totalTransactions: 0,
+  });
+  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
+    currentPage: 1,
+    totalPages: 1,
+    totalCount: 0,
+    limit: 10,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingTransaction, setEditingTransaction] =
@@ -84,6 +101,12 @@ export default function FinancePage() {
     new Date().toISOString().slice(0, 7)
   ); // YYYY-MM format
   const [showAIChat, setShowAIChat] = useState(false);
+
+  // Pagination and filtering states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [dateFilter, setDateFilter] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   // Cover image and user states
   const [coverImage, setCoverImage] = useState<string>(
@@ -110,9 +133,16 @@ export default function FinancePage() {
 
   useEffect(() => {
     if (isMounted) {
+      Promise.all([loadTransactions(), loadMonthlyStats()]);
+      setCurrentPage(1); // Reset page when filters change
+    }
+  }, [selectedJarFilter, selectedMonth, dateFilter, searchTerm, isMounted]);
+
+  useEffect(() => {
+    if (isMounted) {
       loadTransactions();
     }
-  }, [selectedJarFilter, selectedMonth, isMounted]);
+  }, [currentPage, isMounted]);
 
   // Cover image options
   const coverImages = [
@@ -141,8 +171,8 @@ export default function FinancePage() {
       setJars(jarsData.filter((jar) => jar.isActive));
       setUser(userData);
 
-      // Load transactions with current filters
-      await loadTransactions();
+      // Load transactions and monthly stats
+      await Promise.all([loadTransactions(), loadMonthlyStats()]);
     } catch (error) {
       console.error("Error loading data:", error);
       setJars([]);
@@ -162,12 +192,46 @@ export default function FinancePage() {
     }
   };
 
+  const loadMonthlyStats = async () => {
+    try {
+      // Get all transactions for the selected month to calculate stats
+      const monthStart = selectedMonth + "-01";
+      const monthEnd = new Date(
+        new Date(monthStart).getFullYear(),
+        new Date(monthStart).getMonth() + 1,
+        0
+      )
+        .toISOString()
+        .slice(0, 10);
+
+      const response = await getTransactionsWithPagination({
+        month: selectedMonth,
+        limit: 1000, // Get all for stats calculation
+      });
+
+      const totalExpenses = response.transactions
+        .filter((t) => t.type === "expense")
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      setMonthlyStats({
+        totalExpenses,
+        totalTransactions: response.pagination.totalCount,
+      });
+    } catch (error) {
+      console.error("Error loading monthly stats:", error);
+      setMonthlyStats({
+        totalExpenses: 0,
+        totalTransactions: 0,
+      });
+    }
+  };
+
   const reloadAll = async () => {
     // Reload jars first, then transactions with filters
     try {
       const jarsData = await getFinanceJars();
       setJars(jarsData.filter((jar) => jar.isActive !== false));
-      await loadTransactions();
+      await Promise.all([loadTransactions(), loadMonthlyStats()]);
     } catch (error) {
       console.error("Error reloading data:", error);
     }
@@ -175,21 +239,43 @@ export default function FinancePage() {
 
   const loadTransactions = async () => {
     try {
-      const jarId = selectedJarFilter === "all" ? undefined : selectedJarFilter;
-      const data = await getTransactions(jarId);
+      const filters: TransactionFilters = {
+        page: currentPage,
+        limit: itemsPerPage,
+        month: selectedMonth,
+        sortBy: "date",
+        sortOrder: "desc",
+      };
 
-      // Filter by month
-      const filteredData = data.filter((transaction) => {
-        const transactionMonth = new Date(transaction.date)
-          .toISOString()
-          .slice(0, 7);
-        return transactionMonth === selectedMonth;
-      });
+      // Add optional filters
+      if (selectedJarFilter && selectedJarFilter !== "all") {
+        filters.jarId = selectedJarFilter;
+      }
 
-      setTransactions(filteredData);
+      if (dateFilter) {
+        filters.dateFilter = dateFilter;
+      }
+
+      if (searchTerm.trim()) {
+        filters.search = searchTerm.trim();
+      }
+
+      const response: TransactionResponse = await getTransactionsWithPagination(
+        filters
+      );
+      setTransactions(response.transactions);
+      setPaginationInfo(response.pagination);
     } catch (error) {
       console.error("Error loading transactions:", error);
       setTransactions([]);
+      setPaginationInfo({
+        currentPage: 1,
+        totalPages: 1,
+        totalCount: 0,
+        limit: itemsPerPage,
+        hasNextPage: false,
+        hasPrevPage: false,
+      });
     }
   };
 
@@ -427,9 +513,7 @@ export default function FinancePage() {
   };
 
   const getTotalExpenses = () => {
-    return transactions
-      .filter((t) => t.type === "expense")
-      .reduce((sum, t) => sum + t.amount, 0);
+    return monthlyStats.totalExpenses;
   };
 
   const getMonthOptions = () => {
@@ -507,6 +591,17 @@ export default function FinancePage() {
     setShowAIChat(false);
     setShowAddForm(true);
     setEditingTransaction(null);
+  };
+
+  const clearFilters = () => {
+    setDateFilter("");
+    setSearchTerm("");
+    setSelectedJarFilter("all");
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   if (!isMounted) {
@@ -624,7 +719,7 @@ export default function FinancePage() {
                   className="text-green-600 border-green-200 text-xs"
                 >
                   <PiggyBank className="w-3 h-3 mr-1" />
-                  {transactions.length} giao dịch
+                  {monthlyStats.totalTransactions} giao dịch
                 </Badge>
               </div>
             </div>
@@ -706,7 +801,7 @@ export default function FinancePage() {
                   Giao dịch tháng này
                 </p>
                 <p className="text-base lg:text-xl font-bold text-purple-800">
-                  {transactions.length}
+                  {monthlyStats.totalTransactions}
                 </p>
               </div>
             </div>
@@ -880,86 +975,256 @@ export default function FinancePage() {
       {/* Transactions List */}
       <Card>
         <CardHeader className="p-4 lg:p-6">
-          <CardTitle className="flex items-center space-x-2 text-base lg:text-lg">
-            <Clock className="w-4 h-4 lg:w-5 lg:h-5" />
-            <span>Lịch sử Chi tiêu</span>
-          </CardTitle>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <CardTitle className="flex items-center space-x-2 text-base lg:text-lg">
+                <Clock className="w-4 h-4 lg:w-5 lg:h-5" />
+                <span>Lịch sử Chi tiêu</span>
+                <Badge variant="outline" className="text-xs">
+                  {paginationInfo.totalCount} giao dịch
+                </Badge>
+              </CardTitle>
+              <p className="text-xs lg:text-sm text-gray-600 mt-1">
+                Theo dõi và quản lý các khoản chi tiêu của bạn
+              </p>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-2 lg:gap-3">
+              <div className="flex gap-2">
+                <div className="relative">
+                  <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Tìm kiếm..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-8 w-full sm:w-40 text-sm"
+                  />
+                </div>
+                <Input
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="w-full sm:w-36 text-sm"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Select
+                  value={selectedJarFilter}
+                  onValueChange={setSelectedJarFilter}
+                >
+                  <SelectTrigger className="w-full sm:w-32 text-sm">
+                    <SelectValue placeholder="Hủ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả hủ</SelectItem>
+                    {jars.map((jar) => (
+                      <SelectItem key={jar._id} value={jar._id}>
+                        <div className="flex items-center space-x-1">
+                          {renderIcon(jar.icon)}
+                          <span className="truncate max-w-20">{jar.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {(dateFilter || searchTerm || selectedJarFilter !== "all") && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={clearFilters}
+                    className="text-xs px-2"
+                  >
+                    <X className="w-3 h-3 mr-1" />
+                    Xóa lọc
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="p-4 lg:p-6 pt-0">
-          {transactions.length === 0 ? (
+          {paginationInfo.totalCount === 0 ? (
             <div className="text-center py-8">
               <PiggyBank className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500 text-sm lg:text-base">
-                Chưa có giao dịch nào trong tháng này
+                {dateFilter || searchTerm || selectedJarFilter !== "all"
+                  ? "Không tìm thấy giao dịch nào phù hợp với bộ lọc"
+                  : "Chưa có giao dịch nào trong tháng này"}
               </p>
+              {(dateFilter || searchTerm || selectedJarFilter !== "all") && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="mt-3 text-xs"
+                >
+                  <X className="w-3 h-3 mr-1" />
+                  Xóa bộ lọc
+                </Button>
+              )}
             </div>
           ) : (
-            <div className="space-y-3 lg:space-y-4">
-              {transactions.map((transaction) => {
-                const jarInfo = getJarInfo(transaction);
-                return (
-                  <div
-                    key={transaction._id}
-                    className="flex items-center justify-between p-3 lg:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="flex items-center space-x-3 lg:space-x-4 min-w-0 flex-1">
-                      <div
-                        className={`p-1.5 lg:p-2 rounded-lg bg-${
-                          jarInfo?.color || "gray"
-                        }-100 flex-shrink-0`}
-                      >
-                        {jarInfo ? renderIcon(jarInfo.icon) : <span>💰</span>}
+            <>
+              <div className="space-y-3 lg:space-y-4">
+                {transactions.map((transaction) => {
+                  const jarInfo = getJarInfo(transaction);
+                  return (
+                    <div
+                      key={transaction._id}
+                      className="flex items-center justify-between p-3 lg:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex items-center space-x-3 lg:space-x-4 min-w-0 flex-1">
+                        <div
+                          className={`p-1.5 lg:p-2 rounded-lg bg-${
+                            jarInfo?.color || "gray"
+                          }-100 flex-shrink-0`}
+                        >
+                          {jarInfo ? renderIcon(jarInfo.icon) : <span>💰</span>}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-2">
+                            <h3 className="font-medium text-gray-900 text-sm lg:text-base truncate">
+                              {transaction.description}
+                            </h3>
+                            <Badge
+                              variant="secondary"
+                              className="text-xs w-fit mt-1 lg:mt-0"
+                            >
+                              {jarInfo?.name || "Unknown Jar"}
+                            </Badge>
+                          </div>
+                          <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 text-xs lg:text-sm text-gray-500 mt-1">
+                            <span>{transaction.category}</span>
+                            <span className="hidden lg:inline">•</span>
+                            <span>{formatDate(transaction.date)}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-2">
-                          <h3 className="font-medium text-gray-900 text-sm lg:text-base truncate">
-                            {transaction.description}
-                          </h3>
-                          <Badge
-                            variant="secondary"
-                            className="text-xs w-fit mt-1 lg:mt-0"
+                      <div className="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+                        <div className="text-right">
+                          <p className="font-semibold text-red-600 text-sm lg:text-base">
+                            -{formatCurrency(transaction.amount)}
+                          </p>
+                        </div>
+                        <div className="flex space-x-1 lg:space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => startEdit(transaction)}
+                            className="h-6 w-6 lg:h-8 lg:w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-100"
                           >
-                            {jarInfo?.name || "Unknown Jar"}
-                          </Badge>
-                        </div>
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 text-xs lg:text-sm text-gray-500 mt-1">
-                          <span>{transaction.category}</span>
-                          <span className="hidden lg:inline">•</span>
-                          <span>{formatDate(transaction.date)}</span>
+                            <Edit2 className="w-3 h-3 lg:w-4 lg:h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              handleDeleteTransaction(transaction._id)
+                            }
+                            className="h-6 w-6 lg:h-8 lg:w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-100"
+                          >
+                            <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
+                          </Button>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
-                      <div className="text-right">
-                        <p className="font-semibold text-red-600 text-sm lg:text-base">
-                          -{formatCurrency(transaction.amount)}
-                        </p>
-                      </div>
-                      <div className="flex space-x-1 lg:space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => startEdit(transaction)}
-                          className="h-6 w-6 lg:h-8 lg:w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-100"
-                        >
-                          <Edit2 className="w-3 h-3 lg:w-4 lg:h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            handleDeleteTransaction(transaction._id)
-                          }
-                          className="h-6 w-6 lg:h-8 lg:w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-100"
-                        >
-                          <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
-                        </Button>
-                      </div>
-                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              {paginationInfo.totalPages > 1 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-200">
+                  <div className="text-sm text-gray-600">
+                    Hiển thị{" "}
+                    {(paginationInfo.currentPage - 1) * paginationInfo.limit +
+                      1}{" "}
+                    -{" "}
+                    {Math.min(
+                      paginationInfo.currentPage * paginationInfo.limit,
+                      paginationInfo.totalCount
+                    )}{" "}
+                    trong {paginationInfo.totalCount} giao dịch
                   </div>
-                );
-              })}
-            </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handlePageChange(paginationInfo.currentPage - 1)
+                      }
+                      disabled={!paginationInfo.hasPrevPage}
+                      className="text-xs px-2 py-1"
+                    >
+                      Trước
+                    </Button>
+
+                    <div className="flex space-x-1">
+                      {Array.from(
+                        { length: paginationInfo.totalPages },
+                        (_, i) => i + 1
+                      )
+                        .filter((page) => {
+                          // Show first, last, current, and adjacent pages
+                          return (
+                            page === 1 ||
+                            page === paginationInfo.totalPages ||
+                            Math.abs(page - paginationInfo.currentPage) <= 1
+                          );
+                        })
+                        .map((page, index, array) => {
+                          // Add ellipsis if there's a gap
+                          const shouldShowEllipsis =
+                            index > 0 && page - array[index - 1] > 1;
+
+                          return (
+                            <div
+                              key={page}
+                              className="flex items-center space-x-1"
+                            >
+                              {shouldShowEllipsis && (
+                                <span className="text-gray-400 px-1">...</span>
+                              )}
+                              <Button
+                                variant={
+                                  paginationInfo.currentPage === page
+                                    ? "default"
+                                    : "outline"
+                                }
+                                size="sm"
+                                onClick={() => handlePageChange(page)}
+                                className={`text-xs px-2 py-1 min-w-[28px] ${
+                                  paginationInfo.currentPage === page
+                                    ? "bg-purple-600 text-white"
+                                    : "text-gray-600"
+                                }`}
+                              >
+                                {page}
+                              </Button>
+                            </div>
+                          );
+                        })}
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handlePageChange(paginationInfo.currentPage + 1)
+                      }
+                      disabled={!paginationInfo.hasNextPage}
+                      className="text-xs px-2 py-1"
+                    >
+                      Sau
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
