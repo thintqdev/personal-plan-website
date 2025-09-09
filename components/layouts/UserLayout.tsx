@@ -19,6 +19,7 @@ import {
   User,
   Quote as QuoteIcon,
   BookA,
+  TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -64,6 +65,12 @@ const navigationItems = [
     href: "/finance",
     icon: Wallet,
     description: "Quản lý chi tiêu & tiết kiệm",
+  },
+  {
+    name: "Đầu tư",
+    href: "/investment",
+    icon: TrendingUp,
+    description: "Danh mục đầu tư cá nhân",
   },
   {
     name: "Tiết kiệm",

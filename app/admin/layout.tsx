@@ -38,6 +38,11 @@ const adminNav = [
     icon: <Wallet className="w-4 h-4" />,
   },
   {
+    href: "/admin/investment",
+    label: "Đầu tư",
+    icon: <Shield className="w-4 h-4" />,
+  },
+  {
     href: "/admin/goals",
     label: "Mục tiêu",
     icon: <Target className="w-4 h-4" />,

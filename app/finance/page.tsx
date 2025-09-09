@@ -47,9 +47,7 @@ import {
   TransactionResponse,
   PaginationInfo,
   getFinanceJars,
-  getTransactions,
   getTransactionsWithPagination,
-  getTransactionStats,
   createTransaction,
   updateTransaction,
   deleteTransaction,
@@ -866,103 +864,215 @@ export default function FinancePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-4">
             {jars.map((jar) => {
               const status = getJarStatus(jar);
+              const usedPercent = Math.round(
+                Math.min(
+                  100,
+                  Math.max(0, (status.spentAmount / jar.targetAmount) * 100)
+                )
+              );
+
               return (
                 <div
                   key={jar._id}
-                  className={`p-3 lg:p-4 rounded-lg border-2 transition-all hover:shadow-md ${
-                    status.color === "red"
-                      ? "border-red-200 bg-red-50"
-                      : status.color === "orange"
-                      ? "border-orange-200 bg-orange-50"
-                      : "border-green-200 bg-green-50"
-                  }`}
+                  className={`p-3 lg:p-4 rounded-lg border-2 transition-all hover:shadow-md bg-white`}
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2 min-w-0 flex-1">
-                      <div
-                        className={`p-1.5 lg:p-2 rounded-lg bg-${jar.color}-100 flex-shrink-0`}
+                  <div className="flex items-center gap-4">
+                    {/* Piggy-bank visual */}
+                    <div className="w-32 h-28 relative flex-shrink-0">
+                      {/* SVG piggy-bank: clip body and draw fill based on usedPercent */}
+                      {(() => {
+                        const bodyHeight = 50; // px in viewBox units
+                        const bodyTop = 18; // y position of body top in viewBox
+                        const fillHeight = (usedPercent / 100) * bodyHeight;
+                        const fillY = bodyTop + (bodyHeight - fillHeight);
+                        const fillColor =
+                          status.color === "red"
+                            ? "#ef4444"
+                            : status.color === "orange"
+                            ? "#f97316"
+                            : "#10b981";
+
+                        // unique clip id per jar to avoid collisions
+                        const clipId = `clip-${jar._id}`;
+
+                        return (
+                          <svg viewBox="0 0 100 80" className="w-full h-full">
+                            <defs>
+                              <clipPath
+                                id={clipId}
+                                clipPathUnits="userSpaceOnUse"
+                              >
+                                {/* simplified piggy silhouette: body rounded rect + ear */}
+                                <rect
+                                  x="10"
+                                  y={bodyTop}
+                                  width="60"
+                                  height={bodyHeight}
+                                  rx="12"
+                                  ry="12"
+                                />
+                                <circle cx="24" cy="12" r="8" />
+                              </clipPath>
+                            </defs>
+
+                            {/* fill that is clipped to the piggy body */}
+                            <rect
+                              x="10"
+                              y={fillY}
+                              width="60"
+                              height={fillHeight}
+                              fill={fillColor}
+                              clipPath={`url(#${clipId})`}
+                              style={{ transition: "all 600ms ease" }}
+                            />
+
+                            {/* piggy body outline */}
+                            <g>
+                              <rect
+                                x="10"
+                                y={bodyTop}
+                                width="60"
+                                height={bodyHeight}
+                                rx="12"
+                                ry="12"
+                                fill="none"
+                                stroke="rgba(0,0,0,0.08)"
+                                strokeWidth="2"
+                              />
+                              <circle
+                                cx="24"
+                                cy="12"
+                                r="8"
+                                fill="rgba(0,0,0,0.05)"
+                                stroke="rgba(0,0,0,0.06)"
+                              />
+                              {/* snout */}
+                              <ellipse
+                                cx="50"
+                                cy={bodyTop + 22}
+                                rx="8"
+                                ry="6"
+                                fill="rgba(255,255,255,0.08)"
+                              />
+                              {/* coin slot */}
+                              <rect
+                                x="40"
+                                y="6"
+                                width="18"
+                                height="3"
+                                rx="1.5"
+                                fill="rgba(0,0,0,0.12)"
+                              />
+                              {/* small highlight */}
+                              <circle
+                                cx="68"
+                                cy="26"
+                                r="6"
+                                fill="rgba(255,255,255,0.12)"
+                              />
+                            </g>
+
+                            {/* overlay icon centered in piggy body */}
+                            {(() => {
+                              const iconX = 10 + 60 / 2; // center of body
+                              const iconY = bodyTop + bodyHeight / 2;
+                              const iconSize = 32;
+                              return (
+                                <g
+                                  transform={`translate(${iconX},${iconY}) scale(1.15)`}
+                                >
+                                  {/* subtle background circle for contrast */}
+                                  <circle
+                                    cx="0"
+                                    cy="0"
+                                    r="16"
+                                    fill="rgba(0,0,0,0.08)"
+                                  />
+                                  <foreignObject
+                                    x={-iconSize / 2}
+                                    y={-iconSize / 2}
+                                    width={iconSize}
+                                    height={iconSize}
+                                  >
+                                    <div className="w-full h-full flex items-center justify-center text-white text-lg">
+                                      {renderIcon(jar.icon)}
+                                    </div>
+                                  </foreignObject>
+                                </g>
+                              );
+                            })()}
+                          </svg>
+                        );
+                      })()}
+                      <svg
+                        className="absolute inset-0 w-full h-full pointer-events-none"
+                        viewBox="0 0 100 100"
+                        preserveAspectRatio="none"
                       >
-                        {renderIcon(jar.icon)}
+                        <rect
+                          x="6"
+                          y="6"
+                          width="88"
+                          height="88"
+                          rx="12"
+                          ry="12"
+                          fill="none"
+                          stroke="rgba(0,0,0,0.06)"
+                          strokeWidth="2"
+                        />
+                        <circle
+                          cx="75"
+                          cy="18"
+                          r="6"
+                          fill="rgba(255,255,255,0.4)"
+                        />
+                      </svg>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-gray-900 text-sm lg:text-base truncate">
+                            {jar.name}
+                          </h3>
+                          <p className="text-xs lg:text-sm text-gray-500">
+                            {jar.percentage}% ngân sách • {status.message}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm text-gray-500">Ngân sách</div>
+                          <div className="font-semibold text-gray-900">
+                            {formatCurrency(jar.targetAmount)}
+                          </div>
+                        </div>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-gray-900 text-sm lg:text-base truncate">
-                          {jar.name}
-                        </h3>
-                        <p className="text-xs lg:text-sm text-gray-500">
-                          {jar.percentage}% ngân sách
-                        </p>
+
+                      <div className="flex items-center justify-between mt-3">
+                        <div>
+                          <div className="text-xs text-gray-500">Đã chi</div>
+                          <div className="font-semibold text-red-600">
+                            {formatCurrency(status.spentAmount)}
+                          </div>
+                        </div>
+
+                        <div className="w-1/2 ml-4">
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className={`h-2 rounded-full ${
+                                status.color === "red"
+                                  ? "bg-red-500"
+                                  : status.color === "orange"
+                                  ? "bg-orange-500"
+                                  : "bg-green-500"
+                              } transition-all`}
+                              style={{ width: `${usedPercent}%` }}
+                            />
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1 text-right">
+                            {usedPercent}%
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs lg:text-sm">
-                      <span className="text-gray-600">Ngân sách:</span>
-                      <span className="font-medium">
-                        {formatCurrency(jar.targetAmount)}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between text-xs lg:text-sm">
-                      <span className="text-gray-600">Đã chi:</span>
-                      <span className="font-medium text-red-600">
-                        {formatCurrency(status.spentAmount)}
-                      </span>
-                    </div>
-
-                    <div
-                      className={`flex justify-between text-xs lg:text-sm font-semibold ${
-                        status.color === "red"
-                          ? "text-red-600"
-                          : status.color === "orange"
-                          ? "text-orange-600"
-                          : "text-green-600"
-                      }`}
-                    >
-                      <span>Tình trạng:</span>
-                      <span className="truncate ml-2">{status.message}</span>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="mt-3">
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full transition-all ${
-                            status.color === "red"
-                              ? "bg-red-500"
-                              : status.color === "orange"
-                              ? "bg-orange-500"
-                              : "bg-green-500"
-                          }`}
-                          style={{
-                            width: `${Math.min(
-                              100,
-                              Math.max(
-                                0,
-                                (status.spentAmount / jar.targetAmount) * 100
-                              )
-                            )}%`,
-                          }}
-                        ></div>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1 text-center">
-                        {Math.round(
-                          (status.spentAmount / jar.targetAmount) * 100
-                        )}
-                        % đã sử dụng
-                        {status.spentAmount > jar.targetAmount && (
-                          <span className="text-red-500 font-semibold">
-                            {" "}
-                            (Vượt{" "}
-                            {Math.round(
-                              ((status.spentAmount - jar.targetAmount) /
-                                jar.targetAmount) *
-                                100
-                            )}
-                            %)
-                          </span>
-                        )}
-                      </p>
                     </div>
                   </div>
                 </div>
