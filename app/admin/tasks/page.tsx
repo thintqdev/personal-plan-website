@@ -24,6 +24,8 @@ import {
   Target,
   ListTodo,
   Sparkles,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -291,6 +293,10 @@ export default function AdminTasksPage() {
     "Chủ Nhật",
   ];
 
+  const [expandedDays, setExpandedDays] = useState<Set<string>>(
+    new Set(dayOptions)
+  );
+
   const typeOptions = [
     { value: "personal", label: "Cá nhân", color: "bg-blue-600" },
     {
@@ -322,6 +328,18 @@ export default function AdminTasksPage() {
 
   const getCompletedTasksCount = () => {
     return tasks.filter((task) => task.completed).length;
+  };
+
+  const toggleDayExpansion = (day: string) => {
+    setExpandedDays((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(day)) {
+        newSet.delete(day);
+      } else {
+        newSet.add(day);
+      }
+      return newSet;
+    });
   };
 
   if (!isMounted) {
@@ -641,299 +659,319 @@ export default function AdminTasksPage() {
                 return (
                   <div key={day} className="space-y-4">
                     {/* Day Header */}
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                        <Calendar className="w-6 h-6 text-white" />
+                    <div
+                      className="flex items-center justify-between cursor-pointer hover:bg-gray-50/50 rounded-xl p-3 -m-3 transition-all duration-200"
+                      onClick={() => toggleDayExpansion(day)}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                          <Calendar className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h2 className="text-2xl font-bold text-gray-900">
+                            {getDayDisplay(day)}
+                          </h2>
+                          <p className="text-gray-600">
+                            {dayTasks.length} nhiệm vụ •{" "}
+                            {dayTasks.filter((t) => t.completed).length} đã hoàn
+                            thành
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900">
-                          {getDayDisplay(day)}
-                        </h2>
-                        <p className="text-gray-600">
-                          {dayTasks.length} nhiệm vụ •{" "}
-                          {dayTasks.filter((t) => t.completed).length} đã hoàn
-                          thành
-                        </p>
+                      <div className="flex items-center gap-2">
+                        {expandedDays.has(day) ? (
+                          <ChevronUp className="w-5 h-5 text-gray-500 transition-transform duration-300 ease-in-out" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-gray-500 transition-transform duration-300 ease-in-out" />
+                        )}
                       </div>
                     </div>
 
                     {/* Tasks for this day */}
-                    <div className="grid grid-cols-1 gap-4 ml-16">
-                      {dayTasks
-                        .sort((a, b) => {
-                          // Sort by time
-                          const timeA = parseTime(a.time.split(" – ")[0]);
-                          const timeB = parseTime(b.time.split(" – ")[0]);
-                          return timeA - timeB;
-                        })
-                        .map((task) => (
-                          <Card
-                            key={task._id}
-                            className={`bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden ${
-                              task.completed ? "opacity-75" : ""
-                            }`}
-                          >
-                            <CardContent className="p-0">
-                              {editingId === task._id ? (
-                                // Edit Mode
-                                <div className="p-6 space-y-6">
-                                  {validationError && (
-                                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-                                      <p className="text-sm font-medium">
-                                        {validationError}
-                                      </p>
-                                    </div>
-                                  )}
-                                  <div>
-                                    <Label className="text-gray-700 font-medium mb-2 block">
-                                      Nội dung nhiệm vụ
-                                    </Label>
-                                    <Input
-                                      value={editTask.task}
-                                      onChange={(e) => {
-                                        setEditTask({
-                                          ...editTask,
-                                          task: e.target.value,
-                                        });
-                                        setValidationError(""); // Clear errors on input change
-                                      }}
-                                      className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl h-12"
-                                      maxLength={255}
-                                    />
-                                    <div className="flex justify-between items-center mt-1">
-                                      <span className="text-xs text-gray-500">
-                                        Tối đa 255 ký tự
-                                      </span>
-                                      <span
-                                        className={`text-xs ${getCharacterCountColor(
-                                          editTask.task?.length || 0
-                                        )}`}
-                                      >
-                                        {editTask.task?.length || 0}/255
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {expandedDays.has(day) && (
+                      <div className="grid grid-cols-1 gap-4 ml-16 animate-in fade-in slide-in-from-top-1 duration-500 ease-out">
+                        {dayTasks
+                          .sort((a, b) => {
+                            // Sort by time
+                            const timeA = parseTime(a.time.split(" – ")[0]);
+                            const timeB = parseTime(b.time.split(" – ")[0]);
+                            return timeA - timeB;
+                          })
+                          .map((task, index) => (
+                            <Card
+                              key={task._id}
+                              className={`bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden ${
+                                task.completed ? "opacity-75" : ""
+                              }`}
+                              style={{
+                                animationDelay: `${index * 50}ms`,
+                                animationFillMode: "both",
+                              }}
+                            >
+                              <CardContent className="p-0">
+                                {editingId === task._id ? (
+                                  // Edit Mode
+                                  <div className="p-6 space-y-6">
+                                    {validationError && (
+                                      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                                        <p className="text-sm font-medium">
+                                          {validationError}
+                                        </p>
+                                      </div>
+                                    )}
                                     <div>
                                       <Label className="text-gray-700 font-medium mb-2 block">
-                                        Ngày trong tuần
+                                        Nội dung nhiệm vụ
                                       </Label>
-                                      <Select
-                                        value={editTask.day}
-                                        onValueChange={(value) => {
+                                      <Input
+                                        value={editTask.task}
+                                        onChange={(e) => {
                                           setEditTask({
                                             ...editTask,
-                                            day: value,
+                                            task: e.target.value,
                                           });
-                                          setValidationError(""); // Clear errors on day change
+                                          setValidationError(""); // Clear errors on input change
                                         }}
-                                      >
-                                        <SelectTrigger className="border-gray-200 focus:border-indigo-400 rounded-xl h-12 bg-white">
-                                          <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
-                                          {dayOptions.map((day) => (
-                                            <SelectItem key={day} value={day}>
-                                              {getDayDisplay(day)}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                    <div>
-                                      <Label className="text-gray-700 font-medium mb-2 block">
-                                        Thời gian (Từ - Đến)
-                                      </Label>
-                                      <div className="flex gap-2 items-center">
-                                        <Input
-                                          type="time"
-                                          value={
-                                            editTask.time?.split(" – ")[0] ||
-                                            "08:00"
-                                          }
-                                          onChange={(e) => {
-                                            const fromTime = e.target.value;
-                                            const toTime =
-                                              editTask.time?.split(" – ")[1] ||
-                                              "09:00";
-                                            setEditTask({
-                                              ...editTask,
-                                              time: `${fromTime} – ${toTime}`,
-                                            });
-                                            setValidationError(""); // Clear errors on time change
-                                          }}
-                                          className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl h-12 flex-1"
-                                        />
-                                        <span className="text-gray-500 font-medium">
-                                          –
+                                        className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl h-12"
+                                        maxLength={255}
+                                      />
+                                      <div className="flex justify-between items-center mt-1">
+                                        <span className="text-xs text-gray-500">
+                                          Tối đa 255 ký tự
                                         </span>
-                                        <Input
-                                          type="time"
-                                          value={
-                                            editTask.time?.split(" – ")[1] ||
-                                            "09:00"
-                                          }
-                                          onChange={(e) => {
-                                            const fromTime =
-                                              editTask.time?.split(" – ")[0] ||
-                                              "08:00";
-                                            const toTime = e.target.value;
+                                        <span
+                                          className={`text-xs ${getCharacterCountColor(
+                                            editTask.task?.length || 0
+                                          )}`}
+                                        >
+                                          {editTask.task?.length || 0}/255
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                      <div>
+                                        <Label className="text-gray-700 font-medium mb-2 block">
+                                          Ngày trong tuần
+                                        </Label>
+                                        <Select
+                                          value={editTask.day}
+                                          onValueChange={(value) => {
                                             setEditTask({
                                               ...editTask,
-                                              time: `${fromTime} – ${toTime}`,
+                                              day: value,
                                             });
-                                            setValidationError(""); // Clear errors on time change
+                                            setValidationError(""); // Clear errors on day change
                                           }}
-                                          className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl h-12 flex-1"
-                                        />
+                                        >
+                                          <SelectTrigger className="border-gray-200 focus:border-indigo-400 rounded-xl h-12 bg-white">
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
+                                            {dayOptions.map((day) => (
+                                              <SelectItem key={day} value={day}>
+                                                {getDayDisplay(day)}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                      <div>
+                                        <Label className="text-gray-700 font-medium mb-2 block">
+                                          Thời gian (Từ - Đến)
+                                        </Label>
+                                        <div className="flex gap-2 items-center">
+                                          <Input
+                                            type="time"
+                                            value={
+                                              editTask.time?.split(" – ")[0] ||
+                                              "08:00"
+                                            }
+                                            onChange={(e) => {
+                                              const fromTime = e.target.value;
+                                              const toTime =
+                                                editTask.time?.split(
+                                                  " – "
+                                                )[1] || "09:00";
+                                              setEditTask({
+                                                ...editTask,
+                                                time: `${fromTime} – ${toTime}`,
+                                              });
+                                              setValidationError(""); // Clear errors on time change
+                                            }}
+                                            className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl h-12 flex-1"
+                                          />
+                                          <span className="text-gray-500 font-medium">
+                                            –
+                                          </span>
+                                          <Input
+                                            type="time"
+                                            value={
+                                              editTask.time?.split(" – ")[1] ||
+                                              "09:00"
+                                            }
+                                            onChange={(e) => {
+                                              const fromTime =
+                                                editTask.time?.split(
+                                                  " – "
+                                                )[0] || "08:00";
+                                              const toTime = e.target.value;
+                                              setEditTask({
+                                                ...editTask,
+                                                time: `${fromTime} – ${toTime}`,
+                                              });
+                                              setValidationError(""); // Clear errors on time change
+                                            }}
+                                            className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl h-12 flex-1"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <Label className="text-gray-700 font-medium mb-2 block">
+                                          Loại nhiệm vụ
+                                        </Label>
+                                        <Select
+                                          value={editTask.type}
+                                          onValueChange={(value) =>
+                                            setEditTask({
+                                              ...editTask,
+                                              type: value,
+                                            })
+                                          }
+                                        >
+                                          <SelectTrigger className="border-gray-200 focus:border-indigo-400 rounded-xl h-12 bg-white">
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
+                                            {typeOptions.map((type) => (
+                                              <SelectItem
+                                                key={type.value}
+                                                value={type.value}
+                                              >
+                                                {type.label}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
                                       </div>
                                     </div>
-                                    <div>
-                                      <Label className="text-gray-700 font-medium mb-2 block">
-                                        Loại nhiệm vụ
-                                      </Label>
-                                      <Select
-                                        value={editTask.type}
-                                        onValueChange={(value) =>
-                                          setEditTask({
-                                            ...editTask,
-                                            type: value,
-                                          })
-                                        }
+                                    <div className="flex gap-3">
+                                      <Button
+                                        onClick={handleEditTask}
+                                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl flex-1"
                                       >
-                                        <SelectTrigger className="border-gray-200 focus:border-indigo-400 rounded-xl h-12 bg-white">
-                                          <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
-                                          {typeOptions.map((type) => (
-                                            <SelectItem
-                                              key={type.value}
-                                              value={type.value}
+                                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                                        Lưu thay đổi
+                                      </Button>
+                                      <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                          setEditingId(null);
+                                          setValidationError(""); // Clear errors when canceling
+                                        }}
+                                        className="px-6 py-3 rounded-xl border-gray-200 hover:bg-gray-50"
+                                      >
+                                        Hủy
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  // View Mode
+                                  <div className="flex">
+                                    {/* Task Type Color Bar */}
+                                    <div
+                                      className={`w-2 ${
+                                        getTypeConfig(task.type).color
+                                      }`}
+                                    ></div>
+
+                                    <div className="flex-1 p-6">
+                                      <div className="flex items-start justify-between mb-4">
+                                        <div className="flex-1">
+                                          <div className="flex items-center gap-3 mb-3">
+                                            <h3
+                                              className={`text-lg font-semibold ${
+                                                task.completed
+                                                  ? "text-gray-500 line-through"
+                                                  : "text-gray-900"
+                                              }`}
                                             >
-                                              {type.label}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                  </div>
-                                  <div className="flex gap-3">
-                                    <Button
-                                      onClick={handleEditTask}
-                                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl flex-1"
-                                    >
-                                      <CheckCircle2 className="w-4 h-4 mr-2" />
-                                      Lưu thay đổi
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      onClick={() => {
-                                        setEditingId(null);
-                                        setValidationError(""); // Clear errors when canceling
-                                      }}
-                                      className="px-6 py-3 rounded-xl border-gray-200 hover:bg-gray-50"
-                                    >
-                                      Hủy
-                                    </Button>
-                                  </div>
-                                </div>
-                              ) : (
-                                // View Mode
-                                <div className="flex">
-                                  {/* Task Type Color Bar */}
-                                  <div
-                                    className={`w-2 ${
-                                      getTypeConfig(task.type).color
-                                    }`}
-                                  ></div>
-
-                                  <div className="flex-1 p-6">
-                                    <div className="flex items-start justify-between mb-4">
-                                      <div className="flex-1">
-                                        <div className="flex items-center gap-3 mb-3">
-                                          <h3
-                                            className={`text-lg font-semibold ${
-                                              task.completed
-                                                ? "text-gray-500 line-through"
-                                                : "text-gray-900"
-                                            }`}
-                                          >
-                                            {task.task}
-                                          </h3>
-                                          {task.completed && (
-                                            <Badge className="bg-green-100 text-green-700 border-green-200 px-3 py-1 rounded-full text-xs font-medium">
-                                              <CheckCircle2 className="w-3 h-3 mr-1" />
-                                              Hoàn thành
-                                            </Badge>
-                                          )}
-                                        </div>
-                                        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                                          <span className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
-                                            <Clock className="w-4 h-4" />
-                                            {task.time}
-                                          </span>
-                                          <span
-                                            className={`flex items-center gap-2 px-3 py-1 rounded-full text-white ${
-                                              getTypeConfig(task.type).color
-                                            }`}
-                                          >
-                                            <Target className="w-4 h-4" />
-                                            {getTypeConfig(task.type).label}
-                                          </span>
+                                              {task.task}
+                                            </h3>
+                                            {task.completed && (
+                                              <Badge className="bg-green-100 text-green-700 border-green-200 px-3 py-1 rounded-full text-xs font-medium">
+                                                <CheckCircle2 className="w-3 h-3 mr-1" />
+                                                Hoàn thành
+                                              </Badge>
+                                            )}
+                                          </div>
+                                          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                                            <span className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+                                              <Clock className="w-4 h-4" />
+                                              {task.time}
+                                            </span>
+                                            <span
+                                              className={`flex items-center gap-2 px-3 py-1 rounded-full text-white ${
+                                                getTypeConfig(task.type).color
+                                              }`}
+                                            >
+                                              <Target className="w-4 h-4" />
+                                              {getTypeConfig(task.type).label}
+                                            </span>
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
 
-                                    <div className="flex gap-2">
-                                      <Button
-                                        size="sm"
-                                        onClick={() => toggleComplete(task)}
-                                        className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
-                                          task.completed
-                                            ? "bg-yellow-500 hover:bg-yellow-600 text-white"
-                                            : "bg-green-500 hover:bg-green-600 text-white"
-                                        }`}
-                                      >
-                                        {task.completed ? (
-                                          <>
-                                            <Clock className="w-4 h-4 mr-2" />
-                                            Đánh dấu chưa xong
-                                          </>
-                                        ) : (
-                                          <>
-                                            <CheckCircle2 className="w-4 h-4 mr-2" />
-                                            Hoàn thành
-                                          </>
-                                        )}
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => startEdit(task)}
-                                        className="px-4 py-2 rounded-xl border-gray-200 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all duration-200"
-                                      >
-                                        <Edit3 className="w-4 h-4 mr-2" />
-                                        Chỉnh sửa
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() =>
-                                          handleDeleteTask(task._id)
-                                        }
-                                        className="px-4 py-2 rounded-xl border-gray-200 hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-all duration-200"
-                                      >
-                                        <Trash2 className="w-4 h-4 mr-2" />
-                                        Xóa
-                                      </Button>
+                                      <div className="flex gap-2">
+                                        <Button
+                                          size="sm"
+                                          onClick={() => toggleComplete(task)}
+                                          className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
+                                            task.completed
+                                              ? "bg-yellow-500 hover:bg-yellow-600 text-white"
+                                              : "bg-green-500 hover:bg-green-600 text-white"
+                                          }`}
+                                        >
+                                          {task.completed ? (
+                                            <>
+                                              <Clock className="w-4 h-4 mr-2" />
+                                              Đánh dấu chưa xong
+                                            </>
+                                          ) : (
+                                            <>
+                                              <CheckCircle2 className="w-4 h-4 mr-2" />
+                                              Hoàn thành
+                                            </>
+                                          )}
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => startEdit(task)}
+                                          className="px-4 py-2 rounded-xl border-gray-200 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all duration-200"
+                                        >
+                                          <Edit3 className="w-4 h-4 mr-2" />
+                                          Chỉnh sửa
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() =>
+                                            handleDeleteTask(task._id)
+                                          }
+                                          className="px-4 py-2 rounded-xl border-gray-200 hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-all duration-200"
+                                        >
+                                          <Trash2 className="w-4 h-4 mr-2" />
+                                          Xóa
+                                        </Button>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              )}
-                            </CardContent>
-                          </Card>
-                        ))}
-                    </div>
+                                )}
+                              </CardContent>
+                            </Card>
+                          ))}
+                      </div>
+                    )}
                   </div>
                 );
               })}
