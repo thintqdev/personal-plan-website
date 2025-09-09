@@ -36,6 +36,7 @@ import {
 import { getUser, type User as UserType } from "@/lib/user-service";
 import { useAuth } from "@/lib/auth-context";
 import { getQuotes, type Quote } from "@/lib/user-service";
+import { getActiveCover, type Cover } from "@/lib/cover-service";
 
 interface UserLayoutProps {
   children: ReactNode;
@@ -150,11 +151,15 @@ export default function UserLayout({
   const [user, setUser] = useState<UserType | null>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(() => new Date());
   const [currentTheme, setCurrentTheme] = useState(colorThemes[0]);
-  const [currentCoverImage, setCurrentCoverImage] = useState("");
+  const [currentCoverImage, setCurrentCoverImage] = useState(
+    "/mountain-peak-sunrise-motivation-success.png"
+  );
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
+  const [userCover, setUserCover] = useState<Cover | null>(null);
+  const [isLoadingCover, setIsLoadingCover] = useState(false);
 
   // Handle logout
   const handleLogout = async () => {
@@ -165,18 +170,12 @@ export default function UserLayout({
   // Update time every second
   useEffect(() => {
     setIsClient(true);
-    setCurrentCoverImage(
-      coverImage ||
-        localStorage.getItem("coverImage") ||
-        "/mountain-peak-sunrise-motivation-success.png"
-    );
-
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [coverImage]);
+  }, []);
 
   // Fetch quotes when component mounts and user is authenticated
   useEffect(() => {
@@ -193,6 +192,27 @@ export default function UserLayout({
     };
 
     fetchQuotes();
+  }, [authUser]);
+
+  // Fetch user cover
+  useEffect(() => {
+    const fetchUserCover = async () => {
+      if (!authUser) return;
+
+      try {
+        setIsLoadingCover(true);
+        const coverData = await getActiveCover();
+        setUserCover(coverData);
+      } catch (error) {
+        console.error("Error fetching user cover:", error);
+        // Keep userCover as null, will use default image
+        setUserCover(null);
+      } finally {
+        setIsLoadingCover(false);
+      }
+    };
+
+    fetchUserCover();
   }, [authUser]);
 
   // Auto rotate quotes every 24 hours (daily quote)
@@ -266,16 +286,18 @@ export default function UserLayout({
     if (onCoverImageChange) {
       onCoverImageChange();
     } else {
-      const randomIndex = Math.floor(Math.random() * defaultCoverImages.length);
-      setCurrentCoverImage(defaultCoverImages[randomIndex]);
+      // Use current timestamp as seed for deterministic selection
+      const timestamp = Date.now();
+      const index = timestamp % defaultCoverImages.length;
+      setCurrentCoverImage(defaultCoverImages[index]);
     }
   };
 
-  const displayCoverImage = isClient
-    ? coverImage ||
-      currentCoverImage ||
-      "/mountain-peak-sunrise-motivation-success.png"
-    : "/mountain-peak-sunrise-motivation-success.png";
+  const displayCoverImage =
+    userCover?.imageUrl ||
+    coverImage ||
+    currentCoverImage ||
+    "/mountain-peak-sunrise-motivation-success.png";
 
   return (
     <div
@@ -288,7 +310,7 @@ export default function UserLayout({
         <div className="container mx-auto flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4" />
-            {isClient && (
+            {isClient ? (
               <span>
                 {currentTime.toLocaleTimeString("vi-VN", {
                   hour: "2-digit",
@@ -303,6 +325,8 @@ export default function UserLayout({
                   day: "numeric",
                 })}
               </span>
+            ) : (
+              <span>Đang tải thời gian...</span>
             )}
           </div>
 
@@ -582,16 +606,6 @@ export default function UserLayout({
         <div
           className={`absolute inset-0 bg-gradient-to-b ${currentTheme.coverOverlay}`}
         />
-
-        {showCoverImageButton && (
-          <button
-            className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full p-2 shadow-lg transition-all"
-            onClick={handleCoverImageChange}
-            title="Đổi ảnh bìa"
-          >
-            <Camera className="w-5 h-5" />
-          </button>
-        )}
 
         <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
           <div className="container mx-auto">

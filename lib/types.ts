@@ -1,52 +1,78 @@
 // Shared types and configuration for all services
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003";
+export const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003";
 
 // Base interfaces
 export interface Quote {
-    _id: string;
-    text: string;
-    __v: number;
+  _id: string;
+  text: string;
+  __v: number;
 }
 
 export interface CreateQuoteRequest {
-    text: string;
+  text: string;
 }
 
 export interface User {
-    _id: string;
-    name: string;
-    role: string;
-    goal: string;
-    streak: number;
-    avatar: string;
-    income?: number;
-    __v: number;
+  _id: string;
+  name: string;
+  role: string;
+  goal: string;
+  streak: number;
+  avatar: string;
+  income?: number;
+  __v: number;
 }
 
 export interface UpdateUserRequest {
-    name?: string;
-    role?: string;
-    goal?: string;
-    streak?: number;
-    avatar?: string;
-    income?: number;
+  name?: string;
+  role?: string;
+  goal?: string;
+  streak?: number;
+  avatar?: string;
+  income?: number;
 }
 
 export interface UpdateUserIncomeRequest {
-    income: number;
+  income: number;
 }
 
 export interface UserPreferences {
-    theme: string;
-    coverImage: string;
-    notifications: boolean;
-    language: string;
+  theme: string;
+  coverImage: string;
+  notifications: boolean;
+  language: string;
 }
 
 export interface Statistics {
-    todayProgress: string;
-    weekProgress: number;
-    currentStreak: number;
-    totalTasks: number;
-    completedTasks: number;
+  todayProgress: string;
+  weekProgress: number;
+  currentStreak: number;
+  totalTasks: number;
+  completedTasks: number;
+}
+
+// Cover interfaces
+export interface Cover {
+  _id: string;
+  userId: string;
+  imageUrl: string;
+  title: string;
+  description: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCoverRequest {
+  imageUrl: string;
+  title?: string;
+  description?: string;
+}
+
+export interface CoverSuggestion {
+  id: string;
+  imageUrl: string;
+  title: string;
+  description: string;
 }

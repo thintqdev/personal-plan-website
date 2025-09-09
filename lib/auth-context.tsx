@@ -26,21 +26,26 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window !== "undefined") {
-      const userStr = localStorage.getItem("user");
-      return userStr ? JSON.parse(userStr) : null;
-    }
-    return null;
-  });
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Chỉ chạy trên client-side
+    if (typeof window === "undefined") return;
+
     // Nếu đã có user trong localStorage thì không cần gọi API nữa
-    if (user) {
-      setIsLoading(false);
-      return;
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      try {
+        const userData = JSON.parse(userStr);
+        setUser(userData);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        localStorage.removeItem("user");
+      }
     }
+
     const checkAuthStatus = async () => {
       try {
         const token = localStorage.getItem("token") || getCookie("auth_token");
@@ -82,10 +87,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       const response = await authService.login(email, password);
-      localStorage.setItem("token", response.token);
-      setCookie("auth_token", response.token);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", response.token);
+        setCookie("auth_token", response.token);
+        localStorage.setItem("user", JSON.stringify(response.user));
+      }
       setUser(response.user);
-      localStorage.setItem("user", JSON.stringify(response.user));
     } catch (error) {
       throw error;
     }
@@ -100,9 +107,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    deleteCookie("auth_token");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      deleteCookie("auth_token");
+    }
     setUser(null);
   };
 
