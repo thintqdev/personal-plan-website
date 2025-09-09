@@ -38,6 +38,7 @@ import {
   Users,
   PlusCircle,
   BarChart3,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -580,7 +581,6 @@ export default function GoalsAdminPage() {
             </div>
           </div>
         </div>
-
         {/* Stats Overview */}
         <div className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -668,928 +668,737 @@ export default function GoalsAdminPage() {
             </Card>
           </div>
         </div>
-
         {/* Add New Goal Form */}
         {isAddingGoal && (
-          <Card className="mb-8 bg-white/90 backdrop-blur-sm border-0 shadow-xl rounded-2xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Plus className="w-5 h-5" />
-                  Thêm mục tiêu mới
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsAddingGoal(false)}
-                  className="text-white hover:bg-white/20 h-8 w-8 p-0 rounded-xl"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label
-                    htmlFor="title"
-                    className="text-gray-700 font-medium mb-2 block"
-                  >
-                    Tiêu đề mục tiêu *
-                  </Label>
-                  <Input
-                    id="title"
-                    placeholder="Ví dụ: Học tiếng Nhật N3"
-                    value={newGoal.title}
-                    onChange={(e) =>
-                      setNewGoal((prev) => ({ ...prev, title: e.target.value }))
-                    }
-                    className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl h-12"
-                    maxLength={100}
-                  />
-                  <div className="text-xs text-gray-500 mt-1">
-                    {newGoal.title.length}/100 ký tự
-                  </div>
-                </div>
-                <div>
-                  <Label
-                    htmlFor="category"
-                    className="text-gray-700 font-medium mb-2 block"
-                  >
-                    Danh mục
-                  </Label>
-                  <Input
-                    id="category"
-                    placeholder="Ví dụ: Học tập, Sức khỏe, Công việc"
-                    value={newGoal.category}
-                    onChange={(e) =>
-                      setNewGoal((prev) => ({
-                        ...prev,
-                        category: e.target.value,
-                      }))
-                    }
-                    className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl h-12"
-                    maxLength={50}
-                  />
-                  <div className="text-xs text-gray-500 mt-1">
-                    {newGoal.category.length}/50 ký tự
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <Label
-                  htmlFor="description"
-                  className="text-gray-700 font-medium mb-2 block"
-                >
-                  Mô tả mục tiêu *
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder="Mô tả chi tiết về mục tiêu này..."
-                  value={newGoal.description}
-                  onChange={(e) =>
-                    setNewGoal((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl resize-none"
-                  rows={3}
-                  maxLength={500}
-                />
-                <div className="text-xs text-gray-500 mt-1">
-                  {newGoal.description.length}/500 ký tự
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <Label className="text-gray-700 font-medium mb-2 block">
-                    Độ ưu tiên
-                  </Label>
-                  <Select
-                    value={newGoal.priority}
-                    onValueChange={(value: any) =>
-                      setNewGoal((prev) => ({ ...prev, priority: value }))
-                    }
-                  >
-                    <SelectTrigger className="border-gray-200 focus:border-indigo-400 rounded-xl h-12 bg-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
-                      {priorityOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.icon} {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label className="text-gray-700 font-medium mb-2 block">
-                    Trạng thái
-                  </Label>
-                  <Select
-                    value={newGoal.status}
-                    onValueChange={(value: any) =>
-                      setNewGoal((prev) => ({ ...prev, status: value }))
-                    }
-                  >
-                    <SelectTrigger className="border-gray-200 focus:border-indigo-400 rounded-xl h-12 bg-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
-                      {statusOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.icon} {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label
-                    htmlFor="targetDate"
-                    className="text-gray-700 font-medium mb-2 block"
-                  >
-                    Ngày mục tiêu
-                  </Label>
-                  <EnhancedDatePicker
-                    date={
-                      newGoal.targetDate
-                        ? new Date(newGoal.targetDate)
-                        : undefined
-                    }
-                    onDateChange={(date) =>
-                      setNewGoal((prev) => ({
-                        ...prev,
-                        targetDate: date
-                          ? date.toISOString().split("T")[0]
-                          : "",
-                      }))
-                    }
-                    placeholder="Chọn ngày mục tiêu"
-                    className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl h-12"
-                    minDate={new Date()}
-                  />
-                </div>
-              </div>
-
-              {/* Sub-goals section for new goal */}
-              <div>
-                <Label className="text-gray-700 font-medium mb-3 block">
-                  Mục tiêu con
-                </Label>
-
-                {/* Display existing sub-goals */}
-                {newGoal.subGoals && newGoal.subGoals.length > 0 && (
-                  <div className="space-y-3 mb-4 p-4 bg-indigo-50 rounded-xl">
-                    {newGoal.subGoals.map((subGoal, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 shadow-sm"
-                      >
-                        <div className="flex-1">
-                          <span className="font-medium text-sm text-gray-900">
-                            {subGoal.title}
-                          </span>
-                          {subGoal.description && (
-                            <p className="text-xs text-gray-600 mt-1">
-                              {subGoal.description}
-                            </p>
-                          )}
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeSubGoalFromNewGoal(index)}
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </Button>
+          <Card className="mb-8 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden">
+            <div className="p-1">
+              <div className="bg-white rounded-2xl">
+                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-t-2xl">
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Plus className="w-6 h-6 text-white" />
                       </div>
-                    ))}
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">
+                          Tạo mục tiêu mới
+                        </h2>
+                        <p className="text-gray-600 mt-1">
+                          Bắt đầu hành trình chinh phục ước mơ
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsAddingGoal(false)}
+                      className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl p-2"
+                    >
+                      <X className="w-5 h-5" />
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-8 space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <Label
+                        htmlFor="title"
+                        className="text-gray-700 font-semibold text-sm flex items-center gap-2"
+                      >
+                        <Target className="w-4 h-4 text-indigo-500" />
+                        Tiêu đề mục tiêu *
+                      </Label>
+                      <Input
+                        id="title"
+                        placeholder="Ví dụ: Học tiếng Nhật N3 trong 6 tháng"
+                        value={newGoal.title}
+                        onChange={(e) =>
+                          setNewGoal((prev) => ({
+                            ...prev,
+                            title: e.target.value,
+                          }))
+                        }
+                        className="border-gray-200 focus:border-indigo-400 focus:ring-indigo-400 rounded-xl h-12 bg-gray-50/50 text-gray-900"
+                        maxLength={100}
+                      />
+                      <div className="text-xs text-gray-500 flex justify-between">
+                        <span>Tiêu đề hấp dẫn thu hút sự chú ý</span>
+                        <span>{newGoal.title.length}/100</span>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <Label
+                        htmlFor="category"
+                        className="text-gray-700 font-semibold text-sm flex items-center gap-2"
+                      >
+                        <BookOpen className="w-4 h-4 text-purple-500" />
+                        Danh mục
+                      </Label>
+                      <Input
+                        id="category"
+                        placeholder="Ví dụ: Học tập, Sức khỏe, Công việc"
+                        value={newGoal.category}
+                        onChange={(e) =>
+                          setNewGoal((prev) => ({
+                            ...prev,
+                            category: e.target.value,
+                          }))
+                        }
+                        className="border-gray-200 focus:border-purple-400 focus:ring-purple-400 rounded-xl h-12 bg-gray-50/50"
+                        maxLength={50}
+                      />
+                      <div className="text-xs text-gray-500 flex justify-between">
+                        <span>Phân loại mục tiêu dễ dàng</span>
+                        <span>{newGoal.category.length}/50</span>
+                      </div>
+                    </div>
                   </div>
-                )}
 
-                {/* Add new sub-goal form */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                  <Input
-                    placeholder="Tiêu đề mục tiêu con"
-                    value={newSubGoal.title}
-                    onChange={(e) =>
-                      setNewSubGoal((prev) => ({
-                        ...prev,
-                        title: e.target.value,
-                      }))
-                    }
-                    className="border-gray-200 focus:border-indigo-400 rounded-xl h-10"
-                    maxLength={80}
-                  />
-                  <Input
-                    placeholder="Mô tả (tùy chọn)"
-                    value={newSubGoal.description}
-                    onChange={(e) =>
-                      setNewSubGoal((prev) => ({
-                        ...prev,
-                        description: e.target.value,
-                      }))
-                    }
-                    className="border-gray-200 focus:border-indigo-400 rounded-xl h-10"
-                    maxLength={200}
-                  />
-                  <EnhancedDatePicker
-                    date={
-                      newSubGoal.targetDate
-                        ? new Date(newSubGoal.targetDate)
-                        : undefined
-                    }
-                    onDateChange={(date) =>
-                      setNewSubGoal((prev) => ({
-                        ...prev,
-                        targetDate: date
-                          ? date.toISOString().split("T")[0]
-                          : "",
-                      }))
-                    }
-                    placeholder="Ngày hoàn thành"
-                    className="border-blue-200 rounded-xl"
-                    minDate={new Date()}
-                  />
-                  <Button
-                    type="button"
-                    onClick={addSubGoalToNewGoal}
-                    variant="outline"
-                    className="border-blue-300 text-blue-600 hover:bg-blue-50"
-                  >
-                    <Plus className="w-4 h-4 mr-1" />
-                    Thêm
-                  </Button>
-                </div>
-              </div>
-
-              <Button
-                onClick={handleAddGoal}
-                disabled={isSubmitting}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                {isSubmitting ? "Đang thêm..." : "Thêm mục tiêu"}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Goals List */}
-        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl rounded-2xl overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5" />
-              Danh sách mục tiêu ({goals.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="space-y-4">
-                {[...Array(3)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="p-4 bg-gray-100 rounded-lg animate-pulse"
-                  >
-                    <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-2/3 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  <div className="space-y-3">
+                    <Label
+                      htmlFor="description"
+                      className="text-gray-700 font-semibold text-sm flex items-center gap-2"
+                    >
+                      <AlertCircle className="w-4 h-4 text-green-500" />
+                      Mô tả mục tiêu *
+                    </Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Mô tả chi tiết về mục tiêu này, tại sao nó quan trọng với bạn..."
+                      value={newGoal.description}
+                      onChange={(e) =>
+                        setNewGoal((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
+                      className="border-gray-200 focus:border-green-400 focus:ring-green-400 rounded-xl resize-none bg-gray-50/50 text-gray-900"
+                      rows={4}
+                      maxLength={500}
+                    />
+                    <div className="text-xs text-gray-500 flex justify-between">
+                      <span>Mô tả chi tiết giúp bạn có động lực hơn</span>
+                      <span>{newGoal.description.length}/500</span>
+                    </div>
                   </div>
-                ))}
-              </div>
-            ) : goals.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Target className="w-12 h-12 text-gray-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                  Chưa có mục tiêu nào
-                </h3>
-                <p className="text-gray-500 mb-6">
-                  Hãy thêm mục tiêu đầu tiên để bắt đầu hành trình phát triển
-                  bản thân!
-                </p>
-                <Button
-                  onClick={() => setIsAddingGoal(true)}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Thêm mục tiêu đầu tiên
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {goals.map((goal) => (
-                  <Card
-                    key={goal._id}
-                    className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden"
-                  >
-                    <CardContent className="p-6">
-                      {editingGoalId === goal._id ? (
-                        // Edit Mode
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <Label className="text-gray-700">Tiêu đề</Label>
-                              <Input
-                                value={editGoal.title || ""}
-                                onChange={(e) =>
-                                  setEditGoal((prev) => ({
-                                    ...prev,
-                                    title: e.target.value,
-                                  }))
-                                }
-                                className="border-blue-200"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-gray-700">Danh mục</Label>
-                              <Input
-                                value={editGoal.category || ""}
-                                onChange={(e) =>
-                                  setEditGoal((prev) => ({
-                                    ...prev,
-                                    category: e.target.value,
-                                  }))
-                                }
-                                className="border-blue-200"
-                              />
-                            </div>
-                          </div>
 
-                          <div>
-                            <Label className="text-gray-700">Mô tả</Label>
-                            <Textarea
-                              value={editGoal.description || ""}
-                              onChange={(e) =>
-                                setEditGoal((prev) => ({
-                                  ...prev,
-                                  description: e.target.value,
-                                }))
-                              }
-                              className="border-blue-200"
-                              rows={2}
-                            />
-                          </div>
+                  <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-6 border border-gray-100">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 bg-gradient-to-r from-gray-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <Settings className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900">
+                          Cài đặt mục tiêu
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Tùy chỉnh độ ưu tiên và thời hạn
+                        </p>
+                      </div>
+                    </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                              <Label className="text-gray-700">
-                                Độ ưu tiên
-                              </Label>
-                              <Select
-                                value={editGoal.priority || goal.priority}
-                                onValueChange={(value: any) =>
-                                  setEditGoal((prev) => ({
-                                    ...prev,
-                                    priority: value,
-                                  }))
-                                }
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="space-y-3">
+                        <Label className="text-gray-700 font-semibold text-sm flex items-center gap-2">
+                          <Flag className="w-4 h-4 text-red-500" />
+                          Độ ưu tiên
+                        </Label>
+                        <Select
+                          value={newGoal.priority}
+                          onValueChange={(value: any) =>
+                            setNewGoal((prev) => ({ ...prev, priority: value }))
+                          }
+                        >
+                          <SelectTrigger className="border-gray-200 focus:border-red-400 rounded-xl h-12 bg-white shadow-sm">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
+                            {priorityOptions.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
                               >
-                                <SelectTrigger className="border-blue-200">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {priorityOptions.map((option) => (
-                                    <SelectItem
-                                      key={option.value}
-                                      value={option.value}
-                                    >
-                                      {option.icon} {option.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div>
-                              <Label className="text-gray-700">
-                                Trạng thái
-                              </Label>
-                              <Select
-                                value={editGoal.status || goal.status}
-                                onValueChange={(value: any) =>
-                                  setEditGoal((prev) => ({
-                                    ...prev,
-                                    status: value,
-                                  }))
-                                }
-                              >
-                                <SelectTrigger className="border-blue-200">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {statusOptions.map((option) => (
-                                    <SelectItem
-                                      key={option.value}
-                                      value={option.value}
-                                    >
-                                      {option.icon} {option.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div>
-                              <Label className="text-gray-700">
-                                Ngày mục tiêu
-                              </Label>
-                              <EnhancedDatePicker
-                                date={
-                                  editGoal.targetDate
-                                    ? new Date(editGoal.targetDate)
-                                    : undefined
-                                }
-                                onDateChange={(date) =>
-                                  setEditGoal((prev) => ({
-                                    ...prev,
-                                    targetDate: date
-                                      ? date.toISOString().split("T")[0]
-                                      : "",
-                                  }))
-                                }
-                                placeholder="Chọn ngày mục tiêu"
-                                className="border-blue-200 rounded-xl"
-                                minDate={new Date()}
-                              />
-                            </div>
-                          </div>
-
-                          {/* Sub-goals editing section */}
-                          <div className="mb-4">
-                            <Label className="text-gray-700 mb-2 block">
-                              Mục tiêu con
-                            </Label>
-
-                            {/* Display existing sub-goals in edit mode */}
-                            {editGoal.subGoals &&
-                              editGoal.subGoals.length > 0 && (
-                                <div className="space-y-2 mb-4 p-3 bg-blue-50 rounded-lg">
-                                  {editGoal.subGoals.map((subGoal, index) => (
-                                    <div
-                                      key={index}
-                                      className="flex items-center gap-2 p-2 bg-white rounded border"
-                                    >
-                                      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2">
-                                        <Input
-                                          placeholder="Tiêu đề"
-                                          value={subGoal.title}
-                                          onChange={(e) => {
-                                            const updatedSubGoals = [
-                                              ...(editGoal.subGoals || []),
-                                            ];
-                                            updatedSubGoals[index] = {
-                                              ...subGoal,
-                                              title: e.target.value,
-                                            };
-                                            setEditGoal((prev) => ({
-                                              ...prev,
-                                              subGoals: updatedSubGoals,
-                                            }));
-                                          }}
-                                          className="border-blue-200 text-sm"
-                                        />
-                                        <Input
-                                          placeholder="Mô tả"
-                                          value={subGoal.description}
-                                          onChange={(e) => {
-                                            const updatedSubGoals = [
-                                              ...(editGoal.subGoals || []),
-                                            ];
-                                            updatedSubGoals[index] = {
-                                              ...subGoal,
-                                              description: e.target.value,
-                                            };
-                                            setEditGoal((prev) => ({
-                                              ...prev,
-                                              subGoals: updatedSubGoals,
-                                            }));
-                                          }}
-                                          className="border-blue-200 text-sm"
-                                        />
-                                        <div className="flex gap-1">
-                                          <Select
-                                            value={subGoal.status}
-                                            onValueChange={(value: any) => {
-                                              const updatedSubGoals = [
-                                                ...(editGoal.subGoals || []),
-                                              ];
-                                              updatedSubGoals[index] = {
-                                                ...subGoal,
-                                                status: value,
-                                              };
-                                              setEditGoal((prev) => ({
-                                                ...prev,
-                                                subGoals: updatedSubGoals,
-                                              }));
-                                            }}
-                                          >
-                                            <SelectTrigger className="border-blue-200 text-sm">
-                                              <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              {statusOptions.map((option) => (
-                                                <SelectItem
-                                                  key={option.value}
-                                                  value={option.value}
-                                                >
-                                                  {option.icon} {option.label}
-                                                </SelectItem>
-                                              ))}
-                                            </SelectContent>
-                                          </Select>
-                                          <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => {
-                                              const updatedSubGoals = (
-                                                editGoal.subGoals || []
-                                              ).filter((_, i) => i !== index);
-                                              setEditGoal((prev) => ({
-                                                ...prev,
-                                                subGoals: updatedSubGoals,
-                                              }));
-                                            }}
-                                            className="text-red-600 border-red-300 hover:bg-red-50"
-                                          >
-                                            <Minus className="w-3 h-3" />
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ))}
+                                <div className="flex items-center gap-2">
+                                  <span>{option.icon}</span>
+                                  <span>{option.label}</span>
                                 </div>
-                              )}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                            {/* Add new sub-goal to edit */}
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                              <Input
-                                placeholder="Tiêu đề mục tiêu con"
-                                value={newSubGoal.title}
-                                onChange={(e) =>
-                                  setNewSubGoal((prev) => ({
-                                    ...prev,
-                                    title: e.target.value,
-                                  }))
-                                }
-                                className="border-blue-200"
-                              />
-                              <Input
-                                placeholder="Mô tả"
-                                value={newSubGoal.description}
-                                onChange={(e) =>
-                                  setNewSubGoal((prev) => ({
-                                    ...prev,
-                                    description: e.target.value,
-                                  }))
-                                }
-                                className="border-blue-200"
-                              />
-                              <EnhancedDatePicker
-                                date={
-                                  newSubGoal.targetDate
-                                    ? new Date(newSubGoal.targetDate)
-                                    : undefined
-                                }
-                                onDateChange={(date) =>
-                                  setNewSubGoal((prev) => ({
-                                    ...prev,
-                                    targetDate: date
-                                      ? date.toISOString().split("T")[0]
-                                      : "",
-                                  }))
-                                }
-                                placeholder="Ngày hoàn thành"
-                                className="border-blue-200 rounded-xl"
-                                minDate={new Date()}
-                              />
-                              <Button
-                                type="button"
-                                onClick={() => {
-                                  if (!newSubGoal.title.trim()) return;
-                                  setEditGoal((prev) => ({
-                                    ...prev,
-                                    subGoals: [
-                                      ...(prev.subGoals || []),
-                                      { ...newSubGoal },
-                                    ],
-                                  }));
-                                  setNewSubGoal({
-                                    title: "",
-                                    description: "",
-                                    status: "Not Started",
-                                    targetDate: "",
-                                  });
-                                }}
-                                variant="outline"
-                                className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                      <div className="space-y-3">
+                        <Label className="text-gray-700 font-semibold text-sm flex items-center gap-2">
+                          <TrendingUp className="w-4 h-4 text-blue-500" />
+                          Trạng thái
+                        </Label>
+                        <Select
+                          value={newGoal.status}
+                          onValueChange={(value: any) =>
+                            setNewGoal((prev) => ({ ...prev, status: value }))
+                          }
+                        >
+                          <SelectTrigger className="border-gray-200 focus:border-blue-400 rounded-xl h-12 bg-white shadow-sm">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-gray-200 rounded-xl shadow-lg">
+                            {statusOptions.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
                               >
-                                <Plus className="w-4 h-4 mr-1" />
-                                Thêm
-                              </Button>
-                            </div>
-                          </div>
+                                <div className="flex items-center gap-2">
+                                  <span>{option.icon}</span>
+                                  <span>{option.label}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                          <div className="flex gap-2">
-                            <Button
-                              onClick={() => handleEditGoal(goal._id)}
-                              disabled={isSubmitting}
-                              className="bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <Save className="w-4 h-4 mr-2" />
-                              {isSubmitting ? "Đang lưu..." : "Lưu"}
-                            </Button>
-                            <Button
-                              onClick={cancelEditing}
-                              variant="outline"
-                              className="border-gray-300"
-                              disabled={isSubmitting}
-                            >
-                              <X className="w-4 h-4 mr-2" />
-                              Hủy
-                            </Button>
-                          </div>
+                      <div className="space-y-3">
+                        <Label className="text-gray-700 font-semibold text-sm flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-green-500" />
+                          Ngày mục tiêu
+                        </Label>
+                        <EnhancedDatePicker
+                          date={
+                            newGoal.targetDate
+                              ? new Date(newGoal.targetDate)
+                              : undefined
+                          }
+                          onDateChange={(date) =>
+                            setNewGoal((prev) => ({
+                              ...prev,
+                              targetDate: date
+                                ? date.toISOString().split("T")[0]
+                                : "",
+                            }))
+                          }
+                          placeholder="Chọn ngày hoàn thành"
+                          className="border-gray-200 focus:border-green-400 focus:ring-green-400 rounded-xl h-12 bg-white shadow-sm"
+                          minDate={new Date()}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sub-goals section for new goal */}
+                  <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 border border-blue-100">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <Target className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900">
+                          Mục tiêu con
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Phân chia mục tiêu lớn thành các bước nhỏ
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Display existing sub-goals */}
+                    {newGoal.subGoals && newGoal.subGoals.length > 0 && (
+                      <div className="space-y-4 mb-6">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-semibold text-gray-700">
+                            Đã thêm ({newGoal.subGoals.length})
+                          </span>
+                          <Badge className="bg-blue-100 text-blue-700 border-blue-200">
+                            {newGoal.subGoals.length} mục tiêu
+                          </Badge>
                         </div>
-                      ) : (
-                        // View Mode
-                        <div>
-                          <div className="flex justify-between items-start mb-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                {goal.subGoals && goal.subGoals.length > 0 && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                      toggleGoalExpansion(goal._id)
-                                    }
-                                    className="p-0 h-auto"
-                                  >
-                                    {expandedGoals.has(goal._id) ? (
-                                      <ChevronDown className="w-4 h-4 text-gray-500" />
-                                    ) : (
-                                      <ChevronRight className="w-4 h-4 text-gray-500" />
-                                    )}
-                                  </Button>
-                                )}
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                  {goal.title}
-                                </h3>
-                              </div>
-                              <p className="text-gray-600 mb-2">
-                                {goal.description}
-                              </p>
-                              {goal.category && (
-                                <span className="text-sm text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                                  {goal.category}
-                                </span>
-                              )}
-
-                              {/* Progress bar for goals with sub-goals */}
-                              {goal.subGoals && goal.subGoals.length > 0 && (
-                                <div className="mt-3">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-sm text-gray-600">
-                                      Tiến độ:
-                                    </span>
-                                    <span className="text-sm font-medium text-blue-600">
-                                      {getGoalProgress(goal)}%
-                                    </span>
-                                    <span className="text-xs text-gray-500">
-                                      (
-                                      {
-                                        goal.subGoals.filter(
-                                          (sg) => sg.status === "Completed"
-                                        ).length
-                                      }
-                                      /{goal.subGoals.length})
-                                    </span>
+                        <div className="grid gap-3">
+                          {newGoal.subGoals.map((subGoal, index) => (
+                            <div
+                              key={index}
+                              className="group relative bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-200"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg flex items-center justify-center shadow-sm">
+                                      <CheckCircle2 className="w-4 h-4 text-white" />
+                                    </div>
+                                    <h4 className="font-semibold text-gray-900 truncate">
+                                      {subGoal.title}
+                                    </h4>
                                   </div>
-                                  <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div
-                                      className="bg-blue-600 h-2 rounded-full transition-all"
-                                      style={{
-                                        width: `${getGoalProgress(goal)}%`,
-                                      }}
-                                    ></div>
-                                  </div>
+                                  {subGoal.description && (
+                                    <p className="text-sm text-gray-600 ml-11 line-clamp-2">
+                                      {subGoal.description}
+                                    </p>
+                                  )}
+                                  {subGoal.targetDate && (
+                                    <div className="flex items-center gap-2 mt-2 ml-11">
+                                      <Calendar className="w-4 h-4 text-blue-500" />
+                                      <span className="text-xs text-blue-600 font-medium">
+                                        {new Date(
+                                          subGoal.targetDate
+                                        ).toLocaleDateString("vi-VN")}
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                            <div className="flex gap-2 ml-4">
-                              <Button
-                                onClick={() =>
-                                  setAddingSubGoalTo(
-                                    addingSubGoalTo === goal._id
-                                      ? null
-                                      : goal._id
-                                  )
-                                }
-                                variant="outline"
-                                size="sm"
-                                className="text-green-600 border-green-300 hover:bg-green-50 rounded-xl"
-                              >
-                                <PlusCircle className="w-4 h-4 mr-1" />
-                                Sub-goal
-                              </Button>
-                              <Button
-                                onClick={() => startEditing(goal)}
-                                variant="outline"
-                                size="sm"
-                                className="text-blue-600 border-blue-300 hover:bg-blue-50 rounded-xl"
-                              >
-                                <Edit2 className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                onClick={() => handleDeleteGoal(goal._id)}
-                                variant="outline"
-                                size="sm"
-                                className="text-red-600 border-red-300 hover:bg-red-50 rounded-xl"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-wrap gap-3 mb-4">
-                            <Badge
-                              className={`${getPriorityColor(
-                                goal.priority
-                              )} px-3 py-1 rounded-full font-medium`}
-                            >
-                              <Flag className="w-3 h-3 mr-1" />
-                              {priorityOptions.find(
-                                (p) => p.value === goal.priority
-                              )?.label || goal.priority}
-                            </Badge>
-                            <Badge
-                              className={`${getStatusColor(
-                                goal.status
-                              )} px-3 py-1 rounded-full font-medium`}
-                            >
-                              {
-                                statusOptions.find(
-                                  (s) => s.value === goal.status
-                                )?.icon
-                              }{" "}
-                              {statusOptions.find(
-                                (s) => s.value === goal.status
-                              )?.label || goal.status}
-                            </Badge>
-                            {goal.targetDate && (
-                              <Badge
-                                variant="outline"
-                                className="border-gray-300 px-3 py-1 rounded-full bg-gray-50"
-                              >
-                                <Calendar className="w-3 h-3 mr-1" />
-                                {new Date(goal.targetDate).toLocaleDateString(
-                                  "vi-VN"
-                                )}
-                              </Badge>
-                            )}
-                          </div>
-
-                          {/* Sub-goals section */}
-                          {expandedGoals.has(goal._id) && goal.subGoals && (
-                            <div className="mt-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
-                              <div className="flex items-center justify-between mb-4">
-                                <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                                  <Users className="w-4 h-4" />
-                                  Mục tiêu con ({goal.subGoals.length})
-                                </h4>
                                 <Button
-                                  onClick={() =>
-                                    setAddingSubGoalTo(
-                                      addingSubGoalTo === goal._id
-                                        ? null
-                                        : goal._id
-                                    )
-                                  }
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-indigo-600 border-indigo-300 hover:bg-indigo-50 rounded-xl"
-                                >
-                                  <PlusCircle className="w-3 h-3 mr-1" />
-                                  Thêm
-                                </Button>
-                              </div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {goal.subGoals.map((subGoal, index) => (
-                                  <div
-                                    key={index}
-                                    className="flex items-start gap-3 p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all"
-                                  >
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() =>
-                                        updateSubGoal(goal._id, index, {
-                                          ...subGoal,
-                                          status:
-                                            subGoal.status === "Completed"
-                                              ? "Not Started"
-                                              : "Completed",
-                                        })
-                                      }
-                                      className="p-0 h-auto mt-1"
-                                    >
-                                      {subGoal.status === "Completed" ? (
-                                        <CheckCircle className="w-5 h-5 text-green-600" />
-                                      ) : (
-                                        <Circle className="w-5 h-5 text-gray-400" />
-                                      )}
-                                    </Button>
-                                    <div className="flex-1 min-w-0">
-                                      <h5
-                                        className={`text-sm font-medium ${
-                                          subGoal.status === "Completed"
-                                            ? "line-through text-gray-500"
-                                            : "text-gray-900"
-                                        }`}
-                                      >
-                                        {subGoal.title}
-                                      </h5>
-                                      {subGoal.description && (
-                                        <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-                                          {subGoal.description}
-                                        </p>
-                                      )}
-                                      {subGoal.targetDate && (
-                                        <div className="flex items-center gap-1 mt-2">
-                                          <Clock className="w-3 h-3 text-gray-400" />
-                                          <span className="text-xs text-gray-500">
-                                            {new Date(
-                                              subGoal.targetDate
-                                            ).toLocaleDateString("vi-VN")}
-                                          </span>
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className="flex flex-col gap-1">
-                                      <Badge
-                                        className={`${getStatusColor(
-                                          subGoal.status
-                                        )} text-xs px-2 py-1`}
-                                      >
-                                        {
-                                          statusOptions.find(
-                                            (s) => s.value === subGoal.status
-                                          )?.icon
-                                        }
-                                      </Badge>
-                                      <Button
-                                        onClick={() =>
-                                          deleteSubGoal(goal._id, index)
-                                        }
-                                        variant="ghost"
-                                        size="sm"
-                                        className="text-red-600 hover:bg-red-50 p-1 h-6 w-6 rounded"
-                                      >
-                                        <Trash2 className="w-3 h-3" />
-                                      </Button>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Add sub-goal form */}
-                          {addingSubGoalTo === goal._id && (
-                            <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-                              <div className="flex items-center justify-between mb-4">
-                                <h4 className="text-sm font-semibold text-green-800 flex items-center gap-2">
-                                  <PlusCircle className="w-4 h-4" />
-                                  Thêm mục tiêu con mới
-                                </h4>
-                                <Button
-                                  onClick={() => setAddingSubGoalTo(null)}
+                                  type="button"
                                   variant="ghost"
                                   size="sm"
-                                  className="text-gray-500 hover:text-gray-700 h-6 w-6 p-0 rounded"
+                                  onClick={() =>
+                                    removeSubGoalFromNewGoal(index)
+                                  }
+                                  className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg p-2 transition-all duration-200"
                                 >
-                                  <X className="w-3 h-3" />
+                                  <Trash2 className="w-4 h-4" />
                                 </Button>
                               </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Add new sub-goal form */}
+                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                          <Plus className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="font-semibold text-gray-900">
+                          Thêm mục tiêu con mới
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                            <Target className="w-4 h-4 text-blue-500" />
+                            Tiêu đề mục tiêu con *
+                          </Label>
+                          <Input
+                            placeholder="Ví dụ: Học 10 từ vựng mới mỗi ngày"
+                            value={newSubGoal.title}
+                            onChange={(e) =>
+                              setNewSubGoal((prev) => ({
+                                ...prev,
+                                title: e.target.value,
+                              }))
+                            }
+                            className="border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-xl h-12 bg-gray-50/50"
+                            maxLength={80}
+                          />
+                          <div className="text-xs text-gray-500">
+                            {newSubGoal.title.length}/80 ký tự
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-green-500" />
+                            Ngày hoàn thành
+                          </Label>
+                          <EnhancedDatePicker
+                            date={
+                              newSubGoal.targetDate
+                                ? new Date(newSubGoal.targetDate)
+                                : undefined
+                            }
+                            onDateChange={(date) =>
+                              setNewSubGoal((prev) => ({
+                                ...prev,
+                                targetDate: date
+                                  ? date.toISOString().split("T")[0]
+                                  : "",
+                              }))
+                            }
+                            placeholder="Chọn ngày mục tiêu"
+                            className="border-gray-200 focus:border-green-400 focus:ring-green-400 rounded-xl h-12 bg-gray-50/50"
+                            minDate={new Date()}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 mb-6">
+                        <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                          <BookOpen className="w-4 h-4 text-purple-500" />
+                          Mô tả chi tiết (tùy chọn)
+                        </Label>
+                        <Textarea
+                          placeholder="Mô tả chi tiết về mục tiêu con này để dễ theo dõi hơn..."
+                          value={newSubGoal.description}
+                          onChange={(e) =>
+                            setNewSubGoal((prev) => ({
+                              ...prev,
+                              description: e.target.value,
+                            }))
+                          }
+                          className="border-gray-200 focus:border-purple-400 focus:ring-purple-400 rounded-xl resize-none bg-gray-50/50"
+                          rows={3}
+                          maxLength={200}
+                        />
+                        <div className="text-xs text-gray-500">
+                          {newSubGoal.description.length}/200 ký tự
+                        </div>
+                      </div>
+
+                      <Button
+                        type="button"
+                        onClick={addSubGoalToNewGoal}
+                        disabled={!newSubGoal.title.trim()}
+                        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02]"
+                      >
+                        <Plus className="w-5 h-5 mr-2" />
+                        Thêm mục tiêu con
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={handleAddGoal}
+                    disabled={isSubmitting}
+                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] text-lg"
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    {isSubmitting ? "Đang tạo mục tiêu..." : "Tạo mục tiêu mới"}
+                  </Button>
+                </CardContent>
+              </div>
+            </div>
+          </Card>
+        )}{" "}
+        {/* Goals List */}
+        <Card className="bg-gradient-to-br from-white via-blue-50/20 to-purple-50/20 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden">
+          <div className="bg-white rounded-2xl">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-t-2xl">
+              <CardTitle className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <BookOpen className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Danh sách mục tiêu
+                  </h2>
+                  <p className="text-gray-600 mt-1">
+                    Theo dõi và quản lý tất cả mục tiêu của bạn
+                  </p>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8">
+              {isLoading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="p-4 bg-gray-100 rounded-lg animate-pulse"
+                    >
+                      <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-2/3 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : goals.length === 0 ? (
+                <div className="text-center py-20">
+                  <div className="relative mb-8">
+                    <div className="w-32 h-32 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                      <Target className="w-16 h-16 text-indigo-500" />
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+                      <Plus className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                    Chưa có mục tiêu nào
+                  </h3>
+                  <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
+                    Hãy bắt đầu hành trình phát triển bản thân bằng cách tạo mục
+                    tiêu đầu tiên. Mỗi mục tiêu lớn đều bắt đầu từ những bước đi
+                    nhỏ.
+                  </p>
+                  <Button
+                    onClick={() => setIsAddingGoal(true)}
+                    className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-lg font-semibold"
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    Tạo mục tiêu đầu tiên
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {goals.map((goal) => (
+                    <Card
+                      key={goal._id}
+                      className="bg-gradient-to-br from-white to-blue-50/30 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] group"
+                    >
+                      <div className="bg-gradient-to-r from-transparent via-blue-500/5 to-purple-500/5 p-1">
+                        <div className="bg-white rounded-xl">
+                          <CardContent className="p-6">
+                            {editingGoalId === goal._id ? (
+                              // Edit Mode
                               <div className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   <div>
-                                    <Label className="text-green-700 font-medium text-xs">
-                                      Tiêu đề *
+                                    <Label className="text-gray-700">
+                                      Tiêu đề
                                     </Label>
                                     <Input
-                                      placeholder="Tên mục tiêu con"
+                                      value={editGoal.title || ""}
+                                      onChange={(e) =>
+                                        setEditGoal((prev) => ({
+                                          ...prev,
+                                          title: e.target.value,
+                                        }))
+                                      }
+                                      className="border-blue-200"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label className="text-gray-700">
+                                      Danh mục
+                                    </Label>
+                                    <Input
+                                      value={editGoal.category || ""}
+                                      onChange={(e) =>
+                                        setEditGoal((prev) => ({
+                                          ...prev,
+                                          category: e.target.value,
+                                        }))
+                                      }
+                                      className="border-blue-200"
+                                    />
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <Label className="text-gray-700">Mô tả</Label>
+                                  <Textarea
+                                    value={editGoal.description || ""}
+                                    onChange={(e) =>
+                                      setEditGoal((prev) => ({
+                                        ...prev,
+                                        description: e.target.value,
+                                      }))
+                                    }
+                                    className="border-blue-200"
+                                    rows={2}
+                                  />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                  <div>
+                                    <Label className="text-gray-700">
+                                      Độ ưu tiên
+                                    </Label>
+                                    <Select
+                                      value={editGoal.priority || goal.priority}
+                                      onValueChange={(value: any) =>
+                                        setEditGoal((prev) => ({
+                                          ...prev,
+                                          priority: value,
+                                        }))
+                                      }
+                                    >
+                                      <SelectTrigger className="border-blue-200">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {priorityOptions.map((option) => (
+                                          <SelectItem
+                                            key={option.value}
+                                            value={option.value}
+                                          >
+                                            {option.icon} {option.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+
+                                  <div>
+                                    <Label className="text-gray-700">
+                                      Trạng thái
+                                    </Label>
+                                    <Select
+                                      value={editGoal.status || goal.status}
+                                      onValueChange={(value: any) =>
+                                        setEditGoal((prev) => ({
+                                          ...prev,
+                                          status: value,
+                                        }))
+                                      }
+                                    >
+                                      <SelectTrigger className="border-blue-200">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {statusOptions.map((option) => (
+                                          <SelectItem
+                                            key={option.value}
+                                            value={option.value}
+                                          >
+                                            {option.icon} {option.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+
+                                  <div>
+                                    <Label className="text-gray-700">
+                                      Ngày mục tiêu
+                                    </Label>
+                                    <EnhancedDatePicker
+                                      date={
+                                        editGoal.targetDate
+                                          ? new Date(editGoal.targetDate)
+                                          : undefined
+                                      }
+                                      onDateChange={(date) =>
+                                        setEditGoal((prev) => ({
+                                          ...prev,
+                                          targetDate: date
+                                            ? date.toISOString().split("T")[0]
+                                            : "",
+                                        }))
+                                      }
+                                      placeholder="Chọn ngày mục tiêu"
+                                      className="border-blue-200 rounded-xl"
+                                      minDate={new Date()}
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Sub-goals editing section */}
+                                <div className="mb-4">
+                                  <Label className="text-gray-700 mb-2 block">
+                                    Mục tiêu con
+                                  </Label>
+
+                                  {/* Display existing sub-goals in edit mode */}
+                                  {editGoal.subGoals &&
+                                    editGoal.subGoals.length > 0 && (
+                                      <div className="space-y-2 mb-4 p-3 bg-blue-50 rounded-lg">
+                                        {editGoal.subGoals.map(
+                                          (subGoal, index) => (
+                                            <div
+                                              key={index}
+                                              className="flex items-center gap-2 p-2 bg-white rounded border"
+                                            >
+                                              <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2">
+                                                <Input
+                                                  placeholder="Tiêu đề"
+                                                  value={subGoal.title}
+                                                  onChange={(e) => {
+                                                    const updatedSubGoals = [
+                                                      ...(editGoal.subGoals ||
+                                                        []),
+                                                    ];
+                                                    updatedSubGoals[index] = {
+                                                      ...subGoal,
+                                                      title: e.target.value,
+                                                    };
+                                                    setEditGoal((prev) => ({
+                                                      ...prev,
+                                                      subGoals: updatedSubGoals,
+                                                    }));
+                                                  }}
+                                                  className="border-blue-200 text-sm"
+                                                />
+                                                <Input
+                                                  placeholder="Mô tả"
+                                                  value={subGoal.description}
+                                                  onChange={(e) => {
+                                                    const updatedSubGoals = [
+                                                      ...(editGoal.subGoals ||
+                                                        []),
+                                                    ];
+                                                    updatedSubGoals[index] = {
+                                                      ...subGoal,
+                                                      description:
+                                                        e.target.value,
+                                                    };
+                                                    setEditGoal((prev) => ({
+                                                      ...prev,
+                                                      subGoals: updatedSubGoals,
+                                                    }));
+                                                  }}
+                                                  className="border-blue-200 text-sm"
+                                                />
+                                                <div className="flex gap-1">
+                                                  <Select
+                                                    value={subGoal.status}
+                                                    onValueChange={(
+                                                      value: any
+                                                    ) => {
+                                                      const updatedSubGoals = [
+                                                        ...(editGoal.subGoals ||
+                                                          []),
+                                                      ];
+                                                      updatedSubGoals[index] = {
+                                                        ...subGoal,
+                                                        status: value,
+                                                      };
+                                                      setEditGoal((prev) => ({
+                                                        ...prev,
+                                                        subGoals:
+                                                          updatedSubGoals,
+                                                      }));
+                                                    }}
+                                                  >
+                                                    <SelectTrigger className="border-blue-200 text-sm">
+                                                      <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                      {statusOptions.map(
+                                                        (option) => (
+                                                          <SelectItem
+                                                            key={option.value}
+                                                            value={option.value}
+                                                          >
+                                                            {option.icon}{" "}
+                                                            {option.label}
+                                                          </SelectItem>
+                                                        )
+                                                      )}
+                                                    </SelectContent>
+                                                  </Select>
+                                                  <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                      const updatedSubGoals = (
+                                                        editGoal.subGoals || []
+                                                      ).filter(
+                                                        (_, i) => i !== index
+                                                      );
+                                                      setEditGoal((prev) => ({
+                                                        ...prev,
+                                                        subGoals:
+                                                          updatedSubGoals,
+                                                      }));
+                                                    }}
+                                                    className="text-red-600 border-red-300 hover:bg-red-50"
+                                                  >
+                                                    <Minus className="w-3 h-3" />
+                                                  </Button>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          )
+                                        )}
+                                      </div>
+                                    )}
+
+                                  {/* Add new sub-goal to edit */}
+                                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+                                    <Input
+                                      placeholder="Tiêu đề mục tiêu con"
                                       value={newSubGoal.title}
                                       onChange={(e) =>
                                         setNewSubGoal((prev) => ({
@@ -1597,13 +1406,19 @@ export default function GoalsAdminPage() {
                                           title: e.target.value,
                                         }))
                                       }
-                                      className="border-green-200 focus:border-green-400 rounded-xl mt-1"
+                                      className="border-blue-200"
                                     />
-                                  </div>
-                                  <div>
-                                    <Label className="text-green-700 font-medium text-xs">
-                                      Ngày mục tiêu
-                                    </Label>
+                                    <Input
+                                      placeholder="Mô tả"
+                                      value={newSubGoal.description}
+                                      onChange={(e) =>
+                                        setNewSubGoal((prev) => ({
+                                          ...prev,
+                                          description: e.target.value,
+                                        }))
+                                      }
+                                      className="border-blue-200"
+                                    />
                                     <EnhancedDatePicker
                                       date={
                                         newSubGoal.targetDate
@@ -1618,108 +1433,480 @@ export default function GoalsAdminPage() {
                                             : "",
                                         }))
                                       }
-                                      placeholder="Chọn ngày hoàn thành"
-                                      className="border-green-200 focus:border-green-400 rounded-xl mt-1"
+                                      placeholder="Ngày hoàn thành"
+                                      className="border-blue-200 rounded-xl"
                                       minDate={new Date()}
                                     />
+                                    <Button
+                                      type="button"
+                                      onClick={() => {
+                                        if (!newSubGoal.title.trim()) return;
+                                        setEditGoal((prev) => ({
+                                          ...prev,
+                                          subGoals: [
+                                            ...(prev.subGoals || []),
+                                            { ...newSubGoal },
+                                          ],
+                                        }));
+                                        setNewSubGoal({
+                                          title: "",
+                                          description: "",
+                                          status: "Not Started",
+                                          targetDate: "",
+                                        });
+                                      }}
+                                      variant="outline"
+                                      className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                                    >
+                                      <Plus className="w-4 h-4 mr-1" />
+                                      Thêm
+                                    </Button>
                                   </div>
                                 </div>
-                                <div>
-                                  <Label className="text-green-700 font-medium text-xs">
-                                    Mô tả (tùy chọn)
-                                  </Label>
-                                  <Textarea
-                                    placeholder="Mô tả chi tiết về mục tiêu con này..."
-                                    value={newSubGoal.description}
-                                    onChange={(e) =>
-                                      setNewSubGoal((prev) => ({
-                                        ...prev,
-                                        description: e.target.value,
-                                      }))
-                                    }
-                                    className="border-green-200 focus:border-green-400 rounded-xl mt-1 resize-none"
-                                    rows={2}
-                                  />
-                                </div>
-                                <div className="flex justify-end gap-2">
+
+                                <div className="flex gap-2">
                                   <Button
-                                    onClick={() => setAddingSubGoalTo(null)}
-                                    variant="outline"
-                                    size="sm"
-                                    className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl"
+                                    onClick={() => handleEditGoal(goal._id)}
+                                    disabled={isSubmitting}
+                                    className="bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
+                                    <Save className="w-4 h-4 mr-2" />
+                                    {isSubmitting ? "Đang lưu..." : "Lưu"}
+                                  </Button>
+                                  <Button
+                                    onClick={cancelEditing}
+                                    variant="outline"
+                                    className="border-gray-300"
+                                    disabled={isSubmitting}
+                                  >
+                                    <X className="w-4 h-4 mr-2" />
                                     Hủy
                                   </Button>
-                                  <Button
-                                    onClick={() =>
-                                      addSubGoalToExisting(goal._id)
-                                    }
-                                    size="sm"
-                                    className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-4 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    disabled={
-                                      !newSubGoal.title.trim() || isSubmitting
-                                    }
-                                  >
-                                    <Plus className="w-3 h-3 mr-1" />
-                                    {isSubmitting
-                                      ? "Đang thêm..."
-                                      : "Thêm mục tiêu con"}
-                                  </Button>
                                 </div>
                               </div>
-                            </div>
-                          )}
+                            ) : (
+                              // View Mode
+                              <div>
+                                <div className="flex justify-between items-start mb-3">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      {goal.subGoals &&
+                                        goal.subGoals.length > 0 && (
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() =>
+                                              toggleGoalExpansion(goal._id)
+                                            }
+                                            className="p-0 h-auto"
+                                          >
+                                            {expandedGoals.has(goal._id) ? (
+                                              <ChevronDown className="w-4 h-4 text-gray-500" />
+                                            ) : (
+                                              <ChevronRight className="w-4 h-4 text-gray-500" />
+                                            )}
+                                          </Button>
+                                        )}
+                                      <h3 className="text-lg font-semibold text-gray-900">
+                                        {goal.title}
+                                      </h3>
+                                    </div>
+                                    <p className="text-gray-600 mb-2">
+                                      {goal.description}
+                                    </p>
+                                    {goal.category && (
+                                      <span className="text-sm text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                                        {goal.category}
+                                      </span>
+                                    )}
 
-                          <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
-                            <div className="flex items-center gap-4 text-xs text-gray-500">
-                              <div className="flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
-                                <span>
-                                  Tạo:{" "}
-                                  {new Date(goal.createdAt).toLocaleDateString(
-                                    "vi-VN"
+                                    {/* Progress bar for goals with sub-goals */}
+                                    {goal.subGoals &&
+                                      goal.subGoals.length > 0 && (
+                                        <div className="mt-3">
+                                          <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-sm text-gray-600">
+                                              Tiến độ:
+                                            </span>
+                                            <span className="text-sm font-medium text-blue-600">
+                                              {getGoalProgress(goal)}%
+                                            </span>
+                                            <span className="text-xs text-gray-500">
+                                              (
+                                              {
+                                                goal.subGoals.filter(
+                                                  (sg) =>
+                                                    sg.status === "Completed"
+                                                ).length
+                                              }
+                                              /{goal.subGoals.length})
+                                            </span>
+                                          </div>
+                                          <div className="w-full bg-gray-200 rounded-full h-2">
+                                            <div
+                                              className="bg-blue-600 h-2 rounded-full transition-all"
+                                              style={{
+                                                width: `${getGoalProgress(
+                                                  goal
+                                                )}%`,
+                                              }}
+                                            ></div>
+                                          </div>
+                                        </div>
+                                      )}
+                                  </div>
+                                  <div className="flex gap-2 ml-4">
+                                    <Button
+                                      onClick={() =>
+                                        setAddingSubGoalTo(
+                                          addingSubGoalTo === goal._id
+                                            ? null
+                                            : goal._id
+                                        )
+                                      }
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-green-600 border-green-300 hover:bg-green-50 rounded-xl"
+                                    >
+                                      <PlusCircle className="w-4 h-4 mr-1" />
+                                      Sub-goal
+                                    </Button>
+                                    <Button
+                                      onClick={() => startEditing(goal)}
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-blue-600 border-blue-300 hover:bg-blue-50 rounded-xl"
+                                    >
+                                      <Edit2 className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                      onClick={() => handleDeleteGoal(goal._id)}
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-red-600 border-red-300 hover:bg-red-50 rounded-xl"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-wrap gap-3 mb-4">
+                                  <Badge
+                                    className={`${getPriorityColor(
+                                      goal.priority
+                                    )} px-3 py-1 rounded-full font-medium`}
+                                  >
+                                    <Flag className="w-3 h-3 mr-1" />
+                                    {priorityOptions.find(
+                                      (p) => p.value === goal.priority
+                                    )?.label || goal.priority}
+                                  </Badge>
+                                  <Badge
+                                    className={`${getStatusColor(
+                                      goal.status
+                                    )} px-3 py-1 rounded-full font-medium`}
+                                  >
+                                    {
+                                      statusOptions.find(
+                                        (s) => s.value === goal.status
+                                      )?.icon
+                                    }{" "}
+                                    {statusOptions.find(
+                                      (s) => s.value === goal.status
+                                    )?.label || goal.status}
+                                  </Badge>
+                                  {goal.targetDate && (
+                                    <Badge
+                                      variant="outline"
+                                      className="border-gray-300 px-3 py-1 rounded-full bg-gray-50"
+                                    >
+                                      <Calendar className="w-3 h-3 mr-1" />
+                                      {new Date(
+                                        goal.targetDate
+                                      ).toLocaleDateString("vi-VN")}
+                                    </Badge>
                                   )}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                <span>
-                                  Cập nhật:{" "}
-                                  {new Date(goal.updatedAt).toLocaleDateString(
-                                    "vi-VN"
+                                </div>
+
+                                {/* Sub-goals section */}
+                                {expandedGoals.has(goal._id) &&
+                                  goal.subGoals && (
+                                    <div className="mt-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
+                                      <div className="flex items-center justify-between mb-4">
+                                        <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                          <Users className="w-4 h-4" />
+                                          Mục tiêu con ({goal.subGoals.length})
+                                        </h4>
+                                        <Button
+                                          onClick={() =>
+                                            setAddingSubGoalTo(
+                                              addingSubGoalTo === goal._id
+                                                ? null
+                                                : goal._id
+                                            )
+                                          }
+                                          variant="outline"
+                                          size="sm"
+                                          className="text-indigo-600 border-indigo-300 hover:bg-indigo-50 rounded-xl"
+                                        >
+                                          <PlusCircle className="w-3 h-3 mr-1" />
+                                          Thêm
+                                        </Button>
+                                      </div>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {goal.subGoals.map((subGoal, index) => (
+                                          <div
+                                            key={index}
+                                            className="flex items-start gap-3 p-4 bg-white rounded-xl border border-gray-100 shadow-sm transition-all"
+                                          >
+                                            <Button
+                                              variant="link"
+                                              size="sm"
+                                              onClick={() =>
+                                                updateSubGoal(goal._id, index, {
+                                                  ...subGoal,
+                                                  status:
+                                                    subGoal.status ===
+                                                    "Completed"
+                                                      ? "Not Started"
+                                                      : "Completed",
+                                                })
+                                              }
+                                              className="p-0 h-auto mt-1"
+                                            >
+                                              {subGoal.status ===
+                                              "Completed" ? (
+                                                <CheckCircle className="w-5 h-5 text-green-600" />
+                                              ) : (
+                                                <Circle className="w-5 h-5 text-gray-400" />
+                                              )}
+                                            </Button>
+                                            <div className="flex-1 min-w-0">
+                                              <h5
+                                                className={`text-sm font-medium ${
+                                                  subGoal.status === "Completed"
+                                                    ? "line-through text-gray-500"
+                                                    : "text-gray-900"
+                                                }`}
+                                              >
+                                                {subGoal.title}
+                                              </h5>
+                                              {subGoal.description && (
+                                                <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                                                  {subGoal.description}
+                                                </p>
+                                              )}
+                                              {subGoal.targetDate && (
+                                                <div className="flex items-center gap-1 mt-2">
+                                                  <Clock className="w-3 h-3 text-gray-400" />
+                                                  <span className="text-xs text-gray-500">
+                                                    {new Date(
+                                                      subGoal.targetDate
+                                                    ).toLocaleDateString(
+                                                      "vi-VN"
+                                                    )}
+                                                  </span>
+                                                </div>
+                                              )}
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                              <Badge
+                                                className={`${getStatusColor(
+                                                  subGoal.status
+                                                )} text-xs px-2 py-1`}
+                                              >
+                                                {
+                                                  statusOptions.find(
+                                                    (s) =>
+                                                      s.value === subGoal.status
+                                                  )?.icon
+                                                }
+                                              </Badge>
+                                              <Button
+                                                onClick={() =>
+                                                  deleteSubGoal(goal._id, index)
+                                                }
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-red-600 hover:bg-red-50 p-1 h-6 w-6 rounded"
+                                              >
+                                                <Trash2 className="w-3 h-3" />
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
                                   )}
-                                </span>
-                              </div>
-                            </div>
-                            {goal.subGoals && goal.subGoals.length > 0 && (
-                              <Button
-                                onClick={() => toggleGoalExpansion(goal._id)}
-                                variant="ghost"
-                                size="sm"
-                                className="text-indigo-600 hover:bg-indigo-50 rounded-xl px-3 py-1"
-                              >
-                                {expandedGoals.has(goal._id) ? (
-                                  <>
-                                    <ChevronDown className="w-4 h-4 mr-1" />
-                                    Thu gọn
-                                  </>
-                                ) : (
-                                  <>
-                                    <ChevronRight className="w-4 h-4 mr-1" />
-                                    Xem chi tiết
-                                  </>
+
+                                {/* Add sub-goal form */}
+                                {addingSubGoalTo === goal._id && (
+                                  <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                                    <div className="flex items-center justify-between mb-4">
+                                      <h4 className="text-sm font-semibold text-green-800 flex items-center gap-2">
+                                        <PlusCircle className="w-4 h-4" />
+                                        Thêm mục tiêu con mới
+                                      </h4>
+                                      <Button
+                                        onClick={() => setAddingSubGoalTo(null)}
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-gray-500 hover:text-gray-700 h-6 w-6 p-0 rounded"
+                                      >
+                                        <X className="w-3 h-3" />
+                                      </Button>
+                                    </div>
+                                    <div className="space-y-4">
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                          <Label className="text-green-700 font-medium text-xs">
+                                            Tiêu đề *
+                                          </Label>
+                                          <Input
+                                            placeholder="Tên mục tiêu con"
+                                            value={newSubGoal.title}
+                                            onChange={(e) =>
+                                              setNewSubGoal((prev) => ({
+                                                ...prev,
+                                                title: e.target.value,
+                                              }))
+                                            }
+                                            className="border-green-200 focus:border-green-400 rounded-xl mt-1"
+                                          />
+                                        </div>
+                                        <div>
+                                          <Label className="text-green-700 font-medium text-xs">
+                                            Ngày mục tiêu
+                                          </Label>
+                                          <EnhancedDatePicker
+                                            date={
+                                              newSubGoal.targetDate
+                                                ? new Date(
+                                                    newSubGoal.targetDate
+                                                  )
+                                                : undefined
+                                            }
+                                            onDateChange={(date) =>
+                                              setNewSubGoal((prev) => ({
+                                                ...prev,
+                                                targetDate: date
+                                                  ? date
+                                                      .toISOString()
+                                                      .split("T")[0]
+                                                  : "",
+                                              }))
+                                            }
+                                            placeholder="Chọn ngày hoàn thành"
+                                            className="border-green-200 focus:border-green-400 rounded-xl mt-1"
+                                            minDate={new Date()}
+                                          />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <Label className="text-green-700 font-medium text-xs">
+                                          Mô tả (tùy chọn)
+                                        </Label>
+                                        <Textarea
+                                          placeholder="Mô tả chi tiết về mục tiêu con này..."
+                                          value={newSubGoal.description}
+                                          onChange={(e) =>
+                                            setNewSubGoal((prev) => ({
+                                              ...prev,
+                                              description: e.target.value,
+                                            }))
+                                          }
+                                          className="border-green-200 focus:border-green-400 rounded-xl mt-1 resize-none"
+                                          rows={2}
+                                        />
+                                      </div>
+                                      <div className="flex justify-end gap-2">
+                                        <Button
+                                          onClick={() =>
+                                            setAddingSubGoalTo(null)
+                                          }
+                                          variant="outline"
+                                          size="sm"
+                                          className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl"
+                                        >
+                                          Hủy
+                                        </Button>
+                                        <Button
+                                          onClick={() =>
+                                            addSubGoalToExisting(goal._id)
+                                          }
+                                          size="sm"
+                                          className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                                          disabled={
+                                            !newSubGoal.title.trim() ||
+                                            isSubmitting
+                                          }
+                                        >
+                                          <Plus className="w-3 h-3 mr-1" />
+                                          {isSubmitting
+                                            ? "Đang thêm..."
+                                            : "Thêm mục tiêu con"}
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </div>
                                 )}
-                              </Button>
+
+                                <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
+                                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                                    <div className="flex items-center gap-1">
+                                      <Calendar className="w-3 h-3" />
+                                      <span>
+                                        Tạo:{" "}
+                                        {new Date(
+                                          goal.createdAt
+                                        ).toLocaleDateString("vi-VN")}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Clock className="w-3 h-3" />
+                                      <span>
+                                        Cập nhật:{" "}
+                                        {new Date(
+                                          goal.updatedAt
+                                        ).toLocaleDateString("vi-VN")}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  {goal.subGoals &&
+                                    goal.subGoals.length > 0 && (
+                                      <Button
+                                        onClick={() =>
+                                          toggleGoalExpansion(goal._id)
+                                        }
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-indigo-600 hover:bg-indigo-50 rounded-xl px-3 py-1"
+                                      >
+                                        {expandedGoals.has(goal._id) ? (
+                                          <>
+                                            <ChevronDown className="w-4 h-4 mr-1" />
+                                            Thu gọn
+                                          </>
+                                        ) : (
+                                          <>
+                                            <ChevronRight className="w-4 h-4 mr-1" />
+                                            Xem chi tiết
+                                          </>
+                                        )}
+                                      </Button>
+                                    )}
+                                </div>
+                              </div>
                             )}
-                          </div>
+                          </CardContent>
                         </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </CardContent>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </div>
         </Card>
       </div>
     </div>
