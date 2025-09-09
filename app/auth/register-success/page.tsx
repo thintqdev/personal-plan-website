@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Card,
@@ -14,6 +14,14 @@ import { Mail, Clock, RefreshCw } from "lucide-react";
 import { authService } from "@/lib/auth-service";
 
 export default function RegisterSuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RegisterSuccessPageContent />
+    </Suspense>
+  );
+}
+
+function RegisterSuccessPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");

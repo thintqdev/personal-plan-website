@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Card,
@@ -24,6 +24,14 @@ import Link from "next/link";
 import { authService } from "@/lib/auth-service";
 
 export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Content />
+    </Suspense>
+  );
+}
+
+function Content() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [token, setToken] = useState("");
