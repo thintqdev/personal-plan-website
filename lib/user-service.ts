@@ -79,7 +79,7 @@ export async function deleteQuote(quoteId: string): Promise<void> {
  */
 export async function getUser(): Promise<User> {
     try {
-        const response = await fetch(`${API_URL}/api/user`, {
+        const response = await fetch(`${API_URL}/api/auth/me`, {
             method: "GET",
             headers: getAuthHeaders(),
         });

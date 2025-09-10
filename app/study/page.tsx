@@ -6,32 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import UserLayout from "@/components/layouts/UserLayout";
-import {
-  BookOpen,
-  Plus,
-  Search,
-  Filter,
-  Edit2,
-  Trash2,
-  CheckCircle,
-  Circle,
-  Folder,
-  Quote,
-  BarChart3,
-  Calendar,
-  StickyNote,
-  CheckSquare,
-  TrendingUp,
-  MessageSquare,
-} from "lucide-react";
-import {
-  getUserVocabulary,
-  getVocabularyStats,
-  getVocabularyCategories,
-  VocabularyWord,
-  VocabularyStats,
-  VocabularyCategory,
-} from "@/lib/vocabulary-service";
+import { BookOpen, Plus } from "lucide-react";
 
 export default function StudyDashboard() {
   const [vocabulary, setVocabulary] = useState<VocabularyWord[]>([]);
