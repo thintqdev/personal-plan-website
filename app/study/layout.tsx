@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Clock, Palette } from "lucide-react";
 
 export default function StudyLayout({
@@ -11,6 +12,7 @@ export default function StudyLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(() => new Date());
   const [currentTheme, setCurrentTheme] = useState("blue");
+  const pathname = usePathname();
 
   const colorThemes = [
     {
@@ -136,8 +138,7 @@ export default function StudyLayout({
               <Link
                 href="/study"
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  typeof window !== "undefined" &&
-                  window.location?.pathname === "/study"
+                  pathname === "/study"
                     ? selectedTheme.activeNav
                     : `text-gray-600 hover:text-gray-900 ${selectedTheme.hoverNav}`
                 }`}
@@ -150,8 +151,7 @@ export default function StudyLayout({
               <Link
                 href="/study/language"
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  typeof window !== "undefined" &&
-                  window.location?.pathname === "/study/language"
+                  pathname === "/study/language"
                     ? selectedTheme.activeNav
                     : `text-gray-600 hover:text-gray-900 ${selectedTheme.hoverNav}`
                 }`}
@@ -164,8 +164,7 @@ export default function StudyLayout({
               <Link
                 href="/study/tech"
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  typeof window !== "undefined" &&
-                  window.location?.pathname === "/study/tech"
+                  pathname === "/study/tech"
                     ? selectedTheme.activeNav
                     : `text-gray-600 hover:text-gray-900 ${selectedTheme.hoverNav}`
                 }`}
@@ -178,8 +177,7 @@ export default function StudyLayout({
               <Link
                 href="/study/skills"
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  typeof window !== "undefined" &&
-                  window.location?.pathname === "/study/skills"
+                  pathname === "/study/skills"
                     ? selectedTheme.activeNav
                     : `text-gray-600 hover:text-gray-900 ${selectedTheme.hoverNav}`
                 }`}
@@ -261,8 +259,7 @@ export default function StudyLayout({
               <Link
                 href="/study"
                 className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                  typeof window !== "undefined" &&
-                  window.location?.pathname === "/study"
+                  pathname === "/study"
                     ? selectedTheme.activeNav
                     : `text-gray-600 hover:text-gray-900 ${selectedTheme.hoverNav}`
                 }`}
@@ -274,8 +271,7 @@ export default function StudyLayout({
               <Link
                 href="/study/language"
                 className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                  typeof window !== "undefined" &&
-                  window.location?.pathname === "/study/language"
+                  pathname === "/study/language"
                     ? selectedTheme.activeNav
                     : `text-gray-600 hover:text-gray-900 ${selectedTheme.hoverNav}`
                 }`}
@@ -287,8 +283,7 @@ export default function StudyLayout({
               <Link
                 href="/study/tech"
                 className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                  typeof window !== "undefined" &&
-                  window.location?.pathname === "/study/tech"
+                  pathname === "/study/tech"
                     ? selectedTheme.activeNav
                     : `text-gray-600 hover:text-gray-900 ${selectedTheme.hoverNav}`
                 }`}
@@ -300,14 +295,13 @@ export default function StudyLayout({
               <Link
                 href="/study/skills"
                 className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                  typeof window !== "undefined" &&
-                  window.location?.pathname === "/study/skills"
+                  pathname === "/study/skills"
                     ? selectedTheme.activeNav
                     : `text-gray-600 hover:text-gray-900 ${selectedTheme.hoverNav}`
                 }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <span className="text-lg">�</span>
+                <span className="text-lg">🎯</span>
                 <span>Học Kỹ Năng</span>
               </Link>
             </div>
