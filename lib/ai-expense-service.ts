@@ -36,6 +36,7 @@ export async function parseExpenseWithAI(text: string): Promise<AIExpenseParseRe
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                ...getAuthHeaders(),
             },
             body: JSON.stringify({ text }),
         });
@@ -56,7 +57,13 @@ export async function parseExpenseWithAI(text: string): Promise<AIExpenseParseRe
 // Get expense suggestions based on history
 export async function getExpenseSuggestions(): Promise<AIExpenseSuggestions> {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/ai-expense/suggestions`);
+        const response = await fetch(`${API_BASE_URL}/api/ai-expense/suggestions`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+        });
 
         if (!response.ok) {
             throw new Error('Failed to get suggestions');
@@ -89,6 +96,7 @@ export async function createExpenseFromAI(request: CreateExpenseFromAIRequest) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                ...getAuthHeaders(),
             },
             body: JSON.stringify(request),
         });
