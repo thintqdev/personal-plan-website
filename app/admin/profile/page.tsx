@@ -254,7 +254,7 @@ export default function ProfileAdminPage() {
                         id="streak"
                         type="number"
                         placeholder="0"
-                        value={profile.streak.toString()}
+                        value={profile.streak?.toString() || 1}
                         onChange={(e) =>
                           handleProfileUpdate("streak", e.target.value)
                         }

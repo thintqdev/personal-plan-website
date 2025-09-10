@@ -1,8 +1,25 @@
-import { API_URL, Quote, CreateQuoteRequest, User, UpdateUserRequest, UpdateUserIncomeRequest, UserPreferences, Statistics } from "./types";
+import {
+    API_URL,
+    Quote,
+    CreateQuoteRequest,
+    User,
+    UpdateUserRequest,
+    UpdateUserIncomeRequest,
+    UserPreferences,
+    Statistics,
+} from "./types";
 import { getAuthHeaders } from "./utils";
 
 // Re-export types for convenience
-export type { Quote, CreateQuoteRequest, User, UpdateUserRequest, UpdateUserIncomeRequest, UserPreferences, Statistics };
+export type {
+    Quote,
+    CreateQuoteRequest,
+    User,
+    UpdateUserRequest,
+    UpdateUserIncomeRequest,
+    UserPreferences,
+    Statistics,
+};
 
 /**
  * Get all quotes from the API
@@ -91,6 +108,7 @@ export async function getUser(): Promise<User> {
         }
 
         const user = await response.json();
+
         return user;
     } catch (error) {
         console.error("Error fetching user:", error);
