@@ -1,4 +1,5 @@
 import { API_URL, Quote, CreateQuoteRequest, User, UpdateUserRequest, UpdateUserIncomeRequest, UserPreferences, Statistics } from "./types";
+import { getAuthHeaders } from "./utils";
 
 // Re-export types for convenience
 export type { Quote, CreateQuoteRequest, User, UpdateUserRequest, UpdateUserIncomeRequest, UserPreferences, Statistics };
@@ -10,9 +11,7 @@ export async function getQuotes(): Promise<Quote[]> {
     try {
         const response = await fetch(`${API_URL}/api/quotes`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -36,9 +35,7 @@ export async function addQuote(quoteData: CreateQuoteRequest): Promise<Quote> {
     try {
         const response = await fetch(`${API_URL}/api/quotes`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(quoteData),
         });
 
@@ -63,9 +60,7 @@ export async function deleteQuote(quoteId: string): Promise<void> {
     try {
         const response = await fetch(`${API_URL}/api/quotes/${quoteId}`, {
             method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -86,9 +81,7 @@ export async function getUser(): Promise<User> {
     try {
         const response = await fetch(`${API_URL}/api/user`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -112,9 +105,7 @@ export async function updateUser(userData: UpdateUserRequest): Promise<User> {
     try {
         const response = await fetch(`${API_URL}/api/user`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(userData),
         });
 
@@ -139,9 +130,7 @@ export async function updateUserIncome(income: number): Promise<User> {
     try {
         const response = await fetch(`${API_URL}/api/user/income`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify({ income }),
         });
 
@@ -166,9 +155,7 @@ export async function getStatistics(): Promise<Statistics> {
     try {
         const response = await fetch(`${API_URL}/api/stats`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -192,9 +179,7 @@ export async function getTodayStatistics(): Promise<Statistics> {
     try {
         const response = await fetch(`${API_URL}/api/stats/today`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -218,9 +203,7 @@ export async function getWeekStatistics(): Promise<Statistics> {
     try {
         const response = await fetch(`${API_URL}/api/stats/week`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -244,9 +227,7 @@ export async function getUserPreferences(): Promise<UserPreferences> {
     try {
         const response = await fetch(`${API_URL}/api/user/preferences`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -272,9 +253,7 @@ export async function updateUserPreferences(
     try {
         const response = await fetch(`${API_URL}/api/user/preferences`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(preferences),
         });
 

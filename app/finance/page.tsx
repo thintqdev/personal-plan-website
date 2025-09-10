@@ -34,6 +34,8 @@ import {
   Camera,
   Target,
   Wallet,
+  Bot,
+  Sparkles,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
@@ -41,8 +43,11 @@ import {
   FinanceJar,
   Transaction,
   CreateTransactionRequest,
+  TransactionFilters,
+  TransactionResponse,
+  PaginationInfo,
   getFinanceJars,
-  getTransactions,
+  getTransactionsWithPagination,
   createTransaction,
   updateTransaction,
   deleteTransaction,
@@ -50,6 +55,8 @@ import {
 import { User, getUser } from "@/lib/user-service";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import AIExpenseChat from "@/components/AIExpenseChat";
+import { AIExpenseParseResult } from "@/lib/ai-expense-service";
 
 // Icon mapping cho các jars
 const iconMap = {
@@ -71,6 +78,18 @@ export default function FinancePage() {
   const [isMounted, setIsMounted] = useState(false);
   const [jars, setJars] = useState<FinanceJar[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [monthlyStats, setMonthlyStats] = useState({
+    totalExpenses: 0,
+    totalTransactions: 0,
+  });
+  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
+    currentPage: 1,
+    totalPages: 1,
+    totalCount: 0,
+    limit: 10,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingTransaction, setEditingTransaction] =
@@ -79,6 +98,13 @@ export default function FinancePage() {
   const [selectedMonth, setSelectedMonth] = useState<string>(
     new Date().toISOString().slice(0, 7)
   ); // YYYY-MM format
+  const [showAIChat, setShowAIChat] = useState(false);
+
+  // Pagination and filtering states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [dateFilter, setDateFilter] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   // Cover image and user states
   const [coverImage, setCoverImage] = useState<string>(
@@ -105,9 +131,16 @@ export default function FinancePage() {
 
   useEffect(() => {
     if (isMounted) {
+      Promise.all([loadTransactions(), loadMonthlyStats()]);
+      setCurrentPage(1); // Reset page when filters change
+    }
+  }, [selectedJarFilter, selectedMonth, dateFilter, searchTerm, isMounted]);
+
+  useEffect(() => {
+    if (isMounted) {
       loadTransactions();
     }
-  }, [selectedJarFilter, selectedMonth, isMounted]);
+  }, [currentPage, isMounted]);
 
   // Cover image options
   const coverImages = [
@@ -136,8 +169,8 @@ export default function FinancePage() {
       setJars(jarsData.filter((jar) => jar.isActive));
       setUser(userData);
 
-      // Load transactions with current filters
-      await loadTransactions();
+      // Load transactions and monthly stats
+      await Promise.all([loadTransactions(), loadMonthlyStats()]);
     } catch (error) {
       console.error("Error loading data:", error);
       setJars([]);
@@ -157,12 +190,46 @@ export default function FinancePage() {
     }
   };
 
+  const loadMonthlyStats = async () => {
+    try {
+      // Get all transactions for the selected month to calculate stats
+      const monthStart = selectedMonth + "-01";
+      const monthEnd = new Date(
+        new Date(monthStart).getFullYear(),
+        new Date(monthStart).getMonth() + 1,
+        0
+      )
+        .toISOString()
+        .slice(0, 10);
+
+      const response = await getTransactionsWithPagination({
+        month: selectedMonth,
+        limit: 1000, // Get all for stats calculation
+      });
+
+      const totalExpenses = response.transactions
+        .filter((t) => t.type === "expense")
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      setMonthlyStats({
+        totalExpenses,
+        totalTransactions: response.pagination.totalCount,
+      });
+    } catch (error) {
+      console.error("Error loading monthly stats:", error);
+      setMonthlyStats({
+        totalExpenses: 0,
+        totalTransactions: 0,
+      });
+    }
+  };
+
   const reloadAll = async () => {
     // Reload jars first, then transactions with filters
     try {
       const jarsData = await getFinanceJars();
       setJars(jarsData.filter((jar) => jar.isActive !== false));
-      await loadTransactions();
+      await Promise.all([loadTransactions(), loadMonthlyStats()]);
     } catch (error) {
       console.error("Error reloading data:", error);
     }
@@ -170,21 +237,43 @@ export default function FinancePage() {
 
   const loadTransactions = async () => {
     try {
-      const jarId = selectedJarFilter === "all" ? undefined : selectedJarFilter;
-      const data = await getTransactions(jarId);
+      const filters: TransactionFilters = {
+        page: currentPage,
+        limit: itemsPerPage,
+        month: selectedMonth,
+        sortBy: "date",
+        sortOrder: "desc",
+      };
 
-      // Filter by month
-      const filteredData = data.filter((transaction) => {
-        const transactionMonth = new Date(transaction.date)
-          .toISOString()
-          .slice(0, 7);
-        return transactionMonth === selectedMonth;
-      });
+      // Add optional filters
+      if (selectedJarFilter && selectedJarFilter !== "all") {
+        filters.jarId = selectedJarFilter;
+      }
 
-      setTransactions(filteredData);
+      if (dateFilter) {
+        filters.dateFilter = dateFilter;
+      }
+
+      if (searchTerm.trim()) {
+        filters.search = searchTerm.trim();
+      }
+
+      const response: TransactionResponse = await getTransactionsWithPagination(
+        filters
+      );
+      setTransactions(response.transactions);
+      setPaginationInfo(response.pagination);
     } catch (error) {
       console.error("Error loading transactions:", error);
       setTransactions([]);
+      setPaginationInfo({
+        currentPage: 1,
+        totalPages: 1,
+        totalCount: 0,
+        limit: itemsPerPage,
+        hasNextPage: false,
+        hasPrevPage: false,
+      });
     }
   };
 
@@ -422,9 +511,7 @@ export default function FinancePage() {
   };
 
   const getTotalExpenses = () => {
-    return transactions
-      .filter((t) => t.type === "expense")
-      .reduce((sum, t) => sum + t.amount, 0);
+    return monthlyStats.totalExpenses;
   };
 
   const getMonthOptions = () => {
@@ -490,6 +577,31 @@ export default function FinancePage() {
     }
   };
 
+  // Handle AI expense result
+  const handleAIExpenseResult = (result: AIExpenseParseResult) => {
+    setFormData({
+      jarId: result.jarId || "",
+      amount: result.amount?.toString() || "",
+      description: result.description || "",
+      category: result.category || "",
+    });
+
+    setShowAIChat(false);
+    setShowAddForm(true);
+    setEditingTransaction(null);
+  };
+
+  const clearFilters = () => {
+    setDateFilter("");
+    setSearchTerm("");
+    setSelectedJarFilter("all");
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   if (!isMounted) {
     return <div>Loading...</div>;
   }
@@ -516,18 +628,18 @@ export default function FinancePage() {
       onCoverImageChange={changeCoverImage}
     >
       {/* Quick Stats Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
+          <CardContent className="p-3 lg:p-4 text-center">
+            <div className="text-lg lg:text-2xl font-bold text-gray-900 mb-1">
               {jars.length}
             </div>
-            <div className="text-sm text-gray-600">Tổng số hủ</div>
+            <div className="text-xs lg:text-sm text-gray-600">Tổng số hủ</div>
           </CardContent>
         </Card>
         <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600 mb-1">
+          <CardContent className="p-3 lg:p-4 text-center">
+            <div className="text-lg lg:text-2xl font-bold text-green-600 mb-1">
               {
                 jars.filter((jar) => {
                   const spent = Math.abs(jar.currentAmount);
@@ -536,12 +648,12 @@ export default function FinancePage() {
                 }).length
               }
             </div>
-            <div className="text-sm text-gray-600">An toàn</div>
+            <div className="text-xs lg:text-sm text-gray-600">An toàn</div>
           </CardContent>
         </Card>
         <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-orange-600 mb-1">
+          <CardContent className="p-3 lg:p-4 text-center">
+            <div className="text-lg lg:text-2xl font-bold text-orange-600 mb-1">
               {
                 jars.filter((jar) => {
                   const spent = Math.abs(jar.currentAmount);
@@ -550,12 +662,12 @@ export default function FinancePage() {
                 }).length
               }
             </div>
-            <div className="text-sm text-gray-600">Cảnh báo</div>
+            <div className="text-xs lg:text-sm text-gray-600">Cảnh báo</div>
           </CardContent>
         </Card>
         <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-red-600 mb-1">
+          <CardContent className="p-3 lg:p-4 text-center">
+            <div className="text-lg lg:text-2xl font-bold text-red-600 mb-1">
               {
                 jars.filter((jar) => {
                   const spent = Math.abs(jar.currentAmount);
@@ -564,31 +676,35 @@ export default function FinancePage() {
                 }).length
               }
             </div>
-            <div className="text-sm text-gray-600">Vượt ngân sách</div>
+            <div className="text-xs lg:text-sm text-gray-600">
+              Vượt ngân sách
+            </div>
           </CardContent>
         </Card>
       </div>
 
       {/* User Profile Card */}
       <Card className="bg-white border border-gray-200">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <Avatar className="w-16 h-16">
+        <CardContent className="p-4 lg:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <Avatar className="w-12 h-12 lg:w-16 lg:h-16 mx-auto sm:mx-0">
               <AvatarImage
                 src={user?.avatar || "/friendly-person-avatar.png"}
                 alt={user?.name || "User"}
               />
               <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
             </Avatar>
-            <div className="flex-1">
-              <h3 className="text-xl font-semibold text-gray-900">
+            <div className="flex-1 text-center sm:text-left">
+              <h3 className="text-lg lg:text-xl font-semibold text-gray-900">
                 {user?.name || "Người dùng"}
               </h3>
-              <p className="text-gray-600">{user?.role || "Người dùng"}</p>
-              <div className="flex items-center gap-2 mt-2">
+              <p className="text-sm lg:text-base text-gray-600">
+                {user?.role || "Người dùng"}
+              </p>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
                 <Badge
                   variant="outline"
-                  className="text-blue-600 border-blue-200"
+                  className="text-blue-600 border-blue-200 text-xs"
                 >
                   <Calendar className="w-3 h-3 mr-1" />
                   {new Date().toLocaleDateString("vi-VN", {
@@ -598,46 +714,55 @@ export default function FinancePage() {
                 </Badge>
                 <Badge
                   variant="outline"
-                  className="text-green-600 border-green-200"
+                  className="text-green-600 border-green-200 text-xs"
                 >
                   <PiggyBank className="w-3 h-3 mr-1" />
-                  {transactions.length} giao dịch
+                  {monthlyStats.totalTransactions} giao dịch
                 </Badge>
               </div>
             </div>
-            <Button
-              onClick={() => {
-                setShowAddForm(true);
-                setEditingTransaction(null);
-                setFormData({
-                  jarId: "",
-                  amount: "",
-                  description: "",
-                  category: "",
-                });
-              }}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Thêm chi tiêu
-            </Button>
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+              <Button
+                onClick={() => setShowAIChat(true)}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-sm px-3 py-2"
+              >
+                <Bot className="w-4 h-4 mr-2" />
+                AI Trợ lý
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowAddForm(true);
+                  setEditingTransaction(null);
+                  setFormData({
+                    jarId: "",
+                    amount: "",
+                    description: "",
+                    category: "",
+                  });
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-2"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Thêm chi tiêu
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-          <CardContent className="p-6">
+          <CardContent className="p-4 lg:p-6">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-red-500 rounded-lg">
-                <TrendingDown className="w-6 h-6 text-white" />
+              <div className="p-2 bg-red-500 rounded-lg flex-shrink-0">
+                <TrendingDown className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <div>
-                <p className="text-sm text-red-700 font-medium">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs lg:text-sm text-red-700 font-medium">
                   Chi tiêu tháng này
                 </p>
-                <p className="text-xl font-bold text-red-800">
+                <p className="text-base lg:text-xl font-bold text-red-800 truncate">
                   {formatCurrency(getTotalExpenses())}
                 </p>
               </div>
@@ -646,33 +771,35 @@ export default function FinancePage() {
         </Card>
 
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-6">
+          <CardContent className="p-4 lg:p-6">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-500 rounded-lg">
-                <PiggyBank className="w-6 h-6 text-white" />
+              <div className="p-2 bg-blue-500 rounded-lg flex-shrink-0">
+                <PiggyBank className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <div>
-                <p className="text-sm text-blue-700 font-medium">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs lg:text-sm text-blue-700 font-medium">
                   Số hủ đang sử dụng
                 </p>
-                <p className="text-xl font-bold text-blue-800">{jars.length}</p>
+                <p className="text-base lg:text-xl font-bold text-blue-800">
+                  {jars.length}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <CardContent className="p-6">
+          <CardContent className="p-4 lg:p-6">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-purple-500 rounded-lg">
-                <CalendarDays className="w-6 h-6 text-white" />
+              <div className="p-2 bg-purple-500 rounded-lg flex-shrink-0">
+                <CalendarDays className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <div>
-                <p className="text-sm text-purple-700 font-medium">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs lg:text-sm text-purple-700 font-medium">
                   Giao dịch tháng này
                 </p>
-                <p className="text-xl font-bold text-purple-800">
-                  {transactions.length}
+                <p className="text-base lg:text-xl font-bold text-purple-800">
+                  {monthlyStats.totalTransactions}
                 </p>
               </div>
             </div>
@@ -686,18 +813,18 @@ export default function FinancePage() {
               : "from-green-50 to-green-100 border-green-200"
           }`}
         >
-          <CardContent className="p-6">
+          <CardContent className="p-4 lg:p-6">
             <div className="flex items-center space-x-3">
               <div
-                className={`p-2 rounded-lg ${
+                className={`p-2 rounded-lg flex-shrink-0 ${
                   getOverspentJarsCount() > 0 ? "bg-orange-500" : "bg-green-500"
                 }`}
               >
-                <DollarSign className="w-6 h-6 text-white" />
+                <DollarSign className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <p
-                  className={`text-sm font-medium ${
+                  className={`text-xs lg:text-sm font-medium ${
                     getOverspentJarsCount() > 0
                       ? "text-orange-700"
                       : "text-green-700"
@@ -706,7 +833,7 @@ export default function FinancePage() {
                   {getOverspentJarsCount() > 0 ? "Hủ vượt chi" : "Tình trạng"}
                 </p>
                 <p
-                  className={`text-xl font-bold ${
+                  className={`text-base lg:text-xl font-bold ${
                     getOverspentJarsCount() > 0
                       ? "text-orange-800"
                       : "text-green-800"
@@ -724,114 +851,228 @@ export default function FinancePage() {
 
       {/* Jar Status Overview */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <PiggyBank className="w-5 h-5" />
+        <CardHeader className="p-4 lg:p-6">
+          <CardTitle className="flex items-center space-x-2 text-base lg:text-lg">
+            <PiggyBank className="w-4 h-4 lg:w-5 lg:h-5" />
             <span>Tình trạng các Hủ Chi tiêu</span>
           </CardTitle>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-xs lg:text-sm text-gray-600 mt-1">
             Theo dõi ngân sách và chi tiêu thực tế của từng hủ trong tháng
           </p>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <CardContent className="p-4 lg:p-6 pt-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-4">
             {jars.map((jar) => {
               const status = getJarStatus(jar);
+              const usedPercent = Math.round(
+                Math.min(
+                  100,
+                  Math.max(0, (status.spentAmount / jar.targetAmount) * 100)
+                )
+              );
+
               return (
                 <div
                   key={jar._id}
-                  className={`p-4 rounded-lg border-2 transition-all hover:shadow-md ${
-                    status.color === "red"
-                      ? "border-red-200 bg-red-50"
-                      : status.color === "orange"
-                      ? "border-orange-200 bg-orange-50"
-                      : "border-green-200 bg-green-50"
-                  }`}
+                  className={`p-3 lg:p-4 rounded-lg border-2 transition-all hover:shadow-md bg-white`}
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <div className={`p-2 rounded-lg bg-${jar.color}-100`}>
-                        {renderIcon(jar.icon)}
+                  <div className="flex items-center gap-4">
+                    {/* Piggy-bank visual */}
+                    <div className="w-32 h-28 relative flex-shrink-0">
+                      {/* SVG piggy-bank: clip body and draw fill based on usedPercent */}
+                      {(() => {
+                        const bodyHeight = 50; // px in viewBox units
+                        const bodyTop = 18; // y position of body top in viewBox
+                        const fillHeight = (usedPercent / 100) * bodyHeight;
+                        const fillY = bodyTop + (bodyHeight - fillHeight);
+                        const fillColor =
+                          status.color === "red"
+                            ? "#ef4444"
+                            : status.color === "orange"
+                            ? "#f97316"
+                            : "#10b981";
+
+                        // unique clip id per jar to avoid collisions
+                        const clipId = `clip-${jar._id}`;
+
+                        return (
+                          <svg viewBox="0 0 100 80" className="w-full h-full">
+                            <defs>
+                              <clipPath
+                                id={clipId}
+                                clipPathUnits="userSpaceOnUse"
+                              >
+                                {/* simplified piggy silhouette: body rounded rect + ear */}
+                                <rect
+                                  x="10"
+                                  y={bodyTop}
+                                  width="60"
+                                  height={bodyHeight}
+                                  rx="12"
+                                  ry="12"
+                                />
+                                <circle cx="24" cy="12" r="8" />
+                              </clipPath>
+                            </defs>
+
+                            {/* fill that is clipped to the piggy body */}
+                            <rect
+                              x="10"
+                              y={fillY}
+                              width="60"
+                              height={fillHeight}
+                              fill={fillColor}
+                              clipPath={`url(#${clipId})`}
+                              style={{ transition: "all 600ms ease" }}
+                            />
+
+                            {/* piggy body outline */}
+                            <g>
+                              <rect
+                                x="10"
+                                y={bodyTop}
+                                width="60"
+                                height={bodyHeight}
+                                rx="12"
+                                ry="12"
+                                fill="none"
+                                stroke="rgba(0,0,0,0.08)"
+                                strokeWidth="2"
+                              />
+                              <circle
+                                cx="24"
+                                cy="12"
+                                r="8"
+                                fill="rgba(0,0,0,0.05)"
+                                stroke="rgba(0,0,0,0.06)"
+                              />
+                              {/* snout */}
+                              <ellipse
+                                cx="50"
+                                cy={bodyTop + 22}
+                                rx="8"
+                                ry="6"
+                                fill="rgba(255,255,255,0.08)"
+                              />
+                              {/* coin slot */}
+                              <rect
+                                x="40"
+                                y="6"
+                                width="18"
+                                height="3"
+                                rx="1.5"
+                                fill="rgba(0,0,0,0.12)"
+                              />
+                              {/* small highlight */}
+                              <circle
+                                cx="68"
+                                cy="26"
+                                r="6"
+                                fill="rgba(255,255,255,0.12)"
+                              />
+                            </g>
+
+                            {/* overlay icon centered in piggy body */}
+                            {(() => {
+                              const iconX = 10 + 60 / 2; // center of body
+                              const iconY = bodyTop + bodyHeight / 2;
+                              const iconSize = 32;
+                              return (
+                                <g
+                                  transform={`translate(${iconX},${iconY}) scale(1.15)`}
+                                >
+                                  {/* subtle background circle for contrast */}
+                                  <circle
+                                    cx="0"
+                                    cy="0"
+                                    r="16"
+                                    fill="rgba(0,0,0,0.08)"
+                                  />
+                                  <foreignObject
+                                    x={-iconSize / 2}
+                                    y={-iconSize / 2}
+                                    width={iconSize}
+                                    height={iconSize}
+                                  >
+                                    <div className="w-full h-full flex items-center justify-center text-white text-lg">
+                                      {renderIcon(jar.icon)}
+                                    </div>
+                                  </foreignObject>
+                                </g>
+                              );
+                            })()}
+                          </svg>
+                        );
+                      })()}
+                      <svg
+                        className="absolute inset-0 w-full h-full pointer-events-none"
+                        viewBox="0 0 100 100"
+                        preserveAspectRatio="none"
+                      >
+                        <rect
+                          x="6"
+                          y="6"
+                          width="88"
+                          height="88"
+                          rx="12"
+                          ry="12"
+                          fill="none"
+                          stroke="rgba(0,0,0,0.06)"
+                          strokeWidth="2"
+                        />
+                        <circle
+                          cx="75"
+                          cy="18"
+                          r="6"
+                          fill="rgba(255,255,255,0.4)"
+                        />
+                      </svg>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-gray-900 text-sm lg:text-base truncate">
+                            {jar.name}
+                          </h3>
+                          <p className="text-xs lg:text-sm text-gray-500">
+                            {jar.percentage}% ngân sách • {status.message}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm text-gray-500">Ngân sách</div>
+                          <div className="font-semibold text-gray-900">
+                            {formatCurrency(jar.targetAmount)}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          {jar.name}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {jar.percentage}% ngân sách
-                        </p>
+
+                      <div className="flex items-center justify-between mt-3">
+                        <div>
+                          <div className="text-xs text-gray-500">Đã chi</div>
+                          <div className="font-semibold text-red-600">
+                            {formatCurrency(status.spentAmount)}
+                          </div>
+                        </div>
+
+                        <div className="w-1/2 ml-4">
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className={`h-2 rounded-full ${
+                                status.color === "red"
+                                  ? "bg-red-500"
+                                  : status.color === "orange"
+                                  ? "bg-orange-500"
+                                  : "bg-green-500"
+                              } transition-all`}
+                              style={{ width: `${usedPercent}%` }}
+                            />
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1 text-right">
+                            {usedPercent}%
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Ngân sách:</span>
-                      <span className="font-medium">
-                        {formatCurrency(jar.targetAmount)}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Đã chi:</span>
-                      <span className="font-medium text-red-600">
-                        {formatCurrency(status.spentAmount)}
-                      </span>
-                    </div>
-
-                    <div
-                      className={`flex justify-between text-sm font-semibold ${
-                        status.color === "red"
-                          ? "text-red-600"
-                          : status.color === "orange"
-                          ? "text-orange-600"
-                          : "text-green-600"
-                      }`}
-                    >
-                      <span>Tình trạng:</span>
-                      <span>{status.message}</span>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="mt-3">
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full transition-all ${
-                            status.color === "red"
-                              ? "bg-red-500"
-                              : status.color === "orange"
-                              ? "bg-orange-500"
-                              : "bg-green-500"
-                          }`}
-                          style={{
-                            width: `${Math.min(
-                              100,
-                              Math.max(
-                                0,
-                                (status.spentAmount / jar.targetAmount) * 100
-                              )
-                            )}%`,
-                          }}
-                        ></div>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1 text-center">
-                        {Math.round(
-                          (status.spentAmount / jar.targetAmount) * 100
-                        )}
-                        % đã sử dụng
-                        {status.spentAmount > jar.targetAmount && (
-                          <span className="text-red-500 font-semibold">
-                            {" "}
-                            (Vượt{" "}
-                            {Math.round(
-                              ((status.spentAmount - jar.targetAmount) /
-                                jar.targetAmount) *
-                                100
-                            )}
-                            %)
-                          </span>
-                        )}
-                      </p>
                     </div>
                   </div>
                 </div>
@@ -843,101 +1084,274 @@ export default function FinancePage() {
 
       {/* Transactions List */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Clock className="w-5 h-5" />
-            <span>Lịch sử Chi tiêu</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {transactions.length === 0 ? (
-            <div className="text-center py-8">
-              <PiggyBank className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">
-                Chưa có giao dịch nào trong tháng này
+        <CardHeader className="p-4 lg:p-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <CardTitle className="flex items-center space-x-2 text-base lg:text-lg">
+                <Clock className="w-4 h-4 lg:w-5 lg:h-5" />
+                <span>Lịch sử Chi tiêu</span>
+                <Badge variant="outline" className="text-xs">
+                  {paginationInfo.totalCount} giao dịch
+                </Badge>
+              </CardTitle>
+              <p className="text-xs lg:text-sm text-gray-600 mt-1">
+                Theo dõi và quản lý các khoản chi tiêu của bạn
               </p>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {transactions.map((transaction) => {
-                const jarInfo = getJarInfo(transaction);
-                return (
-                  <div
-                    key={transaction._id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-2 lg:gap-3">
+              <div className="flex gap-2">
+                <div className="relative">
+                  <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Tìm kiếm..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-8 w-full sm:w-40 text-sm"
+                  />
+                </div>
+                <Input
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="w-full sm:w-36 text-sm"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Select
+                  value={selectedJarFilter}
+                  onValueChange={setSelectedJarFilter}
+                >
+                  <SelectTrigger className="w-full sm:w-32 text-sm">
+                    <SelectValue placeholder="Hủ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả hủ</SelectItem>
+                    {jars.map((jar) => (
+                      <SelectItem key={jar._id} value={jar._id}>
+                        <div className="flex items-center space-x-1">
+                          {renderIcon(jar.icon)}
+                          <span className="truncate max-w-20">{jar.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {(dateFilter || searchTerm || selectedJarFilter !== "all") && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={clearFilters}
+                    className="text-xs px-2"
                   >
-                    <div className="flex items-center space-x-4">
-                      <div
-                        className={`p-2 rounded-lg bg-${
-                          jarInfo?.color || "gray"
-                        }-100`}
-                      >
-                        {jarInfo ? renderIcon(jarInfo.icon) : <span>💰</span>}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <h3 className="font-medium text-gray-900">
-                            {transaction.description}
-                          </h3>
-                          <Badge variant="secondary" className="text-xs">
-                            {jarInfo?.name || "Unknown Jar"}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
-                          <span>{transaction.category}</span>
-                          <span>•</span>
-                          <span>{formatDate(transaction.date)}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right">
-                        <p className="font-semibold text-red-600">
-                          -{formatCurrency(transaction.amount)}
-                        </p>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => startEdit(transaction)}
-                          className="h-8 w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-100"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            handleDeleteTransaction(transaction._id)
-                          }
-                          className="h-8 w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-100"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                    <X className="w-3 h-3 mr-1" />
+                    Xóa lọc
+                  </Button>
+                )}
+              </div>
             </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4 lg:p-6 pt-0">
+          {paginationInfo.totalCount === 0 ? (
+            <div className="text-center py-8">
+              <PiggyBank className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500 text-sm lg:text-base">
+                {dateFilter || searchTerm || selectedJarFilter !== "all"
+                  ? "Không tìm thấy giao dịch nào phù hợp với bộ lọc"
+                  : "Chưa có giao dịch nào trong tháng này"}
+              </p>
+              {(dateFilter || searchTerm || selectedJarFilter !== "all") && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="mt-3 text-xs"
+                >
+                  <X className="w-3 h-3 mr-1" />
+                  Xóa bộ lọc
+                </Button>
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="space-y-3 lg:space-y-4">
+                {transactions.map((transaction) => {
+                  const jarInfo = getJarInfo(transaction);
+                  return (
+                    <div
+                      key={transaction._id}
+                      className="flex items-center justify-between p-3 lg:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex items-center space-x-3 lg:space-x-4 min-w-0 flex-1">
+                        <div
+                          className={`p-1.5 lg:p-2 rounded-lg bg-${
+                            jarInfo?.color || "gray"
+                          }-100 flex-shrink-0`}
+                        >
+                          {jarInfo ? renderIcon(jarInfo.icon) : <span>💰</span>}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-2">
+                            <h3 className="font-medium text-gray-900 text-sm lg:text-base truncate">
+                              {transaction.description}
+                            </h3>
+                            <Badge
+                              variant="secondary"
+                              className="text-xs w-fit mt-1 lg:mt-0"
+                            >
+                              {jarInfo?.name || "Unknown Jar"}
+                            </Badge>
+                          </div>
+                          <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 text-xs lg:text-sm text-gray-500 mt-1">
+                            <span>{transaction.category}</span>
+                            <span className="hidden lg:inline">•</span>
+                            <span>{formatDate(transaction.date)}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+                        <div className="text-right">
+                          <p className="font-semibold text-red-600 text-sm lg:text-base">
+                            -{formatCurrency(transaction.amount)}
+                          </p>
+                        </div>
+                        <div className="flex space-x-1 lg:space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => startEdit(transaction)}
+                            className="h-6 w-6 lg:h-8 lg:w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-100"
+                          >
+                            <Edit2 className="w-3 h-3 lg:w-4 lg:h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              handleDeleteTransaction(transaction._id)
+                            }
+                            className="h-6 w-6 lg:h-8 lg:w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-100"
+                          >
+                            <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              {paginationInfo.totalPages > 1 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-200">
+                  <div className="text-sm text-gray-600">
+                    Hiển thị{" "}
+                    {(paginationInfo.currentPage - 1) * paginationInfo.limit +
+                      1}{" "}
+                    -{" "}
+                    {Math.min(
+                      paginationInfo.currentPage * paginationInfo.limit,
+                      paginationInfo.totalCount
+                    )}{" "}
+                    trong {paginationInfo.totalCount} giao dịch
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handlePageChange(paginationInfo.currentPage - 1)
+                      }
+                      disabled={!paginationInfo.hasPrevPage}
+                      className="text-xs px-2 py-1"
+                    >
+                      Trước
+                    </Button>
+
+                    <div className="flex space-x-1">
+                      {Array.from(
+                        { length: paginationInfo.totalPages },
+                        (_, i) => i + 1
+                      )
+                        .filter((page) => {
+                          // Show first, last, current, and adjacent pages
+                          return (
+                            page === 1 ||
+                            page === paginationInfo.totalPages ||
+                            Math.abs(page - paginationInfo.currentPage) <= 1
+                          );
+                        })
+                        .map((page, index, array) => {
+                          // Add ellipsis if there's a gap
+                          const shouldShowEllipsis =
+                            index > 0 && page - array[index - 1] > 1;
+
+                          return (
+                            <div
+                              key={page}
+                              className="flex items-center space-x-1"
+                            >
+                              {shouldShowEllipsis && (
+                                <span className="text-gray-400 px-1">...</span>
+                              )}
+                              <Button
+                                variant={
+                                  paginationInfo.currentPage === page
+                                    ? "default"
+                                    : "outline"
+                                }
+                                size="sm"
+                                onClick={() => handlePageChange(page)}
+                                className={`text-xs px-2 py-1 min-w-[28px] ${
+                                  paginationInfo.currentPage === page
+                                    ? "bg-purple-600 text-white"
+                                    : "text-gray-600"
+                                }`}
+                              >
+                                {page}
+                              </Button>
+                            </div>
+                          );
+                        })}
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handlePageChange(paginationInfo.currentPage + 1)
+                      }
+                      disabled={!paginationInfo.hasNextPage}
+                      className="text-xs px-2 py-1"
+                    >
+                      Sau
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
 
       {/* Add/Edit Transaction Modal */}
       {showAddForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-md bg-white">
-            <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-t-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 lg:p-4 z-50">
+          <Card className="w-full max-w-md bg-white max-h-[90vh] overflow-y-auto">
+            <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-t-lg p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-xl">
+                  <CardTitle className="text-lg lg:text-xl">
                     {editingTransaction
                       ? "✏️ Sửa Chi tiêu"
                       : "💰 Thêm Chi tiêu"}
                   </CardTitle>
-                  <p className="text-purple-100 text-sm mt-1">
+                  <p className="text-purple-100 text-xs lg:text-sm mt-1">
                     {editingTransaction
                       ? "Cập nhật thông tin chi tiêu"
                       : "Ghi lại khoản chi tiêu mới"}
@@ -950,15 +1364,17 @@ export default function FinancePage() {
                     setShowAddForm(false);
                     setEditingTransaction(null);
                   }}
-                  className="text-white hover:bg-purple-600"
+                  className="text-white hover:bg-purple-600 h-8 w-8 p-0"
                 >
                   <X className="w-4 h-4" />
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="p-6 space-y-4">
+            <CardContent className="p-4 lg:p-6 space-y-4">
               <div>
-                <Label htmlFor="jar-select">Chọn hủ chi tiêu *</Label>
+                <Label htmlFor="jar-select" className="text-sm lg:text-base">
+                  Chọn hủ chi tiêu *
+                </Label>
                 <Select
                   value={formData.jarId}
                   onValueChange={(value) =>
@@ -966,7 +1382,7 @@ export default function FinancePage() {
                   }
                   disabled={!!editingTransaction}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Chọn hủ để chi tiêu" />
                   </SelectTrigger>
                   <SelectContent>
@@ -974,8 +1390,10 @@ export default function FinancePage() {
                       <SelectItem key={jar._id} value={jar._id}>
                         <div className="flex items-center space-x-2">
                           {renderIcon(jar.icon)}
-                          <span>{jar.name}</span>
-                          <Badge variant="outline" className="ml-2">
+                          <span className="text-sm lg:text-base">
+                            {jar.name}
+                          </span>
+                          <Badge variant="outline" className="ml-2 text-xs">
                             {jar.percentage}%
                           </Badge>
                         </div>
@@ -986,7 +1404,9 @@ export default function FinancePage() {
               </div>
 
               <div>
-                <Label htmlFor="amount">Số tiền *</Label>
+                <Label htmlFor="amount" className="text-sm lg:text-base">
+                  Số tiền *
+                </Label>
                 <Input
                   id="amount"
                   type="number"
@@ -998,12 +1418,14 @@ export default function FinancePage() {
                     }))
                   }
                   placeholder="Nhập số tiền đã chi"
-                  className="text-lg"
+                  className="text-base lg:text-lg mt-1"
                 />
               </div>
 
               <div>
-                <Label htmlFor="description">Mục đích chi tiêu *</Label>
+                <Label htmlFor="description" className="text-sm lg:text-base">
+                  Mục đích chi tiêu *
+                </Label>
                 <Textarea
                   id="description"
                   value={formData.description}
@@ -1015,12 +1437,14 @@ export default function FinancePage() {
                   }
                   placeholder="Mô tả chi tiết về khoản chi tiêu này..."
                   rows={3}
-                  className="resize-none"
+                  className="resize-none mt-1 text-sm lg:text-base"
                 />
               </div>
 
               <div>
-                <Label htmlFor="category">Danh mục</Label>
+                <Label htmlFor="category" className="text-sm lg:text-base">
+                  Danh mục
+                </Label>
                 <Select
                   value={formData.category}
                   onValueChange={(value) =>
@@ -1030,7 +1454,7 @@ export default function FinancePage() {
                     }))
                   }
                 >
-                  <SelectTrigger id="category">
+                  <SelectTrigger id="category" className="mt-1">
                     <SelectValue placeholder="Chọn danh mục chi tiêu" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1047,14 +1471,14 @@ export default function FinancePage() {
                 </Select>
               </div>
 
-              <div className="flex space-x-3 pt-4">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
                 <Button
                   onClick={
                     editingTransaction
                       ? handleUpdateTransaction
                       : handleAddTransaction
                   }
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-sm lg:text-base"
                 >
                   <Save className="w-4 h-4 mr-2" />
                   {editingTransaction ? "Cập nhật" : "Thêm Chi tiêu"}
@@ -1065,7 +1489,7 @@ export default function FinancePage() {
                     setShowAddForm(false);
                     setEditingTransaction(null);
                   }}
-                  className="flex-1"
+                  className="flex-1 text-sm lg:text-base"
                 >
                   <X className="w-4 h-4 mr-2" />
                   Hủy
@@ -1082,6 +1506,14 @@ export default function FinancePage() {
         config={config}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
+      />
+
+      {/* AI Expense Chat */}
+      <AIExpenseChat
+        isOpen={showAIChat}
+        onClose={() => setShowAIChat(false)}
+        onExpenseParsed={handleAIExpenseResult}
+        jars={jars}
       />
     </UserLayout>
   );

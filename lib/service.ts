@@ -147,13 +147,13 @@ export interface FinanceJar {
 export interface Transaction {
   _id: string;
   jarId:
-  | string
-  | {
-    _id: string;
-    name: string;
-    color: string;
-    icon: string;
-  };
+    | string
+    | {
+        _id: string;
+        name: string;
+        color: string;
+        icon: string;
+      };
   amount: number;
   type: "income" | "expense";
   description: string;
@@ -478,7 +478,6 @@ export async function getTasks(day?: string): Promise<Task[]> {
     }
 
     const data = await response.json();
-    console.log("Raw API response from /api/tasks:", data);
 
     // Handle different response formats
     let tasks: Task[];
@@ -1466,8 +1465,9 @@ export async function getMonthlyReports(
     if (month) params.append("month", month.toString());
     if (limit) params.append("limit", limit.toString());
 
-    const url = `${API_URL}/api/finance/reports${params.toString() ? `?${params.toString()}` : ""
-      }`;
+    const url = `${API_URL}/api/finance/reports${
+      params.toString() ? `?${params.toString()}` : ""
+    }`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -1925,15 +1925,18 @@ export async function searchNotes(
     const params = new URLSearchParams({ q: query });
     if (folderId) params.append("folderId", folderId);
     if (tags && tags.length > 0) {
-      tags.forEach(tag => params.append("tags", tag));
+      tags.forEach((tag) => params.append("tags", tag));
     }
 
-    const response = await fetch(`${API_URL}/api/notes/search?${params.toString()}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${API_URL}/api/notes/search?${params.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       throw new Error(

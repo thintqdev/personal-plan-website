@@ -89,35 +89,45 @@ export default function QuotesAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <QuoteIcon className="w-8 h-8 text-purple-600" />
-            <h1 className="text-3xl font-bold text-gray-900">
-              Quản lý Quote động lực
-            </h1>
-          </div>
-          <p className="text-gray-600">
-            Thêm và quản lý các câu trích dẫn truyền cảm hứng
-          </p>
-          <Link href="/admin" className="inline-block mt-4">
+          <Link href="/admin" className="inline-block mb-6">
             <Button
-              variant="outline"
-              className="text-purple-600 border-purple-300 hover:bg-purple-50"
+              variant="ghost"
+              className="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200 group"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Quay lại Admin
+              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+              Quay lại Dashboard
             </Button>
           </Link>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <QuoteIcon className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Quản lý Quote động lực
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Thêm và quản lý các câu trích dẫn truyền cảm hứng
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Add New Quote Form */}
-        <Card className="mb-8 bg-white/80 backdrop-blur-sm border-purple-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-purple-800">
-              <Plus className="w-5 h-5" />
+        <Card className="mb-8 bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-purple-500 to-indigo-600 h-1"></div>
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-xl font-semibold text-gray-800">
+              <div className="p-2 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg">
+                <Plus className="w-5 h-5 text-white" />
+              </div>
               Thêm quote mới
             </CardTitle>
           </CardHeader>
@@ -132,7 +142,7 @@ export default function QuotesAdminPage() {
                   placeholder="Nhập nội dung quote truyền cảm hứng..."
                   value={newQuoteText}
                   onChange={(e) => setNewQuoteText(e.target.value)}
-                  className="border-purple-200 focus:border-purple-400"
+                  className="border-purple-200 focus:border-purple-400 focus:ring-purple-200 transition-all duration-200"
                   rows={3}
                 />
               </div>
@@ -140,7 +150,7 @@ export default function QuotesAdminPage() {
               <Button
                 onClick={handleAddQuote}
                 disabled={isAddingQuote}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {isAddingQuote ? "Đang thêm..." : "Thêm quote"}
@@ -150,10 +160,13 @@ export default function QuotesAdminPage() {
         </Card>
 
         {/* Quotes List */}
-        <Card className="bg-white/80 backdrop-blur-sm border-purple-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-purple-800">
-              <BookOpen className="w-5 h-5" />
+        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-purple-500 to-indigo-600 h-1"></div>
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-xl font-semibold text-gray-800">
+              <div className="p-2 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg">
+                <BookOpen className="w-5 h-5 text-white" />
+              </div>
               Danh sách quotes ({quotes.length})
             </CardTitle>
           </CardHeader>
@@ -183,13 +196,15 @@ export default function QuotesAdminPage() {
                 {quotes.map((quote) => (
                   <div
                     key={quote._id}
-                    className="p-4 bg-white rounded-xl border border-purple-100 shadow-sm hover:shadow-md transition-shadow"
+                    className="p-6 bg-white rounded-2xl border-0 shadow-lg hover:shadow-xl transition-all duration-200"
                   >
                     <div className="flex justify-between items-start gap-4">
                       <div className="flex-1">
-                        <div className="flex items-start gap-3">
-                          <QuoteIcon className="w-5 h-5 text-purple-500 mt-1 flex-shrink-0" />
-                          <p className="text-gray-800 leading-relaxed text-base">
+                        <div className="flex items-start gap-4">
+                          <div className="p-2 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg">
+                            <QuoteIcon className="w-5 h-5 text-white" />
+                          </div>
+                          <p className="text-gray-800 leading-relaxed text-base pt-0.5">
                             "{quote.text}"
                           </p>
                         </div>
@@ -198,7 +213,7 @@ export default function QuotesAdminPage() {
                         onClick={() => handleDeleteQuote(quote._id)}
                         variant="outline"
                         size="sm"
-                        className="text-red-600 border-red-300 hover:bg-red-50 flex-shrink-0"
+                        className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 flex-shrink-0 transition-all duration-200"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>

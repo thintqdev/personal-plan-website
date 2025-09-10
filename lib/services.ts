@@ -7,7 +7,7 @@ export * from "./types";
 // Export user-related services
 export * from "./user-service";
 
-// Export task-related services  
+// Export task-related services
 export * from "./task-service";
 
 // Export goal-related services
@@ -18,6 +18,12 @@ export * from "./finance-service";
 
 // Export note-related services
 export * from "./note-service";
+
+// Export investment-related services
+export * from "./investment-service";
+
+// Export asset-related services
+export * from "./asset-service";
 
 // Keep API_URL accessible at root level for convenience
 export { API_URL } from "./types";
