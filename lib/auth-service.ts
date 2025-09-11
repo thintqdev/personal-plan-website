@@ -71,7 +71,8 @@ class AuthService {
             throw new Error(data.error || 'Không thể lấy thông tin người dùng');
         }
 
-        return data.user;
+        // API returns user object directly
+        return data;
     }
 
     async forgotPassword(email: string): Promise<ApiResponse> {
@@ -132,6 +133,22 @@ class AuthService {
 
         if (!response.ok) {
             throw new Error(data.message || 'Gửi lại email xác thực thất bại');
+        }
+
+        return data;
+    }
+
+    async changePassword(currentPassword: string, newPassword: string): Promise<ApiResponse> {
+        const response = await fetch(`${API_BASE}/api/user/change-password`, {
+            method: 'POST',
+            headers: this.getHeaders(),
+            body: JSON.stringify({ currentPassword, newPassword }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Đổi mật khẩu thất bại');
         }
 
         return data;

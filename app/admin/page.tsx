@@ -16,6 +16,7 @@ import {
   HelpCircle,
   FileText,
   Shield,
+  Notebook,
 } from "lucide-react";
 import Link from "next/link";
 import { getUser, getQuotes, type User as UserType } from "@/lib/user-service";
@@ -250,17 +251,17 @@ export default function AdminDashboardPage() {
                 </Card>
               </Link>
 
-              <Link href="/admin/profile">
-                <Card className="bg-white hover:bg-gray-50 border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all duration-200 cursor-pointer group">
+              <Link href="/admin/notes">
+                <Card className="bg-white hover:bg-gray-50 border border-gray-200 hover:border-yellow-300 hover:shadow-lg transition-all duration-200 cursor-pointer group">
                   <CardContent className="p-6 text-center">
-                    <div className="w-12 h-12 bg-green-100 group-hover:bg-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 transition-colors duration-200">
-                      <User className="w-6 h-6 text-green-600 group-hover:text-white transition-colors duration-200" />
+                    <div className="w-12 h-12 bg-yellow-100 group-hover:bg-yellow-600 rounded-2xl flex items-center justify-center mx-auto mb-3 transition-colors duration-200">
+                      <Notebook className="w-6 h-6 text-yellow-600 group-hover:text-white transition-colors duration-200" />
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
-                      Thông tin cá nhân
+                    <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">
+                      Thông tin ghi chú
                     </h3>
                     <p className="text-sm text-gray-600">
-                      Cập nhật profile và avatar
+                      Cập nhật ghi chú cá nhân
                     </p>
                   </CardContent>
                 </Card>

@@ -245,9 +245,14 @@ export default function UserLayout({
     return () => clearInterval(checkDateTimer);
   }, [quotes.length]);
 
-  // Load user data
+  // Load user data and refresh when auth user changes
   useEffect(() => {
     const loadUser = async () => {
+      if (!authUser) {
+        setUser(null);
+        return;
+      }
+
       try {
         setIsLoadingUser(true);
         const userData = await getUser();
@@ -270,7 +275,7 @@ export default function UserLayout({
     };
 
     loadUser();
-  }, []);
+  }, [authUser]); // Re-run when authUser changes
 
   const defaultCoverImages = [
     "/mountain-peak-sunrise-motivation-success.png",
@@ -389,21 +394,6 @@ export default function UserLayout({
                   </Link>
                 );
               })}
-
-              {/* Admin link for desktop */}
-              {authUser?.role === "admin" && (
-                <Link
-                  href="/admin"
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                    pathname === "/admin"
-                      ? currentTheme.activeNav
-                      : `text-gray-600 hover:text-gray-900 ${currentTheme.hoverNav}`
-                  }`}
-                >
-                  <Settings className="w-4 h-4" />
-                  <span>Quản trị</span>
-                </Link>
-              )}
             </div>
 
             {/* User Profile & Mobile Menu */}
