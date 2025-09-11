@@ -1,4 +1,4 @@
-// Dairy service for API calls
+import { getAuthHeaders } from "./utils";
 
 export interface Dairy {
   _id?: string;
@@ -14,7 +14,8 @@ export interface Dairy {
 
 export const fetchDairies = async (userId: string): Promise<Dairy[]> => {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/dairies?userId=${userId}`
+    `${process.env.NEXT_PUBLIC_API_URL}/api/dairies?userId=${userId}`,
+    { method: "GET", headers: getAuthHeaders() }
   );
   const data = await res.json();
   // Controller mới trả về array trực tiếp, không wrap trong data
@@ -24,7 +25,7 @@ export const fetchDairies = async (userId: string): Promise<Dairy[]> => {
 export const createDairy = async (payload: Partial<Dairy>) => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/dairies`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...getAuthHeaders() },
     body: JSON.stringify(payload),
   });
   return res.json();
@@ -35,7 +36,7 @@ export const updateDairy = async (id: string, payload: Partial<Dairy>) => {
     `${process.env.NEXT_PUBLIC_API_URL}/api/dairies/${id}`,
     {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
       body: JSON.stringify(payload),
     }
   );
@@ -47,6 +48,7 @@ export const deleteDairy = async (id: string, userId: string) => {
     `${process.env.NEXT_PUBLIC_API_URL}/api/dairies/${id}?userId=${userId}`,
     {
       method: "DELETE",
+      headers: getAuthHeaders(),
     }
   );
   return res.json();
