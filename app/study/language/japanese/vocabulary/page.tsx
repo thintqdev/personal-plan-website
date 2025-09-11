@@ -23,31 +23,26 @@ export default function JapaneseVocabularyPage() {
       vocabulary: [
         {
           japanese: "こんにちは",
-          romaji: "konnichiwa",
           meaning: "Xin chào (ban ngày)",
           example: "こんにちは、田中さん。",
         },
         {
           japanese: "こんばんは",
-          romaji: "konbanwa",
           meaning: "Xin chào (tối)",
           example: "こんばんは、おやすみなさい。",
         },
         {
           japanese: "おはよう",
-          romaji: "ohayou",
           meaning: "Chào buổi sáng",
           example: "おはようございます。",
         },
         {
           japanese: "さようなら",
-          romaji: "sayounara",
           meaning: "Tạm biệt",
           example: "さようなら、また明日。",
         },
         {
           japanese: "ありがとう",
-          romaji: "arigatou",
           meaning: "Cảm ơn",
           example: "プレゼント、ありがとうございます。",
         },
@@ -64,31 +59,26 @@ export default function JapaneseVocabularyPage() {
       vocabulary: [
         {
           japanese: "家族",
-          romaji: "kazoku",
           meaning: "Gia đình",
           example: "私の家族は4人です。",
         },
         {
           japanese: "父",
-          romaji: "chichi",
           meaning: "Cha",
           example: "父は会社員です。",
         },
         {
           japanese: "母",
-          romaji: "haha",
           meaning: "Mẹ",
           example: "母は料理が上手です。",
         },
         {
           japanese: "兄",
-          romaji: "ani",
           meaning: "Anh trai",
           example: "兄は大学生です。",
         },
         {
           japanese: "姉",
-          romaji: "ane",
           meaning: "Chị gái",
           example: "姉は看護師です。",
         },
@@ -105,31 +95,26 @@ export default function JapaneseVocabularyPage() {
       vocabulary: [
         {
           japanese: "りんご",
-          romaji: "ringo",
           meaning: "Quả táo",
           example: "赤いりんごが好きです。",
         },
         {
           japanese: "みかん",
-          romaji: "mikan",
           meaning: "Quả cam",
           example: "みかんを食べます。",
         },
         {
           japanese: "バナナ",
-          romaji: "banana",
           meaning: "Quả chuối",
           example: "バナナは甘いです。",
         },
         {
           japanese: "水",
-          romaji: "mizu",
           meaning: "Nước",
           example: "水を飲んでください。",
         },
         {
           japanese: "お茶",
-          romaji: "ocha",
           meaning: "Trà",
           example: "お茶を飲みます。",
         },
@@ -146,31 +131,26 @@ export default function JapaneseVocabularyPage() {
       vocabulary: [
         {
           japanese: "今日",
-          romaji: "kyou",
           meaning: "Hôm nay",
           example: "今日はいい天気です。",
         },
         {
           japanese: "明日",
-          romaji: "ashita",
           meaning: "Ngày mai",
           example: "明日は学校があります。",
         },
         {
           japanese: "昨日",
-          romaji: "kinou",
           meaning: "Hôm qua",
           example: "昨日は雨でした。",
         },
         {
           japanese: "朝",
-          romaji: "asa",
           meaning: "Buổi sáng",
           example: "朝ご飯を食べます。",
         },
         {
           japanese: "夜",
-          romaji: "yoru",
           meaning: "Buổi tối",
           example: "夜は暗いです。",
         },
@@ -187,31 +167,26 @@ export default function JapaneseVocabularyPage() {
       vocabulary: [
         {
           japanese: "テーブル",
-          romaji: "teeburu",
           meaning: "Cái bàn",
           example: "テーブルに本があります。",
         },
         {
           japanese: "いす",
-          romaji: "isu",
           meaning: "Cái ghế",
           example: "いすに座ってください。",
         },
         {
           japanese: "ベッド",
-          romaji: "beddo",
           meaning: "Cái giường",
           example: "ベッドで寝ます。",
         },
         {
           japanese: "ドア",
-          romaji: "doa",
           meaning: "Cửa",
           example: "ドアを開けてください。",
         },
         {
           japanese: "窓",
-          romaji: "mado",
           meaning: "Cửa sổ",
           example: "窓から見えます。",
         },
@@ -228,31 +203,26 @@ export default function JapaneseVocabularyPage() {
       vocabulary: [
         {
           japanese: "先生",
-          romaji: "sensei",
           meaning: "Giáo viên",
           example: "先生は親切です。",
         },
         {
           japanese: "医者",
-          romaji: "isha",
           meaning: "Bác sĩ",
           example: "医者になりたいです。",
         },
         {
           japanese: "会社員",
-          romaji: "kaishain",
           meaning: "Nhân viên công ty",
           example: "会社員として働いています。",
         },
         {
           japanese: "学生",
-          romaji: "gakusei",
           meaning: "Sinh viên",
           example: "私は学生です。",
         },
         {
           japanese: "料理人",
-          romaji: "ryourinin",
           meaning: "Đầu bếp",
           example: "料理人が作りました。",
         },

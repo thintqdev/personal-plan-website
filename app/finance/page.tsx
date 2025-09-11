@@ -38,7 +38,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Link from "next/link";
 import {
   FinanceJar,
   Transaction,
@@ -627,100 +626,11 @@ export default function FinancePage() {
       coverImage={coverImage}
       onCoverImageChange={changeCoverImage}
     >
-      {/* Quick Stats Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-3 lg:p-4 text-center">
-            <div className="text-lg lg:text-2xl font-bold text-gray-900 mb-1">
-              {jars.length}
-            </div>
-            <div className="text-xs lg:text-sm text-gray-600">Tổng số hủ</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-3 lg:p-4 text-center">
-            <div className="text-lg lg:text-2xl font-bold text-green-600 mb-1">
-              {
-                jars.filter((jar) => {
-                  const spent = Math.abs(jar.currentAmount);
-                  const percentage = (spent / jar.targetAmount) * 100;
-                  return percentage < 90;
-                }).length
-              }
-            </div>
-            <div className="text-xs lg:text-sm text-gray-600">An toàn</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-3 lg:p-4 text-center">
-            <div className="text-lg lg:text-2xl font-bold text-orange-600 mb-1">
-              {
-                jars.filter((jar) => {
-                  const spent = Math.abs(jar.currentAmount);
-                  const percentage = (spent / jar.targetAmount) * 100;
-                  return percentage >= 90 && percentage < 100;
-                }).length
-              }
-            </div>
-            <div className="text-xs lg:text-sm text-gray-600">Cảnh báo</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-3 lg:p-4 text-center">
-            <div className="text-lg lg:text-2xl font-bold text-red-600 mb-1">
-              {
-                jars.filter((jar) => {
-                  const spent = Math.abs(jar.currentAmount);
-                  const percentage = (spent / jar.targetAmount) * 100;
-                  return percentage >= 100;
-                }).length
-              }
-            </div>
-            <div className="text-xs lg:text-sm text-gray-600">
-              Vượt ngân sách
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* User Profile Card */}
       <Card className="bg-white border border-gray-200">
         <CardContent className="p-4 lg:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <Avatar className="w-12 h-12 lg:w-16 lg:h-16 mx-auto sm:mx-0">
-              <AvatarImage
-                src={user?.avatar || "/friendly-person-avatar.png"}
-                alt={user?.name || "User"}
-              />
-              <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 text-center sm:text-left">
-              <h3 className="text-lg lg:text-xl font-semibold text-gray-900">
-                {user?.name || "Người dùng"}
-              </h3>
-              <p className="text-sm lg:text-base text-gray-600">
-                {user?.role || "Người dùng"}
-              </p>
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
-                <Badge
-                  variant="outline"
-                  className="text-blue-600 border-blue-200 text-xs"
-                >
-                  <Calendar className="w-3 h-3 mr-1" />
-                  {new Date().toLocaleDateString("vi-VN", {
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="text-green-600 border-green-200 text-xs"
-                >
-                  <PiggyBank className="w-3 h-3 mr-1" />
-                  {monthlyStats.totalTransactions} giao dịch
-                </Badge>
-              </div>
-            </div>
+            <div className="flex-1 text-center sm:text-left"></div>
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
               <Button
                 onClick={() => setShowAIChat(true)}
@@ -874,202 +784,219 @@ export default function FinancePage() {
               return (
                 <div
                   key={jar._id}
-                  className={`p-3 lg:p-4 rounded-lg border-2 transition-all hover:shadow-md bg-white`}
+                  className={`relative p-4 lg:p-5 rounded-xl border-2 bg-gradient-to-br from-white/95 via-white/90 to-white/95 backdrop-blur-sm border-gray-200/40 overflow-hidden`}
                 >
-                  <div className="flex items-center gap-4">
-                    {/* Piggy-bank visual */}
-                    <div className="w-32 h-28 relative flex-shrink-0">
-                      {/* SVG piggy-bank: clip body and draw fill based on usedPercent */}
-                      {(() => {
-                        const bodyHeight = 50; // px in viewBox units
-                        const bodyTop = 18; // y position of body top in viewBox
-                        const fillHeight = (usedPercent / 100) * bodyHeight;
-                        const fillY = bodyTop + (bodyHeight - fillHeight);
-                        const fillColor =
-                          status.color === "red"
-                            ? "#ef4444"
-                            : status.color === "orange"
-                            ? "#f97316"
-                            : "#10b981";
+                  {/* Subtle background pattern */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white-50/30 via-transparent to-gray-50/30"></div>
 
-                        // unique clip id per jar to avoid collisions
-                        const clipId = `clip-${jar._id}`;
+                  {/* Floating particles effect */}
+                  <div className="absolute top-2 right-2 w-2 h-2 bg-gray-400/40 rounded-full"></div>
+                  <div className="absolute bottom-3 left-3 w-1.5 h-1.5 bg-gray-400/40 rounded-full"></div>
+                  <div className="flex items-center gap-4">
+                    {/* Circular Progress Visual */}
+                    <div className="w-32 h-32 relative flex-shrink-0 group cursor-pointer">
+                      {/* Main circular progress */}
+                      {(() => {
+                        const radius = 48;
+                        const circumference = 2 * Math.PI * radius;
+                        const strokeWidth = 6;
+                        const strokeDasharray = circumference;
+                        const strokeDashoffset =
+                          circumference - (usedPercent / 100) * circumference;
+
+                        // Enhanced color gradients based on status
+                        const getCircleColors = () => {
+                          if (status.color === "red") {
+                            return {
+                              primary: "#ef4444",
+                              secondary: "#dc2626",
+                              accent: "#f87171",
+                              background: "#f9fafb",
+                              border: "#e5e7eb",
+                            };
+                          } else if (status.color === "orange") {
+                            return {
+                              primary: "#f97316",
+                              secondary: "#ea580c",
+                              accent: "#fb923c",
+                              background: "#f9fafb",
+                              border: "#e5e7eb",
+                            };
+                          } else {
+                            return {
+                              primary: "#10b981",
+                              secondary: "#059669",
+                              accent: "#34d399",
+                              background: "#f9fafb",
+                              border: "#e5e7eb",
+                            };
+                          }
+                        };
+
+                        const colors = getCircleColors();
 
                         return (
-                          <svg viewBox="0 0 100 80" className="w-full h-full">
-                            <defs>
-                              <clipPath
-                                id={clipId}
-                                clipPathUnits="userSpaceOnUse"
-                              >
-                                {/* simplified piggy silhouette: body rounded rect + ear */}
-                                <rect
-                                  x="10"
-                                  y={bodyTop}
-                                  width="60"
-                                  height={bodyHeight}
-                                  rx="12"
-                                  ry="12"
-                                />
-                                <circle cx="24" cy="12" r="8" />
-                              </clipPath>
-                            </defs>
-
-                            {/* fill that is clipped to the piggy body */}
-                            <rect
-                              x="10"
-                              y={fillY}
-                              width="60"
-                              height={fillHeight}
-                              fill={fillColor}
-                              clipPath={`url(#${clipId})`}
-                              style={{ transition: "all 600ms ease" }}
-                            />
-
-                            {/* piggy body outline */}
-                            <g>
-                              <rect
-                                x="10"
-                                y={bodyTop}
-                                width="60"
-                                height={bodyHeight}
-                                rx="12"
-                                ry="12"
+                          <div className="w-full h-full relative">
+                            {/* Background circle */}
+                            <svg
+                              className="w-full h-full transform -rotate-90"
+                              viewBox="0 0 120 120"
+                            >
+                              <circle
+                                cx="60"
+                                cy="60"
+                                r={radius}
                                 fill="none"
-                                stroke="rgba(0,0,0,0.08)"
-                                strokeWidth="2"
+                                stroke={colors.background}
+                                strokeWidth={strokeWidth}
                               />
+                              {/* Progress circle */}
                               <circle
-                                cx="24"
-                                cy="12"
-                                r="8"
-                                fill="rgba(0,0,0,0.05)"
-                                stroke="rgba(0,0,0,0.06)"
+                                cx="60"
+                                cy="60"
+                                r={radius}
+                                fill="none"
+                                stroke={colors.primary}
+                                strokeWidth={strokeWidth}
+                                strokeDasharray={strokeDasharray}
+                                strokeDashoffset={strokeDashoffset}
+                                strokeLinecap="round"
+                                className="drop-shadow-sm"
                               />
-                              {/* snout */}
-                              <ellipse
-                                cx="50"
-                                cy={bodyTop + 22}
-                                rx="8"
-                                ry="6"
-                                fill="rgba(255,255,255,0.08)"
-                              />
-                              {/* coin slot */}
-                              <rect
-                                x="40"
-                                y="6"
-                                width="18"
-                                height="3"
-                                rx="1.5"
-                                fill="rgba(0,0,0,0.12)"
-                              />
-                              {/* small highlight */}
-                              <circle
-                                cx="68"
-                                cy="26"
-                                r="6"
-                                fill="rgba(255,255,255,0.12)"
-                              />
-                            </g>
+                            </svg>
 
-                            {/* overlay icon centered in piggy body */}
-                            {(() => {
-                              const iconX = 10 + 60 / 2; // center of body
-                              const iconY = bodyTop + bodyHeight / 2;
-                              const iconSize = 32;
-                              return (
-                                <g
-                                  transform={`translate(${iconX},${iconY}) scale(1.15)`}
-                                >
-                                  {/* subtle background circle for contrast */}
-                                  <circle
-                                    cx="0"
-                                    cy="0"
-                                    r="16"
-                                    fill="rgba(0,0,0,0.08)"
-                                  />
-                                  <foreignObject
-                                    x={-iconSize / 2}
-                                    y={-iconSize / 2}
-                                    width={iconSize}
-                                    height={iconSize}
-                                  >
-                                    <div className="w-full h-full flex items-center justify-center text-white text-lg">
-                                      {renderIcon(jar.icon)}
-                                    </div>
-                                  </foreignObject>
-                                </g>
-                              );
-                            })()}
-                          </svg>
+                            {/* Center content */}
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div
+                                className={`w-20 h-20 rounded-full border-4 flex items-center justify-center shadow-lg ${
+                                  status.color === "red"
+                                    ? "bg-gray-50 border-gray-200"
+                                    : status.color === "orange"
+                                    ? "bg-gray-50 border-gray-200"
+                                    : "bg-gray-50 border-gray-200"
+                                }`}
+                              >
+                                <div className="text-2xl">
+                                  {renderIcon(jar.icon)}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Outer glow ring */}
+                            <div
+                              className={`absolute inset-0 rounded-full ${
+                                status.color === "red"
+                                  ? "border-red-300"
+                                  : status.color === "orange"
+                                  ? "border-orange-300"
+                                  : "border-green-300"
+                              }`}
+                            ></div>
+                          </div>
                         );
                       })()}
-                      <svg
-                        className="absolute inset-0 w-full h-full pointer-events-none"
-                        viewBox="0 0 100 100"
-                        preserveAspectRatio="none"
-                      >
-                        <rect
-                          x="6"
-                          y="6"
-                          width="88"
-                          height="88"
-                          rx="12"
-                          ry="12"
-                          fill="none"
-                          stroke="rgba(0,0,0,0.06)"
-                          strokeWidth="2"
-                        />
-                        <circle
-                          cx="75"
-                          cy="18"
-                          r="6"
-                          fill="rgba(255,255,255,0.4)"
-                        />
-                      </svg>
+
+                      {/* Floating percentage badge */}
+                      <div className="absolute -top-2 -right-2 bg-gradient-to-br from-pink-500 to-pink-600 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg border-2 border-white">
+                        {usedPercent}%
+                      </div>
+
+                      {/* Hover glow effect */}
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-br pointer-events-none"></div>
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <div className="min-w-0">
-                          <h3 className="font-semibold text-gray-900 text-sm lg:text-base truncate">
+                    <div className="flex-1 min-w-0 relative z-10">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-bold text-gray-900 text-sm lg:text-base truncate">
                             {jar.name}
                           </h3>
-                          <p className="text-xs lg:text-sm text-gray-500">
-                            {jar.percentage}% ngân sách • {status.message}
-                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge
+                              variant="outline"
+                              className={`text-xs px-2 py-0.5 ${
+                                status.color === "red"
+                                  ? "border-red-300 text-red-700 bg-red-50"
+                                  : status.color === "orange"
+                                  ? "border-orange-300 text-orange-700 bg-orange-50"
+                                  : "border-green-300 text-green-700 bg-green-50"
+                              }`}
+                            >
+                              {jar.percentage}% ngân sách
+                            </Badge>
+                            <span className="text-xs text-gray-500">
+                              {status.message}
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-500">Ngân sách</div>
-                          <div className="font-semibold text-gray-900">
+                        <div className="text-right ml-3">
+                          <div className="text-xs text-gray-500 font-medium">
+                            Ngân sách
+                          </div>
+                          <div className="font-bold text-gray-900 text-sm lg:text-base">
                             {formatCurrency(jar.targetAmount)}
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between mt-3">
-                        <div>
-                          <div className="text-xs text-gray-500">Đã chi</div>
-                          <div className="font-semibold text-red-600">
-                            {formatCurrency(status.spentAmount)}
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <div>
+                              <div className="text-xs text-gray-500 font-medium">
+                                Đã chi
+                              </div>
+                              <div
+                                className={`font-bold text-sm lg:text-base ${
+                                  status.color === "red"
+                                    ? "text-red-600"
+                                    : status.color === "orange"
+                                    ? "text-orange-600"
+                                    : "text-green-600"
+                                }`}
+                              >
+                                {formatCurrency(status.spentAmount)}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-xs text-gray-500 font-medium">
+                                Còn lại
+                              </div>
+                              <div className="font-bold text-green-600 text-sm lg:text-base">
+                                {formatCurrency(status.remainingAmount)}
+                              </div>
+                            </div>
                           </div>
-                        </div>
 
-                        <div className="w-1/2 ml-4">
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className={`h-2 rounded-full ${
-                                status.color === "red"
-                                  ? "bg-red-500"
-                                  : status.color === "orange"
-                                  ? "bg-orange-500"
-                                  : "bg-green-500"
-                              } transition-all`}
-                              style={{ width: `${usedPercent}%` }}
-                            />
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1 text-right">
-                            {usedPercent}%
+                          <div className="w-full">
+                            <div className="w-full bg-gray-200/60 rounded-full h-3 overflow-hidden backdrop-blur-sm border border-gray-200/50">
+                              <div
+                                className={`h-3 rounded-full ${
+                                  status.color === "red"
+                                    ? "bg-gradient-to-r from-red-400 to-red-600"
+                                    : status.color === "orange"
+                                    ? "bg-gradient-to-r from-orange-400 to-orange-600"
+                                    : "bg-gradient-to-r from-green-400 to-green-600"
+                                } shadow-sm`}
+                                style={{ width: `${usedPercent}%` }}
+                              />
+                            </div>
+                            <div className="flex justify-between items-center mt-2">
+                              <div className="text-xs text-gray-500">
+                                Tiến độ sử dụng
+                              </div>
+                              <div
+                                className={`text-xs font-bold ${
+                                  status.color === "red"
+                                    ? "text-red-600"
+                                    : status.color === "orange"
+                                    ? "text-orange-600"
+                                    : "text-green-600"
+                                }`}
+                              >
+                                {usedPercent}%
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
