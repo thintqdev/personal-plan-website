@@ -109,6 +109,7 @@ export async function getUser(): Promise<User> {
 
         const user = await response.json();
 
+        // API returns user object directly
         return user;
     } catch (error) {
         console.error("Error fetching user:", error);
@@ -287,4 +288,22 @@ export async function updateUserPreferences(
         console.error("Error updating user preferences:", error);
         throw error;
     }
+}
+
+export function changePassword(oldPassword: string, newPassword: string): Promise<User> {
+    return fetch(`${API_URL}/api/user/change-password`, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ oldPassword, newPassword }),
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`Failed to change password: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .catch((error) => {
+            console.error("Error changing password:", error);
+            throw error;
+        });
 }

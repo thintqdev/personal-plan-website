@@ -53,11 +53,6 @@ const adminNav = [
     icon: <ListChecks className="w-4 h-4" />,
   },
   {
-    href: "/admin/profile",
-    label: "Hồ sơ",
-    icon: <User className="w-4 h-4" />,
-  },
-  {
     href: "/admin/quotes",
     label: "Quotes",
     icon: <Quote className="w-4 h-4" />,

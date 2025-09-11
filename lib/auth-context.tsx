@@ -21,6 +21,7 @@ interface AuthContextType {
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, password: string) => Promise<void>;
   verifyEmail: (token: string) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -139,6 +140,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const token = localStorage.getItem("token") || getCookie("auth_token");
+      if (token) {
+        const userData = await authService.getCurrentUser();
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+      }
+    } catch (error) {
+      console.error("Failed to refresh user:", error);
+      // Don't logout on refresh failure, just log error
+    }
+  };
+
   const value = {
     user,
     isLoading,
@@ -148,6 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     forgotPassword,
     resetPassword,
     verifyEmail,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
