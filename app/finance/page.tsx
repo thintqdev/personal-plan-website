@@ -568,7 +568,7 @@ export default function FinancePage() {
       // Còn ngân sách
       return {
         status: "good",
-        message: `Còn lại ${formatCurrency(remaining)}`,
+        message: `Ngân sách ổn định`,
         color: "green",
         spentAmount: spent,
         remainingAmount: remaining,
@@ -626,822 +626,718 @@ export default function FinancePage() {
       coverImage={coverImage}
       onCoverImageChange={changeCoverImage}
     >
-      {/* User Profile Card */}
-      <Card className="bg-white border border-gray-200">
-        <CardContent className="p-4 lg:p-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="flex-1 text-center sm:text-left"></div>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
-              <Button
-                onClick={() => setShowAIChat(true)}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-sm px-3 py-2"
-              >
-                <Bot className="w-4 h-4 mr-2" />
-                AI Trợ lý
-              </Button>
-              <Button
-                onClick={() => {
-                  setShowAddForm(true);
-                  setEditingTransaction(null);
-                  setFormData({
-                    jarId: "",
-                    amount: "",
-                    description: "",
-                    category: "",
-                  });
-                }}
-                className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-2"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Thêm chi tiêu
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-          <CardContent className="p-4 lg:p-6">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-red-500 rounded-lg flex-shrink-0">
-                <TrendingDown className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs lg:text-sm text-red-700 font-medium">
-                  Chi tiêu tháng này
-                </p>
-                <p className="text-base lg:text-xl font-bold text-red-800 truncate">
-                  {formatCurrency(getTotalExpenses())}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-4 lg:p-6">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-500 rounded-lg flex-shrink-0">
-                <PiggyBank className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs lg:text-sm text-blue-700 font-medium">
-                  Số hủ đang sử dụng
-                </p>
-                <p className="text-base lg:text-xl font-bold text-blue-800">
-                  {jars.length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <CardContent className="p-4 lg:p-6">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-purple-500 rounded-lg flex-shrink-0">
-                <CalendarDays className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs lg:text-sm text-purple-700 font-medium">
-                  Giao dịch tháng này
-                </p>
-                <p className="text-base lg:text-xl font-bold text-purple-800">
-                  {monthlyStats.totalTransactions}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card
-          className={`bg-gradient-to-br ${
-            getOverspentJarsCount() > 0
-              ? "from-orange-50 to-orange-100 border-orange-200"
-              : "from-green-50 to-green-100 border-green-200"
-          }`}
-        >
-          <CardContent className="p-4 lg:p-6">
-            <div className="flex items-center space-x-3">
-              <div
-                className={`p-2 rounded-lg flex-shrink-0 ${
-                  getOverspentJarsCount() > 0 ? "bg-orange-500" : "bg-green-500"
-                }`}
-              >
-                <DollarSign className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p
-                  className={`text-xs lg:text-sm font-medium ${
-                    getOverspentJarsCount() > 0
-                      ? "text-orange-700"
-                      : "text-green-700"
-                  }`}
-                >
-                  {getOverspentJarsCount() > 0 ? "Hủ vượt chi" : "Tình trạng"}
-                </p>
-                <p
-                  className={`text-base lg:text-xl font-bold ${
-                    getOverspentJarsCount() > 0
-                      ? "text-orange-800"
-                      : "text-green-800"
-                  }`}
-                >
-                  {getOverspentJarsCount() > 0
-                    ? `${getOverspentJarsCount()} hủ`
-                    : "Ổn định"}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Jar Status Overview */}
-      <Card>
-        <CardHeader className="p-4 lg:p-6">
-          <CardTitle className="flex items-center space-x-2 text-base lg:text-lg">
-            <PiggyBank className="w-4 h-4 lg:w-5 lg:h-5" />
-            <span>Tình trạng các Hủ Chi tiêu</span>
-          </CardTitle>
-          <p className="text-xs lg:text-sm text-gray-600 mt-1">
-            Theo dõi ngân sách và chi tiêu thực tế của từng hủ trong tháng
-          </p>
-        </CardHeader>
-        <CardContent className="p-4 lg:p-6 pt-0">
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-4">
-            {jars.map((jar) => {
-              const status = getJarStatus(jar);
-              const usedPercent = Math.round(
-                Math.min(
-                  100,
-                  Math.max(0, (status.spentAmount / jar.targetAmount) * 100)
-                )
-              );
-
-              return (
-                <div
-                  key={jar._id}
-                  className={`relative p-4 lg:p-5 rounded-xl border-2 bg-gradient-to-br from-white/95 via-white/90 to-white/95 backdrop-blur-sm border-gray-200/40 overflow-hidden`}
-                >
-                  {/* Subtle background pattern */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white-50/30 via-transparent to-gray-50/30"></div>
-
-                  {/* Floating particles effect */}
-                  <div className="absolute top-2 right-2 w-2 h-2 bg-gray-400/40 rounded-full"></div>
-                  <div className="absolute bottom-3 left-3 w-1.5 h-1.5 bg-gray-400/40 rounded-full"></div>
-                  <div className="flex items-center gap-4">
-                    {/* Circular Progress Visual */}
-                    <div className="w-32 h-32 relative flex-shrink-0 group cursor-pointer">
-                      {/* Main circular progress */}
-                      {(() => {
-                        const radius = 48;
-                        const circumference = 2 * Math.PI * radius;
-                        const strokeWidth = 6;
-                        const strokeDasharray = circumference;
-                        const strokeDashoffset =
-                          circumference - (usedPercent / 100) * circumference;
-
-                        // Enhanced color gradients based on status
-                        const getCircleColors = () => {
-                          if (status.color === "red") {
-                            return {
-                              primary: "#ef4444",
-                              secondary: "#dc2626",
-                              accent: "#f87171",
-                              background: "#f9fafb",
-                              border: "#e5e7eb",
-                            };
-                          } else if (status.color === "orange") {
-                            return {
-                              primary: "#f97316",
-                              secondary: "#ea580c",
-                              accent: "#fb923c",
-                              background: "#f9fafb",
-                              border: "#e5e7eb",
-                            };
-                          } else {
-                            return {
-                              primary: "#10b981",
-                              secondary: "#059669",
-                              accent: "#34d399",
-                              background: "#f9fafb",
-                              border: "#e5e7eb",
-                            };
-                          }
-                        };
-
-                        const colors = getCircleColors();
-
-                        return (
-                          <div className="w-full h-full relative">
-                            {/* Background circle */}
-                            <svg
-                              className="w-full h-full transform -rotate-90"
-                              viewBox="0 0 120 120"
-                            >
-                              <circle
-                                cx="60"
-                                cy="60"
-                                r={radius}
-                                fill="none"
-                                stroke={colors.background}
-                                strokeWidth={strokeWidth}
-                              />
-                              {/* Progress circle */}
-                              <circle
-                                cx="60"
-                                cy="60"
-                                r={radius}
-                                fill="none"
-                                stroke={colors.primary}
-                                strokeWidth={strokeWidth}
-                                strokeDasharray={strokeDasharray}
-                                strokeDashoffset={strokeDashoffset}
-                                strokeLinecap="round"
-                                className="drop-shadow-sm"
-                              />
-                            </svg>
-
-                            {/* Center content */}
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div
-                                className={`w-20 h-20 rounded-full border-4 flex items-center justify-center shadow-lg ${
-                                  status.color === "red"
-                                    ? "bg-gray-50 border-gray-200"
-                                    : status.color === "orange"
-                                    ? "bg-gray-50 border-gray-200"
-                                    : "bg-gray-50 border-gray-200"
-                                }`}
-                              >
-                                <div className="text-2xl">
-                                  {renderIcon(jar.icon)}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Outer glow ring */}
-                            <div
-                              className={`absolute inset-0 rounded-full ${
-                                status.color === "red"
-                                  ? "border-red-300"
-                                  : status.color === "orange"
-                                  ? "border-orange-300"
-                                  : "border-green-300"
-                              }`}
-                            ></div>
-                          </div>
-                        );
-                      })()}
-
-                      {/* Floating percentage badge */}
-                      <div className="absolute -top-2 -right-2 bg-gradient-to-br from-pink-500 to-pink-600 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg border-2 border-white">
-                        {usedPercent}%
-                      </div>
-
-                      {/* Hover glow effect */}
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-br pointer-events-none"></div>
-                    </div>
-
-                    <div className="flex-1 min-w-0 relative z-10">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="min-w-0 flex-1">
-                          <h3 className="font-bold text-gray-900 text-sm lg:text-base truncate">
-                            {jar.name}
-                          </h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge
-                              variant="outline"
-                              className={`text-xs px-2 py-0.5 ${
-                                status.color === "red"
-                                  ? "border-red-300 text-red-700 bg-red-50"
-                                  : status.color === "orange"
-                                  ? "border-orange-300 text-orange-700 bg-orange-50"
-                                  : "border-green-300 text-green-700 bg-green-50"
-                              }`}
-                            >
-                              {jar.percentage}% ngân sách
-                            </Badge>
-                            <span className="text-xs text-gray-500">
-                              {status.message}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="text-right ml-3">
-                          <div className="text-xs text-gray-500 font-medium">
-                            Ngân sách
-                          </div>
-                          <div className="font-bold text-gray-900 text-sm lg:text-base">
-                            {formatCurrency(jar.targetAmount)}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <div>
-                              <div className="text-xs text-gray-500 font-medium">
-                                Đã chi
-                              </div>
-                              <div
-                                className={`font-bold text-sm lg:text-base ${
-                                  status.color === "red"
-                                    ? "text-red-600"
-                                    : status.color === "orange"
-                                    ? "text-orange-600"
-                                    : "text-green-600"
-                                }`}
-                              >
-                                {formatCurrency(status.spentAmount)}
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-xs text-gray-500 font-medium">
-                                Còn lại
-                              </div>
-                              <div className="font-bold text-green-600 text-sm lg:text-base">
-                                {formatCurrency(status.remainingAmount)}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="w-full">
-                            <div className="w-full bg-gray-200/60 rounded-full h-3 overflow-hidden backdrop-blur-sm border border-gray-200/50">
-                              <div
-                                className={`h-3 rounded-full ${
-                                  status.color === "red"
-                                    ? "bg-gradient-to-r from-red-400 to-red-600"
-                                    : status.color === "orange"
-                                    ? "bg-gradient-to-r from-orange-400 to-orange-600"
-                                    : "bg-gradient-to-r from-green-400 to-green-600"
-                                } shadow-sm`}
-                                style={{ width: `${usedPercent}%` }}
-                              />
-                            </div>
-                            <div className="flex justify-between items-center mt-2">
-                              <div className="text-xs text-gray-500">
-                                Tiến độ sử dụng
-                              </div>
-                              <div
-                                className={`text-xs font-bold ${
-                                  status.color === "red"
-                                    ? "text-red-600"
-                                    : status.color === "orange"
-                                    ? "text-orange-600"
-                                    : "text-green-600"
-                                }`}
-                              >
-                                {usedPercent}%
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Overview */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200/50 shadow-lg hover:shadow-xl transition-all duration-300 group">
+              <CardContent className="p-4 lg:p-6 text-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative z-10">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <TrendingDown className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-2xl lg:text-3xl font-bold text-red-800 mb-1">
+                    {formatCurrency(getTotalExpenses())}
+                  </div>
+                  <div className="text-sm text-red-600 font-medium">
+                    Chi tiêu tháng này
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
 
-      {/* Transactions List */}
-      <Card>
-        <CardHeader className="p-4 lg:p-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
+            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200/50 shadow-lg hover:shadow-xl transition-all duration-300 group">
+              <CardContent className="p-4 lg:p-6 text-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative z-10">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <PiggyBank className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-2xl lg:text-3xl font-bold text-blue-800 mb-1">
+                    {jars.length}
+                  </div>
+                  <div className="text-sm text-blue-600 font-medium">
+                    Số hủ đang sử dụng
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200/50 shadow-lg hover:shadow-xl transition-all duration-300 group">
+              <CardContent className="p-4 lg:p-6 text-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative z-10">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <Clock className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-2xl lg:text-3xl font-bold text-purple-800 mb-1">
+                    {monthlyStats.totalTransactions}
+                  </div>
+                  <div className="text-sm text-purple-600 font-medium">
+                    Giao dịch tháng này
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card
+              className={`bg-gradient-to-br ${
+                getOverspentJarsCount() > 0
+                  ? "from-orange-50 to-orange-100 border-orange-200/50"
+                  : "from-green-50 to-green-100 border-green-200/50"
+              } shadow-lg hover:shadow-xl transition-all duration-300 group`}
+            >
+              <CardContent className="p-4 lg:p-6 text-center relative overflow-hidden">
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${
+                    getOverspentJarsCount() > 0
+                      ? "from-orange-400/10"
+                      : "from-green-400/10"
+                  } to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+                ></div>
+                <div className="relative z-10">
+                  <div
+                    className={`w-12 h-12 bg-gradient-to-br rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg ${
+                      getOverspentJarsCount() > 0
+                        ? "from-orange-500 to-orange-600"
+                        : "from-green-500 to-green-600"
+                    }`}
+                  >
+                    <DollarSign className="w-6 h-6 text-white" />
+                  </div>
+                  <div
+                    className={`text-2xl lg:text-3xl font-bold mb-1 ${
+                      getOverspentJarsCount() > 0
+                        ? "text-orange-800"
+                        : "text-green-800"
+                    }`}
+                  >
+                    {getOverspentJarsCount() > 0
+                      ? `${getOverspentJarsCount()} hủ`
+                      : "Ổn định"}
+                  </div>
+                  <div
+                    className={`text-sm font-medium ${
+                      getOverspentJarsCount() > 0
+                        ? "text-orange-600"
+                        : "text-green-600"
+                    }`}
+                  >
+                    {getOverspentJarsCount() > 0 ? "Hủ vượt chi" : "Tình trạng"}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Jar Status Overview */}
+          <Card className="bg-white border border-gray-200 mt-6 shadow border-none">
+            <CardHeader className="p-4 lg:p-6">
               <CardTitle className="flex items-center space-x-2 text-base lg:text-lg">
-                <Clock className="w-4 h-4 lg:w-5 lg:h-5" />
-                <span>Lịch sử Chi tiêu</span>
-                <Badge variant="outline" className="text-xs">
-                  {paginationInfo.totalCount} giao dịch
-                </Badge>
+                <PiggyBank className="w-4 h-4 lg:w-5 lg:h-5" />
+                <span>Tình trạng các Hủ Chi tiêu</span>
               </CardTitle>
               <p className="text-xs lg:text-sm text-gray-600 mt-1">
-                Theo dõi và quản lý các khoản chi tiêu của bạn
+                Theo dõi ngân sách và chi tiêu thực tế của từng hủ trong tháng
               </p>
-            </div>
+            </CardHeader>
+            <CardContent className="p-4 lg:p-6 pt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {jars.map((jar) => {
+                  const status = getJarStatus(jar);
+                  const usedPercent = Math.round(
+                    Math.min(
+                      100,
+                      Math.max(0, (status.spentAmount / jar.targetAmount) * 100)
+                    )
+                  );
 
-            {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-2 lg:gap-3">
-              <div className="flex gap-2">
-                <div className="relative">
-                  <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    placeholder="Tìm kiếm..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8 w-full sm:w-40 text-sm"
-                  />
-                </div>
-                <Input
-                  type="date"
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  className="w-full sm:w-36 text-sm"
-                />
-              </div>
-
-              <div className="flex gap-2">
-                <Select
-                  value={selectedJarFilter}
-                  onValueChange={setSelectedJarFilter}
-                >
-                  <SelectTrigger className="w-full sm:w-32 text-sm">
-                    <SelectValue placeholder="Hủ" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tất cả hủ</SelectItem>
-                    {jars.map((jar) => (
-                      <SelectItem key={jar._id} value={jar._id}>
-                        <div className="flex items-center space-x-1">
-                          {renderIcon(jar.icon)}
-                          <span className="truncate max-w-20">{jar.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {(dateFilter || searchTerm || selectedJarFilter !== "all") && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={clearFilters}
-                    className="text-xs px-2"
-                  >
-                    <X className="w-3 h-3 mr-1" />
-                    Xóa lọc
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-4 lg:p-6 pt-0">
-          {paginationInfo.totalCount === 0 ? (
-            <div className="text-center py-8">
-              <PiggyBank className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 text-sm lg:text-base">
-                {dateFilter || searchTerm || selectedJarFilter !== "all"
-                  ? "Không tìm thấy giao dịch nào phù hợp với bộ lọc"
-                  : "Chưa có giao dịch nào trong tháng này"}
-              </p>
-              {(dateFilter || searchTerm || selectedJarFilter !== "all") && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={clearFilters}
-                  className="mt-3 text-xs"
-                >
-                  <X className="w-3 h-3 mr-1" />
-                  Xóa bộ lọc
-                </Button>
-              )}
-            </div>
-          ) : (
-            <>
-              <div className="space-y-3 lg:space-y-4">
-                {transactions.map((transaction) => {
-                  const jarInfo = getJarInfo(transaction);
                   return (
-                    <div
-                      key={transaction._id}
-                      className="flex items-center justify-between p-3 lg:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    <Card
+                      key={jar._id}
+                      className="bg-white border border-gray-200 hover:shadow-md transition-shadow"
                     >
-                      <div className="flex items-center space-x-3 lg:space-x-4 min-w-0 flex-1">
-                        <div
-                          className={`p-1.5 lg:p-2 rounded-lg bg-${
-                            jarInfo?.color || "gray"
-                          }-100 flex-shrink-0`}
-                        >
-                          {jarInfo ? renderIcon(jarInfo.icon) : <span>💰</span>}
+                      <CardContent className="p-4">
+                        {/* Header with icon and percentage */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gray-50 border flex items-center justify-center">
+                              <span className="text-lg">
+                                {renderIcon(jar.icon)}
+                              </span>
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-gray-900 text-sm truncate max-w-32">
+                                {jar.name}
+                              </h3>
+                              <Badge variant="outline" className="text-xs mt-1">
+                                {jar.percentage}%
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-xs text-gray-500">
+                              Mục tiêu
+                            </div>
+                            <div className="font-semibold text-gray-900 text-sm">
+                              {formatCurrency(jar.targetAmount)}
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-2">
-                            <h3 className="font-medium text-gray-900 text-sm lg:text-base truncate">
-                              {transaction.description}
-                            </h3>
-                            <Badge
-                              variant="secondary"
-                              className="text-xs w-fit mt-1 lg:mt-0"
+
+                        {/* Progress bar */}
+                        <div className="mb-3">
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-xs text-gray-600">
+                              Tiến độ
+                            </span>
+                            <span
+                              className={`text-xs font-semibold ${
+                                status.color === "red"
+                                  ? "text-red-600"
+                                  : status.color === "orange"
+                                  ? "text-orange-600"
+                                  : "text-green-600"
+                              }`}
                             >
-                              {jarInfo?.name || "Unknown Jar"}
-                            </Badge>
+                              {usedPercent}%
+                            </span>
                           </div>
-                          <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 text-xs lg:text-sm text-gray-500 mt-1">
-                            <span>{transaction.category}</span>
-                            <span className="hidden lg:inline">•</span>
-                            <span>{formatDate(transaction.date)}</span>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className={`h-2 rounded-full transition-all duration-300 ${
+                                status.color === "red"
+                                  ? "bg-red-500"
+                                  : status.color === "orange"
+                                  ? "bg-orange-500"
+                                  : "bg-green-500"
+                              }`}
+                              style={{ width: `${usedPercent}%` }}
+                            />
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
-                        <div className="text-right">
-                          <p className="font-semibold text-red-600 text-sm lg:text-base">
-                            -{formatCurrency(transaction.amount)}
-                          </p>
+
+                        {/* Amount details */}
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          <div>
+                            <div className="text-gray-500 mb-1">Đã chi</div>
+                            <div
+                              className={`font-semibold ${
+                                status.color === "red"
+                                  ? "text-red-600"
+                                  : status.color === "orange"
+                                  ? "text-orange-600"
+                                  : "text-green-600"
+                              }`}
+                            >
+                              {formatCurrency(status.spentAmount)}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500 mb-1">Còn lại</div>
+                            <div className="font-semibold text-green-600">
+                              {formatCurrency(status.remainingAmount)}
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex space-x-1 lg:space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => startEdit(transaction)}
-                            className="h-6 w-6 lg:h-8 lg:w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-100"
+
+                        {/* Status message */}
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <div
+                            className={`text-xs ${
+                              status.color === "red"
+                                ? "text-red-600"
+                                : status.color === "orange"
+                                ? "text-orange-600"
+                                : "text-green-600"
+                            }`}
                           >
-                            <Edit2 className="w-3 h-3 lg:w-4 lg:h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              handleDeleteTransaction(transaction._id)
-                            }
-                            className="h-6 w-6 lg:h-8 lg:w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-100"
-                          >
-                            <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
-                          </Button>
+                            {status.message}
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   );
                 })}
               </div>
-
-              {/* Pagination */}
-              {paginationInfo.totalPages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-200">
-                  <div className="text-sm text-gray-600">
-                    Hiển thị{" "}
-                    {(paginationInfo.currentPage - 1) * paginationInfo.limit +
-                      1}{" "}
-                    -{" "}
-                    {Math.min(
-                      paginationInfo.currentPage * paginationInfo.limit,
-                      paginationInfo.totalCount
-                    )}{" "}
-                    trong {paginationInfo.totalCount} giao dịch
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        handlePageChange(paginationInfo.currentPage - 1)
-                      }
-                      disabled={!paginationInfo.hasPrevPage}
-                      className="text-xs px-2 py-1"
-                    >
-                      Trước
-                    </Button>
-
-                    <div className="flex space-x-1">
-                      {Array.from(
-                        { length: paginationInfo.totalPages },
-                        (_, i) => i + 1
-                      )
-                        .filter((page) => {
-                          // Show first, last, current, and adjacent pages
-                          return (
-                            page === 1 ||
-                            page === paginationInfo.totalPages ||
-                            Math.abs(page - paginationInfo.currentPage) <= 1
-                          );
-                        })
-                        .map((page, index, array) => {
-                          // Add ellipsis if there's a gap
-                          const shouldShowEllipsis =
-                            index > 0 && page - array[index - 1] > 1;
-
-                          return (
-                            <div
-                              key={page}
-                              className="flex items-center space-x-1"
-                            >
-                              {shouldShowEllipsis && (
-                                <span className="text-gray-400 px-1">...</span>
-                              )}
-                              <Button
-                                variant={
-                                  paginationInfo.currentPage === page
-                                    ? "default"
-                                    : "outline"
-                                }
-                                size="sm"
-                                onClick={() => handlePageChange(page)}
-                                className={`text-xs px-2 py-1 min-w-[28px] ${
-                                  paginationInfo.currentPage === page
-                                    ? "bg-purple-600 text-white"
-                                    : "text-gray-600"
-                                }`}
-                              >
-                                {page}
-                              </Button>
-                            </div>
-                          );
-                        })}
-                    </div>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        handlePageChange(paginationInfo.currentPage + 1)
-                      }
-                      disabled={!paginationInfo.hasNextPage}
-                      className="text-xs px-2 py-1"
-                    >
-                      Sau
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Add/Edit Transaction Modal */}
-      {showAddForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 lg:p-4 z-50">
-          <Card className="w-full max-w-md bg-white max-h-[90vh] overflow-y-auto">
-            <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-t-lg p-4 lg:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg lg:text-xl">
-                    {editingTransaction
-                      ? "✏️ Sửa Chi tiêu"
-                      : "💰 Thêm Chi tiêu"}
-                  </CardTitle>
-                  <p className="text-purple-100 text-xs lg:text-sm mt-1">
-                    {editingTransaction
-                      ? "Cập nhật thông tin chi tiêu"
-                      : "Ghi lại khoản chi tiêu mới"}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setShowAddForm(false);
-                    setEditingTransaction(null);
-                  }}
-                  className="text-white hover:bg-purple-600 h-8 w-8 p-0"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="p-4 lg:p-6 space-y-4">
-              <div>
-                <Label htmlFor="jar-select" className="text-sm lg:text-base">
-                  Chọn hủ chi tiêu *
-                </Label>
-                <Select
-                  value={formData.jarId}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, jarId: value }))
-                  }
-                  disabled={!!editingTransaction}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Chọn hủ để chi tiêu" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {jars.map((jar) => (
-                      <SelectItem key={jar._id} value={jar._id}>
-                        <div className="flex items-center space-x-2">
-                          {renderIcon(jar.icon)}
-                          <span className="text-sm lg:text-base">
-                            {jar.name}
-                          </span>
-                          <Badge variant="outline" className="ml-2 text-xs">
-                            {jar.percentage}%
-                          </Badge>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="amount" className="text-sm lg:text-base">
-                  Số tiền *
-                </Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  value={formData.amount}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      amount: e.target.value,
-                    }))
-                  }
-                  placeholder="Nhập số tiền đã chi"
-                  className="text-base lg:text-lg mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="description" className="text-sm lg:text-base">
-                  Mục đích chi tiêu *
-                </Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  placeholder="Mô tả chi tiết về khoản chi tiêu này..."
-                  rows={3}
-                  className="resize-none mt-1 text-sm lg:text-base"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="category" className="text-sm lg:text-base">
-                  Danh mục
-                </Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      category: value,
-                    }))
-                  }
-                >
-                  <SelectTrigger id="category" className="mt-1">
-                    <SelectValue placeholder="Chọn danh mục chi tiêu" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Ăn uống">Ăn uống</SelectItem>
-                    <SelectItem value="Đi lại">Đi lại</SelectItem>
-                    <SelectItem value="Giải trí">Giải trí</SelectItem>
-                    <SelectItem value="Mua sắm">Mua sắm</SelectItem>
-                    <SelectItem value="Sức khỏe">Sức khỏe</SelectItem>
-                    <SelectItem value="Giáo dục">Giáo dục</SelectItem>
-                    <SelectItem value="Du lịch">Du lịch</SelectItem>
-                    <SelectItem value="Nhà cửa">Nhà cửa</SelectItem>
-                    <SelectItem value="Khác">Khác</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
-                <Button
-                  onClick={
-                    editingTransaction
-                      ? handleUpdateTransaction
-                      : handleAddTransaction
-                  }
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-sm lg:text-base"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  {editingTransaction ? "Cập nhật" : "Thêm Chi tiêu"}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowAddForm(false);
-                    setEditingTransaction(null);
-                  }}
-                  className="flex-1 text-sm lg:text-base"
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Hủy
-                </Button>
-              </div>
             </CardContent>
           </Card>
+
+          {/* Transactions List */}
+          <Card className="bg-white border border-gray-200 mt-6 shadow border-none">
+            <CardHeader className="p-4 lg:p-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="flex-1 text-center sm:text-left">
+                  <div>
+                    <CardTitle className="flex items-center space-x-2 text-base lg:text-lg">
+                      <Clock className="w-4 h-4 lg:w-5 lg:h-5" />
+                      <span>Lịch sử Chi tiêu</span>
+                      <Badge variant="outline" className="text-xs">
+                        {paginationInfo.totalCount} giao dịch
+                      </Badge>
+                    </CardTitle>
+                    <p className="text-xs lg:text-sm text-gray-600 mt-1">
+                      Theo dõi và quản lý các khoản chi tiêu của bạn
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+                  <Button
+                    onClick={() => setShowAIChat(true)}
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-sm px-3 py-2"
+                  >
+                    <Bot className="w-4 h-4 mr-2" />
+                    AI Trợ lý
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowAddForm(true);
+                      setEditingTransaction(null);
+                      setFormData({
+                        jarId: "",
+                        amount: "",
+                        description: "",
+                        category: "",
+                      });
+                    }}
+                    className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-2"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Thêm chi tiêu
+                  </Button>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 lg:gap-3 text-sm mt-4 lg:mt-6">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative w-full sm:w-1/3">
+                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      placeholder="Tìm kiếm..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-8 w-full text-sm"
+                    />
+                  </div>
+                  <Input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="w-full sm:w-1/3 text-sm"
+                  />
+                  <Select
+                    value={selectedJarFilter}
+                    onValueChange={setSelectedJarFilter}
+                  >
+                    <SelectTrigger className="w-full sm:w-1/3 text-sm bg-white border-gray-300">
+                      <SelectValue placeholder="Hủ" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-gray-300">
+                      <SelectItem value="all">Tất cả hủ</SelectItem>
+                      {jars.map((jar) => (
+                        <SelectItem key={jar._id} value={jar._id}>
+                          <div className="flex items-center space-x-1">
+                            {renderIcon(jar.icon)}
+                            <span>{jar.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {(dateFilter ||
+                    searchTerm ||
+                    selectedJarFilter !== "all") && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={clearFilters}
+                      className="text-xs px-2 whitespace-nowrap bg-white border-gray-300 hover:bg-gray-50"
+                    >
+                      <X className="w-3 h-3 mr-1" />
+                      Xóa lọc
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-4 lg:p-6 pt-0">
+              {paginationInfo.totalCount === 0 ? (
+                <div className="text-center py-8">
+                  <PiggyBank className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500 text-sm lg:text-base">
+                    {dateFilter || searchTerm || selectedJarFilter !== "all"
+                      ? "Không tìm thấy giao dịch nào phù hợp với bộ lọc"
+                      : "Chưa có giao dịch nào trong tháng này"}
+                  </p>
+                  {(dateFilter ||
+                    searchTerm ||
+                    selectedJarFilter !== "all") && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={clearFilters}
+                      className="mt-3 text-xs"
+                    >
+                      <X className="w-3 h-3 mr-1" />
+                      Xóa bộ lọc
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-3 lg:space-y-4">
+                    {transactions.map((transaction) => {
+                      const jarInfo = getJarInfo(transaction);
+                      return (
+                        <div
+                          key={transaction._id}
+                          className="flex items-center justify-between p-3 lg:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="flex items-center space-x-3 lg:space-x-4 min-w-0 flex-1">
+                            <div
+                              className={`p-1.5 lg:p-2 rounded-lg bg-${
+                                jarInfo?.color || "gray"
+                              }-100 flex-shrink-0`}
+                            >
+                              {jarInfo ? (
+                                renderIcon(jarInfo.icon)
+                              ) : (
+                                <span>💰</span>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-2">
+                                <h3 className="font-medium text-gray-900 text-sm lg:text-base truncate">
+                                  {transaction.description}
+                                </h3>
+                                <Badge
+                                  variant="secondary"
+                                  className="text-xs w-fit mt-1 lg:mt-0"
+                                >
+                                  {jarInfo?.name || "Unknown Jar"}
+                                </Badge>
+                              </div>
+                              <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 text-xs lg:text-sm text-gray-500 mt-1">
+                                <span>{transaction.category}</span>
+                                <span className="hidden lg:inline">•</span>
+                                <span>{formatDate(transaction.date)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+                            <div className="text-right">
+                              <p className="font-semibold text-red-600 text-sm lg:text-base">
+                                -{formatCurrency(transaction.amount)}
+                              </p>
+                            </div>
+                            <div className="flex space-x-1 lg:space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => startEdit(transaction)}
+                                className="h-6 w-6 lg:h-8 lg:w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-100"
+                              >
+                                <Edit2 className="w-3 h-3 lg:w-4 lg:h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  handleDeleteTransaction(transaction._id)
+                                }
+                                className="h-6 w-6 lg:h-8 lg:w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-100"
+                              >
+                                <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Pagination */}
+                  {paginationInfo.totalPages > 1 && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-200">
+                      <div className="text-sm text-gray-600">
+                        Hiển thị{" "}
+                        {(paginationInfo.currentPage - 1) *
+                          paginationInfo.limit +
+                          1}{" "}
+                        -{" "}
+                        {Math.min(
+                          paginationInfo.currentPage * paginationInfo.limit,
+                          paginationInfo.totalCount
+                        )}{" "}
+                        trong {paginationInfo.totalCount} giao dịch
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            handlePageChange(paginationInfo.currentPage - 1)
+                          }
+                          disabled={!paginationInfo.hasPrevPage}
+                          className="text-xs px-2 py-1"
+                        >
+                          Trước
+                        </Button>
+
+                        <div className="flex space-x-1">
+                          {Array.from(
+                            { length: paginationInfo.totalPages },
+                            (_, i) => i + 1
+                          )
+                            .filter((page) => {
+                              // Show first, last, current, and adjacent pages
+                              return (
+                                page === 1 ||
+                                page === paginationInfo.totalPages ||
+                                Math.abs(page - paginationInfo.currentPage) <= 1
+                              );
+                            })
+                            .map((page, index, array) => {
+                              // Add ellipsis if there's a gap
+                              const shouldShowEllipsis =
+                                index > 0 && page - array[index - 1] > 1;
+
+                              return (
+                                <div
+                                  key={page}
+                                  className="flex items-center space-x-1"
+                                >
+                                  {shouldShowEllipsis && (
+                                    <span className="text-gray-400 px-1">
+                                      ...
+                                    </span>
+                                  )}
+                                  <Button
+                                    variant={
+                                      paginationInfo.currentPage === page
+                                        ? "default"
+                                        : "outline"
+                                    }
+                                    size="sm"
+                                    onClick={() => handlePageChange(page)}
+                                    className={`text-xs px-2 py-1 min-w-[28px] ${
+                                      paginationInfo.currentPage === page
+                                        ? "bg-purple-600 text-white"
+                                        : "text-gray-600"
+                                    }`}
+                                  >
+                                    {page}
+                                  </Button>
+                                </div>
+                              );
+                            })}
+                        </div>
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            handlePageChange(paginationInfo.currentPage + 1)
+                          }
+                          disabled={!paginationInfo.hasNextPage}
+                          className="text-xs px-2 py-1"
+                        >
+                          Sau
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Add/Edit Transaction Modal */}
+          {showAddForm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 lg:p-4 z-50">
+              <Card className="w-full max-w-md bg-white max-h-[90vh] overflow-y-auto">
+                <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-t-lg p-4 lg:p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg lg:text-xl">
+                        {editingTransaction
+                          ? "✏️ Sửa Chi tiêu"
+                          : "💰 Thêm Chi tiêu"}
+                      </CardTitle>
+                      <p className="text-purple-100 text-xs lg:text-sm mt-1">
+                        {editingTransaction
+                          ? "Cập nhật thông tin chi tiêu"
+                          : "Ghi lại khoản chi tiêu mới"}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setShowAddForm(false);
+                        setEditingTransaction(null);
+                      }}
+                      className="text-white hover:bg-purple-600 h-8 w-8 p-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 lg:p-6 space-y-4">
+                  <div>
+                    <Label
+                      htmlFor="jar-select"
+                      className="text-sm lg:text-base"
+                    >
+                      Chọn hủ chi tiêu *
+                    </Label>
+                    <Select
+                      value={formData.jarId}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, jarId: value }))
+                      }
+                      disabled={!!editingTransaction}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Chọn hủ để chi tiêu" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {jars.map((jar) => (
+                          <SelectItem key={jar._id} value={jar._id}>
+                            <div className="flex items-center space-x-2">
+                              {renderIcon(jar.icon)}
+                              <span className="text-sm lg:text-base">
+                                {jar.name}
+                              </span>
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                {jar.percentage}%
+                              </Badge>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="amount" className="text-sm lg:text-base">
+                      Số tiền *
+                    </Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      value={formData.amount}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          amount: e.target.value,
+                        }))
+                      }
+                      placeholder="Nhập số tiền đã chi"
+                      className="text-base lg:text-lg mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label
+                      htmlFor="description"
+                      className="text-sm lg:text-base"
+                    >
+                      Mục đích chi tiêu *
+                    </Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
+                      placeholder="Mô tả chi tiết về khoản chi tiêu này..."
+                      rows={3}
+                      className="resize-none mt-1 text-sm lg:text-base"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="category" className="text-sm lg:text-base">
+                      Danh mục
+                    </Label>
+                    <Select
+                      value={formData.category}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          category: value,
+                        }))
+                      }
+                    >
+                      <SelectTrigger id="category" className="mt-1">
+                        <SelectValue placeholder="Chọn danh mục chi tiêu" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Ăn uống">Ăn uống</SelectItem>
+                        <SelectItem value="Đi lại">Đi lại</SelectItem>
+                        <SelectItem value="Giải trí">Giải trí</SelectItem>
+                        <SelectItem value="Mua sắm">Mua sắm</SelectItem>
+                        <SelectItem value="Sức khỏe">Sức khỏe</SelectItem>
+                        <SelectItem value="Giáo dục">Giáo dục</SelectItem>
+                        <SelectItem value="Du lịch">Du lịch</SelectItem>
+                        <SelectItem value="Nhà cửa">Nhà cửa</SelectItem>
+                        <SelectItem value="Khác">Khác</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
+                    <Button
+                      onClick={
+                        editingTransaction
+                          ? handleUpdateTransaction
+                          : handleAddTransaction
+                      }
+                      className="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-sm lg:text-base"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      {editingTransaction ? "Cập nhật" : "Thêm Chi tiêu"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowAddForm(false);
+                        setEditingTransaction(null);
+                      }}
+                      className="flex-1 text-sm lg:text-base"
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Hủy
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Beautiful confirmation dialog */}
+          <ConfirmDialog
+            open={isOpen}
+            config={config}
+            onConfirm={handleConfirm}
+            onCancel={handleCancel}
+          />
+
+          {/* AI Expense Chat */}
+          <AIExpenseChat
+            isOpen={showAIChat}
+            onClose={() => setShowAIChat(false)}
+            onExpenseParsed={handleAIExpenseResult}
+            jars={jars}
+          />
+          <div />
         </div>
-      )}
-
-      {/* Beautiful confirmation dialog */}
-      <ConfirmDialog
-        open={isOpen}
-        config={config}
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
-      />
-
-      {/* AI Expense Chat */}
-      <AIExpenseChat
-        isOpen={showAIChat}
-        onClose={() => setShowAIChat(false)}
-        onExpenseParsed={handleAIExpenseResult}
-        jars={jars}
-      />
+      </div>
     </UserLayout>
   );
 }
