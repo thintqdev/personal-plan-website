@@ -79,18 +79,6 @@ const navigationItems = [
     icon: PiggyBank,
     description: "Theo dõi mục tiêu tiết kiệm",
   },
-  {
-    name: "Ghi chú",
-    href: "/notes",
-    icon: BookOpen,
-    description: "Ghi chú & tài liệu cá nhân",
-  },
-  {
-    name: "Nhật ký",
-    href: "/dairy",
-    icon: BookA,
-    description: "Nhật ký",
-  },
 ];
 
 const colorThemes = [
@@ -438,7 +426,25 @@ export default function UserLayout({
                       className="flex items-center gap-2 text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus:bg-gray-50 focus:text-gray-900"
                     >
                       <User className="w-4 h-4" />
-                      Quản lý tài khoản
+                      Quản lý
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/notes"
+                      className="flex items-center gap-2 text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus:bg-gray-50 focus:text-gray-900"
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      Ghi chú
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/dairy"
+                      className="flex items-center gap-2 text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus:bg-gray-50 focus:text-gray-900"
+                    >
+                      <BookA className="w-4 h-4" />
+                      Nhật ký
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>

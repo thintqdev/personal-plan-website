@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import LanguageLayout from "../../../layout";
 
 export default function VocabularyLessonPage() {
   const params = useParams();
@@ -32,6 +33,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "こんにちは",
           furigana: "こんにちは",
+          kanji: "",
           meaning: "Xin chào (ban ngày)",
           example: "こんにちは、田中さん。",
           exampleMeaning: "Xin chào, anh Tanaka.",
@@ -40,6 +42,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "こんばんは",
           furigana: "こんばんは",
+          kanji: "",
           meaning: "Xin chào (tối)",
           example: "こんばんは、おやすみなさい。",
           exampleMeaning: "Xin chào, chúc ngủ ngon.",
@@ -48,6 +51,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "おはよう",
           furigana: "おはよう",
+          kanji: "",
           meaning: "Chào buổi sáng",
           example: "おはようございます。",
           exampleMeaning: "Chào buổi sáng.",
@@ -56,6 +60,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "さようなら",
           furigana: "さようなら",
+          kanji: "",
           meaning: "Tạm biệt",
           example: "さようなら、また明日。",
           exampleMeaning: "Tạm biệt, hẹn gặp lại ngày mai.",
@@ -64,6 +69,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "ありがとう",
           furigana: "ありがとう",
+          kanji: "",
           meaning: "Cảm ơn",
           example: "プレゼント、ありがとうございます。",
           exampleMeaning: "Cảm ơn về món quà.",
@@ -83,6 +89,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "家族",
           furigana: "かぞく",
+          kanji: "家族",
           meaning: "Gia đình",
           example: "私の家族は4人です。",
           exampleMeaning: "Gia đình tôi có 4 người.",
@@ -91,6 +98,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "父",
           furigana: "ちち",
+          kanji: "父",
           meaning: "Cha",
           example: "父は会社員です。",
           exampleMeaning: "Cha tôi là nhân viên công ty.",
@@ -99,6 +107,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "母",
           furigana: "はは",
+          kanji: "母",
           meaning: "Mẹ",
           example: "母は料理が上手です。",
           exampleMeaning: "Mẹ tôi nấu ăn giỏi.",
@@ -107,6 +116,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "兄",
           furigana: "あに",
+          kanji: "兄",
           meaning: "Anh trai",
           example: "兄は大学生です。",
           exampleMeaning: "Anh trai tôi là sinh viên.",
@@ -115,6 +125,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "姉",
           furigana: "あね",
+          kanji: "姉",
           meaning: "Chị gái",
           example: "姉は看護師です。",
           exampleMeaning: "Chị gái tôi là y tá.",
@@ -134,6 +145,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "りんご",
           furigana: "りんご",
+          kanji: "",
           meaning: "Quả táo",
           example: "赤いりんごが好きです。",
           exampleMeaning: "Tôi thích táo đỏ.",
@@ -142,6 +154,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "みかん",
           furigana: "みかん",
+          kanji: "",
           meaning: "Quả cam",
           example: "みかんを食べます。",
           exampleMeaning: "Tôi ăn cam.",
@@ -150,6 +163,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "バナナ",
           furigana: "バナナ",
+          kanji: "",
           meaning: "Quả chuối",
           example: "バナナは甘いです。",
           exampleMeaning: "Chuối ngọt.",
@@ -158,6 +172,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "水",
           furigana: "みず",
+          kanji: "水",
           meaning: "Nước",
           example: "水を飲んでください。",
           exampleMeaning: "Hãy uống nước.",
@@ -166,6 +181,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "お茶",
           furigana: "おちゃ",
+          kanji: "茶",
           meaning: "Trà",
           example: "お茶を飲みます。",
           exampleMeaning: "Tôi uống trà.",
@@ -185,6 +201,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "今日",
           furigana: "きょう",
+          kanji: "今日",
           meaning: "Hôm nay",
           example: "今日はいい天気です。",
           exampleMeaning: "Hôm nay thời tiết tốt.",
@@ -193,6 +210,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "明日",
           furigana: "あした",
+          kanji: "明日",
           meaning: "Ngày mai",
           example: "明日は学校があります。",
           exampleMeaning: "Ngày mai có trường.",
@@ -201,6 +219,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "昨日",
           furigana: "きのう",
+          kanji: "昨日",
           meaning: "Hôm qua",
           example: "昨日は雨でした。",
           exampleMeaning: "Hôm qua trời mưa.",
@@ -209,6 +228,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "朝",
           furigana: "あさ",
+          kanji: "朝",
           meaning: "Buổi sáng",
           example: "朝ご飯を食べます。",
           exampleMeaning: "Tôi ăn sáng.",
@@ -217,6 +237,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "夜",
           furigana: "よる",
+          kanji: "夜",
           meaning: "Buổi tối",
           example: "夜は暗いです。",
           exampleMeaning: "Buổi tối tối.",
@@ -236,6 +257,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "テーブル",
           furigana: "テーブル",
+          kanji: "",
           meaning: "Cái bàn",
           example: "テーブルに本があります。",
           exampleMeaning: "Có sách trên bàn.",
@@ -244,6 +266,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "いす",
           furigana: "いす",
+          kanji: "",
           meaning: "Cái ghế",
           example: "いすに座ってください。",
           exampleMeaning: "Hãy ngồi trên ghế.",
@@ -252,6 +275,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "ベッド",
           furigana: "ベッド",
+          kanji: "",
           meaning: "Cái giường",
           example: "ベッドで寝ます。",
           exampleMeaning: "Tôi ngủ trên giường.",
@@ -260,6 +284,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "ドア",
           furigana: "ドア",
+          kanji: "",
           meaning: "Cửa",
           example: "ドアを開けてください。",
           exampleMeaning: "Hãy mở cửa.",
@@ -268,6 +293,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "窓",
           furigana: "まど",
+          kanji: "窓",
           meaning: "Cửa sổ",
           example: "窓から見えます。",
           exampleMeaning: "Có thể nhìn thấy từ cửa sổ.",
@@ -287,6 +313,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "先生",
           furigana: "せんせい",
+          kanji: "先生",
           meaning: "Giáo viên",
           example: "先生は親切です。",
           exampleMeaning: "Giáo viên rất thân thiện.",
@@ -295,6 +322,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "医者",
           furigana: "いしゃ",
+          kanji: "医者",
           meaning: "Bác sĩ",
           example: "医者になりたいです。",
           exampleMeaning: "Tôi muốn trở thành bác sĩ.",
@@ -303,6 +331,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "会社員",
           furigana: "かいしゃいん",
+          kanji: "会社員",
           meaning: "Nhân viên công ty",
           example: "会社員として働いています。",
           exampleMeaning: "Tôi làm việc như nhân viên công ty.",
@@ -311,6 +340,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "学生",
           furigana: "がくせい",
+          kanji: "学生",
           meaning: "Sinh viên",
           example: "私は学生です。",
           exampleMeaning: "Tôi là sinh viên.",
@@ -319,6 +349,7 @@ export default function VocabularyLessonPage() {
         {
           japanese: "料理人",
           furigana: "りょうりにん",
+          kanji: "料理人",
           meaning: "Đầu bếp",
           example: "料理人が作りました。",
           exampleMeaning: "Đầu bếp đã làm.",
@@ -333,14 +364,14 @@ export default function VocabularyLessonPage() {
 
   if (!currentLesson) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-rose-100 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-bold text-red-800 mb-4">
             Không tìm thấy bài học
           </h1>
           <Link
             href="/study/language/japanese/vocabulary"
-            className="text-blue-600 hover:text-blue-800"
+            className="text-red-600 hover:text-red-800"
           >
             Quay lại danh sách bài học
           </Link>
@@ -368,129 +399,193 @@ export default function VocabularyLessonPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+    <LanguageLayout
+      showBackButton={true}
+      backButtonHref="/study/language/japanese"
+      backButtonText="Quay lại"
+    >
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-rose-100">
+        {/* Header */}
+
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          {/* Progress and Actions */}
+          <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center space-x-4">
+              <div>
+                <h1 className="text-2xl font-bold text-red-800">
+                  {currentLesson.title}
+                </h1>
+                <p className="text-red-600">{currentLesson.description}</p>
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
               <Link
-                href="/study/language/japanese/vocabulary"
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+                href={`/study/language/japanese/vocabulary/${lessonId}/flashcard`}
+                className="px-6 py-3 bg-red-700 text-white rounded-lg hover:bg-red-800 transition-colors flex items-center space-x-2 font-medium"
               >
-                <ArrowLeft className="w-5 h-5" />
-                <span>Quay lại</span>
+                <RotateCcw className="w-5 h-5" />
+                <span>Flashcard</span>
               </Link>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <div className="text-sm text-gray-600">Từ vựng</div>
-                <div className="text-lg font-semibold text-blue-600">
-                  {currentLesson.vocabulary.length} từ
-                </div>
+          </div>
+
+          {/* Progress Bar */}
+          {currentLesson.progress > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between text-sm text-red-600 mb-2">
+                <span>Tiến độ bài học</span>
+                <span>{currentLesson.progress}%</span>
               </div>
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                <BookOpen className="w-8 h-8 text-blue-600" />
+              <div className="w-full bg-red-200 rounded-full h-3">
+                <div
+                  className="bg-red-500 h-3 rounded-full transition-all duration-300"
+                  style={{ width: `${currentLesson.progress}%` }}
+                ></div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
+          )}
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Progress and Actions */}
-        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center space-x-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {currentLesson.title}
-              </h1>
-              <p className="text-gray-600">{currentLesson.description}</p>
-            </div>
-          </div>
-
-          <div className="flex space-x-3">
-            <Link
-              href={`/study/language/japanese/vocabulary/${lessonId}/flashcard`}
-              className="px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center space-x-2 font-medium"
-            >
-              <RotateCcw className="w-5 h-5" />
-              <span>Flashcard</span>
-            </Link>
-            <button className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2 font-medium">
-              <Play className="w-5 h-5" />
-              <span>Bắt đầu học</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        {currentLesson.progress > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-              <span>Tiến độ bài học</span>
-              <span>{currentLesson.progress}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div
-                className="bg-blue-500 h-3 rounded-full transition-all duration-300"
-                style={{ width: `${currentLesson.progress}%` }}
-              ></div>
-            </div>
-          </div>
-        )}
-
-        {/* Vocabulary List - Simple List View */}
-        <div className="bg-white rounded-xl shadow-sm border p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">
-            Danh sách từ vựng
-          </h2>
-          <div className="space-y-4">
-            {currentLesson.vocabulary.map((word, index) => (
-              <div
-                key={index}
-                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
-                  index === currentWordIndex
-                    ? "bg-blue-50 border-blue-300 shadow-md"
-                    : "bg-gray-50 border-gray-200 hover:bg-gray-100"
-                }`}
-                onClick={() => setCurrentWordIndex(index)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-4">
-                      <div className="text-2xl font-bold text-gray-900">
+          {/* Vocabulary List - Responsive Card View */}
+          <div className="bg-white rounded-xl shadow-sm border p-6">
+            <h2 className="text-xl font-bold text-red-800 mb-6">
+              Danh sách từ vựng
+            </h2>
+            <div className="grid gap-4 md:hidden">
+              {/* Mobile View - Cards */}
+              {currentLesson.vocabulary.map((word, index) => (
+                <div
+                  key={index}
+                  className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
+                    index === currentWordIndex
+                      ? "bg-red-50 border-red-300 shadow-md"
+                      : "bg-gray-50 border-gray-200 hover:bg-red-50/30"
+                  }`}
+                  onClick={() => setCurrentWordIndex(index)}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="text-lg font-bold text-red-800">
                         {word.japanese}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      {word.kanji && word.kanji !== word.japanese && (
+                        <div className="text-xs text-red-500">{word.kanji}</div>
+                      )}
+                      <div className="text-sm text-red-500">
                         {word.furigana}
                       </div>
-                      <div className="text-lg font-semibold text-blue-600">
-                        {word.meaning}
-                      </div>
                     </div>
-                    <div className="mt-2 text-sm text-gray-600">
-                      <strong>Ví dụ:</strong> {word.example}
-                    </div>
-                    <div className="mt-1 text-sm text-gray-500 italic">
-                      {word.exampleMeaning}
-                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        playAudio(word.audio);
+                      }}
+                      className="p-1 text-red-400 hover:text-red-600 transition-colors"
+                    >
+                      <Volume2 className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      playAudio(word.audio);
-                    }}
-                    className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
-                  >
-                    <Volume2 className="w-5 h-5" />
-                  </button>
+
+                  <div className="text-base font-medium text-red-600 mb-2">
+                    {word.meaning}
+                  </div>
+
+                  <div className="text-sm text-red-700 mb-1">
+                    {word.example}
+                  </div>
+                  <div className="text-xs text-red-500 italic">
+                    {word.exampleMeaning}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            <div className="hidden md:block overflow-x-auto">
+              {/* Desktop View - Table */}
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-red-200">
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-red-700 w-16">
+                      #
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-red-700">
+                      Từ vựng
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-red-700">
+                      Phiên âm
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-red-700">
+                      Nghĩa
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-red-700">
+                      Ví dụ
+                    </th>
+                    <th className="text-center py-3 px-2 text-sm font-semibold text-red-700 w-16">
+                      Âm
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentLesson.vocabulary.map((word, index) => (
+                    <tr
+                      key={index}
+                      className={`border-b border-red-100 transition-colors duration-200 cursor-pointer ${
+                        index === currentWordIndex
+                          ? "bg-red-50"
+                          : "hover:bg-red-50/50"
+                      }`}
+                      onClick={() => setCurrentWordIndex(index)}
+                    >
+                      <td className="py-3 px-2 text-sm text-red-600 font-medium">
+                        {index + 1}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-lg font-bold text-red-800">
+                          {word.japanese}
+                        </div>
+                        {word.kanji && word.kanji !== word.japanese && (
+                          <div className="text-xs text-red-500 mt-1">
+                            {word.kanji}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm text-red-500">
+                          {word.furigana}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-base font-medium text-red-600">
+                          {word.meaning}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 max-w-xs">
+                        <div className="text-sm text-red-700">
+                          {word.example}
+                        </div>
+                        <div className="text-xs text-red-500 italic mt-1">
+                          {word.exampleMeaning}
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 text-center">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            playAudio(word.audio);
+                          }}
+                          className="p-1 text-red-400 hover:text-red-600 transition-colors"
+                        >
+                          <Volume2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </LanguageLayout>
   );
 }

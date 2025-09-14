@@ -1,14 +1,43 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import {
   ArrowLeft,
   BookOpen,
   CheckCircle,
+  ChevronDown,
   ChevronRight,
   Target,
   Sparkles,
 } from "lucide-react";
+import LanguageLayout from "../../layout";
 
 export default function JapaneseGrammarPage() {
+  const [openParts, setOpenParts] = useState<Set<number>>(new Set([0])); // Mở phần đầu tiên mặc định
+  const [openTopics, setOpenTopics] = useState<Set<string>>(new Set()); // "partIndex-topicIndex"
+
+  const togglePart = (partIndex: number) => {
+    const newOpenParts = new Set(openParts);
+    if (newOpenParts.has(partIndex)) {
+      newOpenParts.delete(partIndex);
+    } else {
+      newOpenParts.add(partIndex);
+    }
+    setOpenParts(newOpenParts);
+  };
+
+  const toggleTopic = (partIndex: number, topicIndex: number) => {
+    const topicKey = `${partIndex}-${topicIndex}`;
+    const newOpenTopics = new Set(openTopics);
+    if (newOpenTopics.has(topicKey)) {
+      newOpenTopics.delete(topicKey);
+    } else {
+      newOpenTopics.add(topicKey);
+    }
+    setOpenTopics(newOpenTopics);
+  };
+
   const grammarData = {
     parts: [
       {
@@ -345,220 +374,215 @@ export default function JapaneseGrammarPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      {/* Header */}
-      <div className="border-b border-blue-200/50 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link
-                href="/study/language/japanese"
-                className="flex items-center space-x-2 text-blue-600 hover:text-blue-900 transition-all duration-200 hover:scale-105"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span>Quay lại</span>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-900 to-indigo-900 bg-clip-text text-transparent">
-                  Ngữ Pháp Tiếng Nhật
-                </h1>
-                <p className="text-blue-600 text-sm">
-                  Học ngữ pháp theo từng phần và chủ đề
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="text-right">
-                <div className="text-sm text-blue-600">Tổng tiến độ</div>
-                <div className="text-lg font-bold text-blue-900">35%</div>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center shadow-sm">
-                <BookOpen className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
+    <LanguageLayout
+      showBackButton={true}
+      backButtonHref="/study/language/japanese"
+    >
+      {/* Progress Overview */}
+      <div className="mb-8 bg-white rounded-xl p-6 shadow-sm border border-red-100">
+        <div className="flex items-center space-x-2 mb-4">
+          <Target className="w-5 h-5 text-red-600" />
+          <h2 className="text-lg font-semibold text-red-900">
+            Tiến độ học tập
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-red-900">3</div>
+            <div className="text-sm text-red-600">Phần đã học</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">12</div>
+            <div className="text-sm text-red-600">Điểm ngữ pháp</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-purple-600">85%</div>
+            <div className="text-sm text-red-600">Độ chính xác</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-orange-600">4.2</div>
+            <div className="text-sm text-red-600">Điểm trung bình</div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        {/* Progress Overview */}
-        <div className="mb-8 bg-white rounded-xl p-6 shadow-sm border border-blue-100">
-          <div className="flex items-center space-x-2 mb-4">
-            <Target className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-semibold text-blue-900">
-              Tiến độ học tập
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-900">3</div>
-              <div className="text-sm text-blue-600">Phần đã học</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">12</div>
-              <div className="text-sm text-blue-600">Điểm ngữ pháp</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">85%</div>
-              <div className="text-sm text-blue-600">Độ chính xác</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">4.2</div>
-              <div className="text-sm text-blue-600">Điểm trung bình</div>
-            </div>
-          </div>
-          <div className="mt-4 pt-4 border-t border-blue-100">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-blue-600">Mục tiêu tháng này:</span>
-              <span className="font-semibold text-blue-900">
-                Hoàn thành 5 phần
-              </span>
-            </div>
-            <div className="mt-2 bg-blue-100 rounded-full h-2">
-              <div className="bg-blue-500 h-2 rounded-full w-3/5"></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Grammar Parts */}
-        <div className="space-y-8">
-          {grammarData.parts.map((part, partIndex) => (
+      {/* Grammar Parts - Accordion */}
+      <div className="space-y-4">
+        {grammarData.parts.map((part, partIndex) => {
+          const isPartOpen = openParts.has(partIndex);
+          return (
             <div
               key={partIndex}
-              className="bg-white rounded-xl shadow-sm border border-blue-100 overflow-hidden"
+              className="bg-white rounded-xl shadow-sm border border-red-100 overflow-hidden"
             >
-              {/* Part Header */}
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-bold">{partIndex + 1}</span>
+              {/* Part Header - Accordion Trigger */}
+              <button
+                onClick={() => togglePart(partIndex)}
+                className="w-full bg-gradient-to-r from-red-500 to-rose-500 text-white p-4 hover:from-red-600 hover:to-rose-600 transition-all duration-200"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                      <span className="text-xs font-bold">{partIndex + 1}</span>
+                    </div>
+                    <div className="text-left">
+                      <h2 className="text-lg font-bold">{part.name}</h2>
+                      <p className="text-red-100 text-xs">
+                        {part.topics.length} chủ đề
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold">{part.name}</h2>
-                    <p className="text-blue-100 text-sm">
-                      {part.topics.length} chủ đề
-                    </p>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-red-100">
+                      {part.topics.reduce(
+                        (total, topic) => total + topic.grammarPoints.length,
+                        0
+                      )}{" "}
+                      điểm ngữ pháp
+                    </span>
+                    {isPartOpen ? (
+                      <ChevronDown className="w-4 h-4 text-red-100" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4 text-red-100" />
+                    )}
                   </div>
                 </div>
-              </div>
+              </button>
 
-              {/* Topics */}
-              <div className="divide-y divide-blue-100">
-                {part.topics.map((topic, topicIndex) => (
-                  <div
-                    key={topicIndex}
-                    className="p-6 hover:bg-blue-50/50 transition-colors"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-bold text-blue-600">
-                            {topicIndex + 1}
-                          </span>
-                        </div>
-                        <h3 className="text-lg font-semibold text-blue-900">
-                          {topic.title}
-                        </h3>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-blue-600">
-                          {topic.grammarPoints.length} điểm ngữ pháp
-                        </span>
-                        <ChevronRight className="w-4 h-4 text-blue-400" />
-                      </div>
-                    </div>
-
-                    {/* Grammar Points Preview */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {topic.grammarPoints.map((point, pointIndex) => (
-                        <Link
-                          key={pointIndex}
-                          href={`/study/language/japanese/grammar/${
-                            partIndex + 1
-                          }-${topicIndex + 1}-${pointIndex + 1}`}
-                          className="group bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 hover:scale-[1.02]"
+              {/* Part Content - Accordion Panel */}
+              {isPartOpen && (
+                <div className="divide-y divide-red-100">
+                  {part.topics.map((topic, topicIndex) => {
+                    const topicKey = `${partIndex}-${topicIndex}`;
+                    const isTopicOpen = openTopics.has(topicKey);
+                    return (
+                      <div key={topicIndex} className="bg-red-50/30">
+                        {/* Topic Header - Accordion Trigger */}
+                        <button
+                          onClick={() => toggleTopic(partIndex, topicIndex)}
+                          className="w-full p-6 hover:bg-red-50/50 transition-colors text-left"
                         >
-                          <div className="flex items-center space-x-3 mb-3">
-                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                              <Sparkles className="w-4 h-4 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-semibold text-blue-900 text-sm mb-1">
-                                {point.structure}
-                              </div>
-                              <div className="text-xs text-blue-700 leading-relaxed">
-                                {point.usages[0]?.meaning}
-                              </div>
-                            </div>
-                          </div>
                           <div className="flex items-center justify-between">
-                            <div className="text-xs text-blue-600">
-                              {point.usages[0]?.examples.length} ví dụ
+                            <div className="flex items-center space-x-3">
+                              <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                                <span className="text-xs font-bold text-red-600">
+                                  {topicIndex + 1}
+                                </span>
+                              </div>
+                              <h3 className="text-lg font-semibold text-red-900">
+                                {topic.title}
+                              </h3>
                             </div>
-                            <div className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                              N
-                              {partIndex === 0
-                                ? "3"
-                                : partIndex === 1
-                                ? "4"
-                                : "5"}
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm text-red-600">
+                                {topic.grammarPoints.length} điểm ngữ pháp
+                              </span>
+                              {isTopicOpen ? (
+                                <ChevronDown className="w-4 h-4 text-red-400" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4 text-red-400" />
+                              )}
                             </div>
                           </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+                        </button>
 
-        {/* Quick Practice Section */}
-        <div className="mt-8 bg-white rounded-xl p-6 shadow-sm border border-blue-100">
-          <div className="flex items-center space-x-2 mb-6">
-            <Target className="w-5 h-5 text-orange-500" />
-            <h2 className="text-lg font-semibold text-blue-900">
-              Luyện tập nhanh
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="group p-4 border border-blue-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 hover:scale-[1.02] text-left">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                  <BookOpen className="w-5 h-5 text-blue-600" />
+                        {/* Topic Content - Accordion Panel */}
+                        {isTopicOpen && (
+                          <div className="px-6 pb-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                              {topic.grammarPoints.map((point, pointIndex) => (
+                                <Link
+                                  key={pointIndex}
+                                  href={`/study/language/japanese/grammar/${
+                                    partIndex + 1
+                                  }-${topicIndex + 1}-${pointIndex + 1}`}
+                                  className="group bg-gradient-to-r from-red-50 to-rose-50 rounded-lg p-4 border border-red-200 hover:border-red-300 hover:shadow-md transition-all duration-200 hover:scale-[1.02] block"
+                                >
+                                  <div className="flex items-center space-x-3 mb-3">
+                                    <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                                      <Sparkles className="w-4 h-4 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <div className="font-semibold text-red-900 text-sm mb-1">
+                                        {point.structure}
+                                      </div>
+                                      <div className="text-xs text-red-700 leading-relaxed">
+                                        {point.usages[0]?.meaning}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <div className="text-xs text-red-600">
+                                      {point.usages[0]?.examples.length} ví dụ
+                                    </div>
+                                    <div className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">
+                                      N
+                                      {partIndex === 0
+                                        ? "3"
+                                        : partIndex === 1
+                                        ? "4"
+                                        : "5"}
+                                    </div>
+                                  </div>
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="font-semibold text-blue-900">Điền khuyết</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Quick Practice Section */}
+      <div className="mt-8 bg-white rounded-xl p-6 shadow-sm border border-red-100">
+        <div className="flex items-center space-x-2 mb-6">
+          <Target className="w-5 h-5 text-red-500" />
+          <h2 className="text-lg font-semibold text-red-900">
+            Luyện tập nhanh
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button className="group p-4 border border-red-200 rounded-lg hover:border-red-300 hover:bg-red-50 transition-all duration-200 hover:scale-[1.02] text-left">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-rose-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                <BookOpen className="w-5 h-5 text-red-600" />
               </div>
-              <div className="text-sm text-blue-600 leading-relaxed">
-                Luyện tập ngữ pháp cơ bản với bài tập tương tác
+              <div className="font-semibold text-red-900">Điền khuyết</div>
+            </div>
+            <div className="text-sm text-red-600 leading-relaxed">
+              Luyện tập ngữ pháp cơ bản với bài tập tương tác
+            </div>
+          </button>
+          <button className="group p-4 border border-red-200 rounded-lg hover:border-red-300 hover:bg-red-50 transition-all duration-200 hover:scale-[1.02] text-left">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                <CheckCircle className="w-5 h-5 text-green-600" />
               </div>
-            </button>
-            <button className="group p-4 border border-blue-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 hover:scale-[1.02] text-left">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                </div>
-                <div className="font-semibold text-blue-900">Trắc nghiệm</div>
+              <div className="font-semibold text-red-900">Trắc nghiệm</div>
+            </div>
+            <div className="text-sm text-red-600 leading-relaxed">
+              Bài tập trắc nghiệm để kiểm tra kiến thức
+            </div>
+          </button>
+          <button className="group p-4 border border-red-200 rounded-lg hover:border-red-300 hover:bg-red-50 transition-all duration-200 hover:scale-[1.02] text-left">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-rose-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                <Sparkles className="w-5 h-5 text-red-600" />
               </div>
-              <div className="text-sm text-blue-600 leading-relaxed">
-                Bài tập trắc nghiệm để kiểm tra kiến thức
-              </div>
-            </button>
-            <button className="group p-4 border border-blue-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 hover:scale-[1.02] text-left">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                  <Sparkles className="w-5 h-5 text-purple-600" />
-                </div>
-                <div className="font-semibold text-blue-900">Flashcard</div>
-              </div>
-              <div className="text-sm text-blue-600 leading-relaxed">
-                Ôn tập từ vựng và cấu trúc ngữ pháp
-              </div>
-            </button>
-          </div>
+              <div className="font-semibold text-red-900">Flashcard</div>
+            </div>
+            <div className="text-sm text-red-600 leading-relaxed">
+              Ôn tập từ vựng và cấu trúc ngữ pháp
+            </div>
+          </button>
         </div>
       </div>
-    </div>
+    </LanguageLayout>
   );
 }

@@ -19,6 +19,7 @@ import {
   Quote,
   ListChecks,
   Wallet,
+  BookOpen,
 } from "lucide-react";
 
 const adminNav = [
@@ -51,6 +52,11 @@ const adminNav = [
     href: "/admin/tasks",
     label: "Nhiệm vụ",
     icon: <ListChecks className="w-4 h-4" />,
+  },
+  {
+    href: "/admin/study",
+    label: "Quản lý học tập",
+    icon: <BookOpen className="w-4 h-4" />,
   },
   {
     href: "/admin/quotes",
