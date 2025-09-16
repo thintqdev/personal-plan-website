@@ -1,11 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import { Table } from "@tiptap/extension-table";
-import { TableRow } from "@tiptap/extension-table-row";
-import { TableHeader } from "@tiptap/extension-table-header";
-import { TableCell } from "@tiptap/extension-table-cell";
 import UserLayout from "@/components/layouts/UserLayout";
 import {
   getNotesTree,
@@ -14,7 +8,6 @@ import {
   createNote,
   updateNote,
   deleteNote as deleteNoteAPI,
-  searchNotes,
   type NotesTree,
   type CreateNoteFolderRequest,
   type CreateNoteRequest,
@@ -568,6 +561,150 @@ const Eye = ({ className = "w-4 h-4" }) => (
   </svg>
 );
 
+const Link = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+    />
+  </svg>
+);
+
+const Undo = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+    />
+  </svg>
+);
+
+const Redo = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"
+    />
+  </svg>
+);
+
+const Heading1 = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+    />
+  </svg>
+);
+
+const Heading2 = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M7 7h.01M7 12h.01m4.598 0H12m0 0h.01M12 7h.01M7 17h.01M12 17h.01M17 7h.01M17 12h.01M17 17h.01"
+    />
+  </svg>
+);
+
+const PlusRow = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 4v16m8-8H4"
+    />
+  </svg>
+);
+
+const PlusCol = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M4 12h16m-8-8v16"
+    />
+  </svg>
+);
+
+const MinusRow = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M4 12h16"
+    />
+  </svg>
+);
+
+const MinusCol = ({ className = "w-4 h-4" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 4v16"
+    />
+  </svg>
+);
+
 // Helper function to extract plain text from HTML content
 const getPlainText = (html: string): string => {
   // Create a temporary div element to parse HTML
@@ -632,25 +769,162 @@ export default function NotesPage() {
     string | null
   >(null);
   const [editorMode, setEditorMode] = useState<"edit" | "preview">("edit");
+  const [editorRef, setEditorRef] = useState<any>(null);
 
-  // Initialize TipTap editor with SSR compatibility
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Table.configure({
-        resizable: true,
-      }),
-      TableRow,
-      TableHeader,
-      TableCell,
-    ],
-    content: editingNote.content,
-    immediatelyRender: false, // Fix for SSR hydration
-    onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      setEditingNote((prev) => ({ ...prev, content: html }));
-    },
-  });
+  // Simple formatting functions
+  const formatText = (command: string, value?: string) => {
+    document.execCommand(command, false, value);
+  };
+
+  const insertTable = () => {
+    const tableHTML = `
+      <table style="border-collapse: collapse; width: 100%; margin: 10px 0;" class="editable-table">
+        <tbody>
+          <tr>
+            <td style="border: 1px solid #ccc; padding: 8px; min-width: 100px;">Cell 1</td>
+            <td style="border: 1px solid #ccc; padding: 8px; min-width: 100px;">Cell 2</td>
+            <td style="border: 1px solid #ccc; padding: 8px; min-width: 100px;">Cell 3</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #ccc; padding: 8px; min-width: 100px;">Cell 4</td>
+            <td style="border: 1px solid #ccc; padding: 8px; min-width: 100px;">Cell 5</td>
+            <td style="border: 1px solid #ccc; padding: 8px; min-width: 100px;">Cell 6</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+    document.execCommand('insertHTML', false, tableHTML);
+  };
+
+  const insertLink = () => {
+    const url = prompt('Enter URL:');
+    if (url) {
+      document.execCommand('createLink', false, url);
+    }
+  };
+
+  // Table manipulation functions
+  const addTableRow = (position: 'above' | 'below') => {
+    const selection = window.getSelection();
+    if (!selection || !selection.rangeCount) return;
+
+    const range = selection.getRangeAt(0);
+    let cell = range.commonAncestorContainer;
+
+    // Find the table cell
+    while (cell && cell.nodeName !== 'TD' && cell.nodeName !== 'TH') {
+      cell = cell.parentNode as Element;
+    }
+
+    if (!cell) return;
+
+    const row = cell.parentNode as HTMLTableRowElement;
+    const table = row.parentNode as HTMLTableElement;
+    const tbody = table.querySelector('tbody') || table;
+    const newRow = document.createElement('tr');
+    const cellCount = row.cells.length;
+
+    for (let i = 0; i < cellCount; i++) {
+      const newCell = document.createElement('td');
+      newCell.style.border = '1px solid #ccc';
+      newCell.style.padding = '8px';
+      newCell.style.minWidth = '100px';
+      newCell.textContent = '';
+      newRow.appendChild(newCell);
+    }
+
+    if (position === 'above') {
+      tbody.insertBefore(newRow, row);
+    } else {
+      tbody.insertBefore(newRow, row.nextSibling);
+    }
+  };
+
+  const addTableColumn = (position: 'left' | 'right') => {
+    const selection = window.getSelection();
+    if (!selection || !selection.rangeCount) return;
+
+    const range = selection.getRangeAt(0);
+    let cell = range.commonAncestorContainer;
+
+    // Find the table cell
+    while (cell && cell.nodeName !== 'TD' && cell.nodeName !== 'TH') {
+      cell = cell.parentNode as Element;
+    }
+
+    if (!cell) return;
+
+    const row = cell.parentNode as HTMLTableRowElement;
+    const table = row.parentNode as HTMLTableElement;
+    const tbody = table.querySelector('tbody') || table;
+    const rows = tbody.querySelectorAll('tr');
+    const cellIndex = Array.from(row.cells).indexOf(cell as HTMLTableCellElement);
+
+    rows.forEach(row => {
+      const newCell = document.createElement('td');
+      newCell.style.border = '1px solid #ccc';
+      newCell.style.padding = '8px';
+      newCell.style.minWidth = '100px';
+      newCell.textContent = '';
+
+      if (position === 'left') {
+        row.insertBefore(newCell, row.cells[cellIndex]);
+      } else {
+        row.insertBefore(newCell, row.cells[cellIndex].nextSibling);
+      }
+    });
+  };
+
+  const deleteTableRow = () => {
+    const selection = window.getSelection();
+    if (!selection || !selection.rangeCount) return;
+
+    const range = selection.getRangeAt(0);
+    let cell = range.commonAncestorContainer;
+
+    // Find the table cell
+    while (cell && cell.nodeName !== 'TD' && cell.nodeName !== 'TH') {
+      cell = cell.parentNode as Element;
+    }
+
+    if (!cell) return;
+
+    const row = cell.parentNode as HTMLTableRowElement;
+    const table = row.parentNode as HTMLTableElement;
+    const tbody = table.querySelector('tbody') || table;
+
+    if (tbody.rows.length > 1) {
+      tbody.removeChild(row);
+    }
+  };
+
+  const deleteTableColumn = () => {
+    const selection = window.getSelection();
+    if (!selection || !selection.rangeCount) return;
+
+    const range = selection.getRangeAt(0);
+    let cell = range.commonAncestorContainer;
+
+    // Find the table cell
+    while (cell && cell.nodeName !== 'TD' && cell.nodeName !== 'TH') {
+      cell = cell.parentNode as Element;
+    }
+
+    if (!cell) return;
+
+    const row = cell.parentNode as HTMLTableRowElement;
+    const table = row.parentNode as HTMLTableElement;
+    const tbody = table.querySelector('tbody') || table;
+    const rows = tbody.querySelectorAll('tr');
+    const cellIndex = Array.from(row.cells).indexOf(cell as HTMLTableCellElement);
+
+    // Check if this is the last column
+    if (row.cells.length > 1) {
+      rows.forEach(row => {
+        row.removeChild(row.cells[cellIndex]);
+      });
+    }
+  };
 
   // Hydration fix: move all random/date logic to useEffect or event handlers
   useEffect(() => {
@@ -677,10 +951,8 @@ export default function NotesPage() {
 
   // Update editor content when editingNote changes
   useEffect(() => {
-    if (editor && editingNote.content !== editor.getHTML()) {
-      editor.commands.setContent(editingNote.content);
-    }
-  }, [editor, editingNote.content]);
+    // React Quill handles content updates automatically
+  }, [editingNote.content]);
 
   // Stats
   const totalFolders = notesTree.length;
@@ -1240,109 +1512,81 @@ export default function NotesPage() {
 
                 {editorMode === "edit" && (
                   <div className="space-y-2">
-                    {/* Enhanced Toolbar */}
-                    {editor && (
-                      <div className="flex flex-wrap gap-1 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                    {/* Simple Rich Text Editor */}
+                    <div className="relative border border-gray-300 rounded-lg overflow-hidden">
+                      {/* Toolbar */}
+                      <div className="flex flex-wrap gap-1 p-2 bg-gray-50 border-b border-gray-200">
                         <button
                           type="button"
-                          onClick={() =>
-                            editor?.chain().focus().toggleBold().run()
-                          }
-                          className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-                            editor?.isActive("bold") ? "bg-gray-300" : ""
-                          }`}
+                          onClick={() => formatText("undo")}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
+                          title="Undo"
+                        >
+                          <Undo className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => formatText("redo")}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
+                          title="Redo"
+                        >
+                          <Redo className="w-4 h-4" />
+                        </button>
+                        <div className="w-px h-6 bg-gray-300 mx-1" />
+                        <button
+                          type="button"
+                          onClick={() => formatText("bold")}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
                           title="Bold"
                         >
                           <Bold className="w-4 h-4" />
                         </button>
                         <button
                           type="button"
-                          onClick={() =>
-                            editor?.chain().focus().toggleItalic().run()
-                          }
-                          className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-                            editor?.isActive("italic") ? "bg-gray-300" : ""
-                          }`}
+                          onClick={() => formatText("italic")}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
                           title="Italic"
                         >
                           <Italic className="w-4 h-4" />
                         </button>
+                        <button
+                          type="button"
+                          onClick={() => formatText("underline")}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
+                          title="Underline"
+                        >
+                          <span className="font-bold text-sm">U</span>
+                        </button>
                         <div className="w-px h-6 bg-gray-300 mx-1" />
                         <button
                           type="button"
-                          onClick={() =>
-                            editor
-                              ?.chain()
-                              .focus()
-                              .toggleHeading({ level: 1 })
-                              .run()
-                          }
-                          className={`px-3 py-1 rounded text-sm font-bold hover:bg-gray-200 transition-colors ${
-                            editor?.isActive("heading", { level: 1 })
-                              ? "bg-gray-300"
-                              : ""
-                          }`}
+                          onClick={() => formatText("formatBlock", "h1")}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
                           title="Heading 1"
                         >
-                          H1
+                          <Heading1 className="w-4 h-4" />
                         </button>
                         <button
                           type="button"
-                          onClick={() =>
-                            editor
-                              ?.chain()
-                              .focus()
-                              .toggleHeading({ level: 2 })
-                              .run()
-                          }
-                          className={`px-3 py-1 rounded text-sm font-bold hover:bg-gray-200 transition-colors ${
-                            editor?.isActive("heading", { level: 2 })
-                              ? "bg-gray-300"
-                              : ""
-                          }`}
+                          onClick={() => formatText("formatBlock", "h2")}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
                           title="Heading 2"
                         >
-                          H2
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            editor
-                              ?.chain()
-                              .focus()
-                              .toggleHeading({ level: 3 })
-                              .run()
-                          }
-                          className={`px-3 py-1 rounded text-sm font-bold hover:bg-gray-200 transition-colors ${
-                            editor?.isActive("heading", { level: 3 })
-                              ? "bg-gray-300"
-                              : ""
-                          }`}
-                          title="Heading 3"
-                        >
-                          H3
+                          <Heading2 className="w-4 h-4" />
                         </button>
                         <div className="w-px h-6 bg-gray-300 mx-1" />
                         <button
                           type="button"
-                          onClick={() =>
-                            editor?.chain().focus().toggleBulletList().run()
-                          }
-                          className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-                            editor?.isActive("bulletList") ? "bg-gray-300" : ""
-                          }`}
+                          onClick={() => formatText("insertUnorderedList")}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
                           title="Bullet List"
                         >
                           <List className="w-4 h-4" />
                         </button>
                         <button
                           type="button"
-                          onClick={() =>
-                            editor?.chain().focus().toggleOrderedList().run()
-                          }
-                          className={`px-3 py-1 rounded text-sm hover:bg-gray-200 transition-colors ${
-                            editor?.isActive("orderedList") ? "bg-gray-300" : ""
-                          }`}
+                          onClick={() => formatText("insertOrderedList")}
+                          className="px-3 py-1 rounded text-sm hover:bg-gray-200 transition-colors"
                           title="Numbered List"
                         >
                           1.
@@ -1350,17 +1594,7 @@ export default function NotesPage() {
                         <div className="w-px h-6 bg-gray-300 mx-1" />
                         <button
                           type="button"
-                          onClick={() =>
-                            editor
-                              ?.chain()
-                              .focus()
-                              .insertTable({
-                                rows: 3,
-                                cols: 3,
-                                withHeaderRow: true,
-                              })
-                              .run()
-                          }
+                          onClick={() => insertTable()}
                           className="p-2 rounded hover:bg-gray-200 transition-colors"
                           title="Insert Table"
                         >
@@ -1368,32 +1602,101 @@ export default function NotesPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() =>
-                            editor?.chain().focus().toggleCodeBlock().run()
-                          }
-                          className={`px-3 py-1 rounded text-xs font-mono hover:bg-gray-200 transition-colors ${
-                            editor?.isActive("codeBlock") ? "bg-gray-300" : ""
-                          }`}
-                          title="Code Block"
+                          onClick={() => addTableRow('above')}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
+                          title="Add Row Above"
                         >
-                          {"{}"}
+                          <PlusRow className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => addTableRow('below')}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
+                          title="Add Row Below"
+                        >
+                          <PlusRow className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => addTableColumn('left')}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
+                          title="Add Column Left"
+                        >
+                          <PlusCol className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => addTableColumn('right')}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
+                          title="Add Column Right"
+                        >
+                          <PlusCol className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteTableRow()}
+                          className="p-2 rounded hover:bg-red-200 transition-colors"
+                          title="Delete Row"
+                        >
+                          <MinusRow className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteTableColumn()}
+                          className="p-2 rounded hover:bg-red-200 transition-colors"
+                          title="Delete Column"
+                        >
+                          <MinusCol className="w-4 h-4" />
+                        </button>
+                        <div className="w-px h-6 bg-gray-300 mx-1" />
+                        <button
+                          type="button"
+                          onClick={() => insertLink()}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
+                          title="Insert Link"
+                        >
+                          <Link className="w-4 h-4" />
+                        </button>
+                        <div className="w-px h-6 bg-gray-300 mx-1" />
+                        <button
+                          type="button"
+                          onClick={() => formatText("justifyLeft")}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
+                          title="Align Left"
+                        >
+                          <span className="text-sm">⬅</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => formatText("justifyCenter")}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
+                          title="Align Center"
+                        >
+                          <span className="text-sm">⬌</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => formatText("justifyRight")}
+                          className="p-2 rounded hover:bg-gray-200 transition-colors"
+                          title="Align Right"
+                        >
+                          <span className="text-sm">➡</span>
                         </button>
                       </div>
-                    )}
 
-                    {/* Enhanced Editor */}
-                    {editor ? (
-                      <div className="relative border border-gray-300 rounded-lg overflow-hidden">
-                        <EditorContent
-                          editor={editor}
-                          className="prose prose-sm max-w-none p-3 min-h-[200px] focus-within:ring-2 focus-within:ring-pink-500 [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[180px] [&_table]:border-collapse [&_table]:table [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-50 [&_th]:font-bold"
-                        />
-                      </div>
-                    ) : (
-                      <div className="border border-gray-300 rounded-lg p-3 min-h-[200px] bg-gray-50 flex items-center justify-center">
-                        <div className="text-gray-500">Loading editor...</div>
-                      </div>
-                    )}
+                      {/* Editor */}
+                      <div
+                        contentEditable
+                        className="min-h-[300px] p-4 focus:outline-none prose prose-sm max-w-none"
+                        onInput={(e) => {
+                          const content = e.currentTarget.innerHTML;
+                          setEditingNote((prev) => ({ ...prev, content }));
+                        }}
+                        dangerouslySetInnerHTML={{
+                          __html: editingNote.content,
+                        }}
+                      />
+                    </div>
                   </div>
                 )}
 
@@ -1401,7 +1704,7 @@ export default function NotesPage() {
                   <div className="border border-gray-300 rounded-lg p-3 h-48 overflow-y-auto bg-gray-50">
                     {editingNote.content ? (
                       <div
-                        className="prose prose-sm max-w-none [&_table]:border-collapse [&_table]:table [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-50 [&_th]:font-bold"
+                        className="prose prose-sm max-w-none [&_table]:border-collapse [&_table]:table [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-50 [&_th]:font-bold"
                         dangerouslySetInnerHTML={{
                           __html: editingNote.content,
                         }}
@@ -1415,8 +1718,7 @@ export default function NotesPage() {
                 )}
 
                 <div className="text-xs text-gray-500 mt-2">
-                  <strong>Rich Text Features:</strong> Bold, Italic, Headers,
-                  Lists, Tables, Code blocks
+                  <strong>Rich Text Features:</strong> Undo/Redo, Bold, Italic, Underline, Headings, Lists, Tables (insert/add/delete rows/columns), Links, Text alignment
                 </div>
               </div>
             </div>
@@ -1530,7 +1832,7 @@ export default function NotesPage() {
                 </span>
               </div>
               <div
-                className="prose prose-sm max-w-none [&_table]:border-collapse [&_table]:table [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-50 [&_th]:font-bold"
+                className="prose prose-sm max-w-none [&_table]:border-collapse [&_table]:table [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-50 [&_th]:font-bold"
                 dangerouslySetInnerHTML={{
                   __html: selectedNote.content,
                 }}
