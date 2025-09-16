@@ -59,22 +59,14 @@ export const EXPENSE_CATEGORIES = [
   { value: "Đồ gia dụng", label: "🏡 Đồ gia dụng", group: "Home & Living" },
   { value: "Sửa chữa", label: "🔧 Sửa chữa", group: "Home & Living" },
   { value: "Điện nước", label: "⚡ Điện nước", group: "Home & Living" },
-  {
-    value: "Internet (Nhà)",
-    label: "🌐 Internet (Nhà)",
-    group: "Home & Living",
-  },
+
 
   // Bills & Utilities
   { value: "Tiền điện", label: "⚡ Tiền điện", group: "Bills & Utilities" },
   { value: "Tiền nước", label: "💧 Tiền nước", group: "Bills & Utilities" },
   { value: "Tiền gas", label: "🔥 Tiền gas", group: "Bills & Utilities" },
   { value: "Điện thoại", label: "📱 Điện thoại", group: "Bills & Utilities" },
-  {
-    value: "Internet (Hóa đơn)",
-    label: "🌐 Internet (Hóa đơn)",
-    group: "Bills & Utilities",
-  },
+  { value: "Internet/Wifi", label: "🌐 Internet/Wifi", group: "Bills & Utilities" },
 
   // Personal & Family
   { value: "Gia đình", label: "👨‍👩‍👧‍👦 Gia đình", group: "Personal & Family" },
