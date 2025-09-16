@@ -793,18 +793,18 @@ export default function NotesPage() {
         </tbody>
       </table>
     `;
-    document.execCommand('insertHTML', false, tableHTML);
+    document.execCommand("insertHTML", false, tableHTML);
   };
 
   const insertLink = () => {
-    const url = prompt('Enter URL:');
+    const url = prompt("Enter URL:");
     if (url) {
-      document.execCommand('createLink', false, url);
+      document.execCommand("createLink", false, url);
     }
   };
 
   // Table manipulation functions
-  const addTableRow = (position: 'above' | 'below') => {
+  const addTableRow = (position: "above" | "below") => {
     const selection = window.getSelection();
     if (!selection || !selection.rangeCount) return;
 
@@ -812,7 +812,7 @@ export default function NotesPage() {
     let cell = range.commonAncestorContainer;
 
     // Find the table cell
-    while (cell && cell.nodeName !== 'TD' && cell.nodeName !== 'TH') {
+    while (cell && cell.nodeName !== "TD" && cell.nodeName !== "TH") {
       cell = cell.parentNode as Element;
     }
 
@@ -820,27 +820,27 @@ export default function NotesPage() {
 
     const row = cell.parentNode as HTMLTableRowElement;
     const table = row.parentNode as HTMLTableElement;
-    const tbody = table.querySelector('tbody') || table;
-    const newRow = document.createElement('tr');
+    const tbody = table.querySelector("tbody") || table;
+    const newRow = document.createElement("tr");
     const cellCount = row.cells.length;
 
     for (let i = 0; i < cellCount; i++) {
-      const newCell = document.createElement('td');
-      newCell.style.border = '1px solid #ccc';
-      newCell.style.padding = '8px';
-      newCell.style.minWidth = '100px';
-      newCell.textContent = '';
+      const newCell = document.createElement("td");
+      newCell.style.border = "1px solid #ccc";
+      newCell.style.padding = "8px";
+      newCell.style.minWidth = "100px";
+      newCell.textContent = "";
       newRow.appendChild(newCell);
     }
 
-    if (position === 'above') {
+    if (position === "above") {
       tbody.insertBefore(newRow, row);
     } else {
       tbody.insertBefore(newRow, row.nextSibling);
     }
   };
 
-  const addTableColumn = (position: 'left' | 'right') => {
+  const addTableColumn = (position: "left" | "right") => {
     const selection = window.getSelection();
     if (!selection || !selection.rangeCount) return;
 
@@ -848,7 +848,7 @@ export default function NotesPage() {
     let cell = range.commonAncestorContainer;
 
     // Find the table cell
-    while (cell && cell.nodeName !== 'TD' && cell.nodeName !== 'TH') {
+    while (cell && cell.nodeName !== "TD" && cell.nodeName !== "TH") {
       cell = cell.parentNode as Element;
     }
 
@@ -856,18 +856,20 @@ export default function NotesPage() {
 
     const row = cell.parentNode as HTMLTableRowElement;
     const table = row.parentNode as HTMLTableElement;
-    const tbody = table.querySelector('tbody') || table;
-    const rows = tbody.querySelectorAll('tr');
-    const cellIndex = Array.from(row.cells).indexOf(cell as HTMLTableCellElement);
+    const tbody = table.querySelector("tbody") || table;
+    const rows = tbody.querySelectorAll("tr");
+    const cellIndex = Array.from(row.cells).indexOf(
+      cell as HTMLTableCellElement
+    );
 
-    rows.forEach(row => {
-      const newCell = document.createElement('td');
-      newCell.style.border = '1px solid #ccc';
-      newCell.style.padding = '8px';
-      newCell.style.minWidth = '100px';
-      newCell.textContent = '';
+    rows.forEach((row) => {
+      const newCell = document.createElement("td");
+      newCell.style.border = "1px solid #ccc";
+      newCell.style.padding = "8px";
+      newCell.style.minWidth = "100px";
+      newCell.textContent = "";
 
-      if (position === 'left') {
+      if (position === "left") {
         row.insertBefore(newCell, row.cells[cellIndex]);
       } else {
         row.insertBefore(newCell, row.cells[cellIndex].nextSibling);
@@ -883,7 +885,7 @@ export default function NotesPage() {
     let cell = range.commonAncestorContainer;
 
     // Find the table cell
-    while (cell && cell.nodeName !== 'TD' && cell.nodeName !== 'TH') {
+    while (cell && cell.nodeName !== "TD" && cell.nodeName !== "TH") {
       cell = cell.parentNode as Element;
     }
 
@@ -891,7 +893,7 @@ export default function NotesPage() {
 
     const row = cell.parentNode as HTMLTableRowElement;
     const table = row.parentNode as HTMLTableElement;
-    const tbody = table.querySelector('tbody') || table;
+    const tbody = table.querySelector("tbody") || table;
 
     if (tbody.rows.length > 1) {
       tbody.removeChild(row);
@@ -906,7 +908,7 @@ export default function NotesPage() {
     let cell = range.commonAncestorContainer;
 
     // Find the table cell
-    while (cell && cell.nodeName !== 'TD' && cell.nodeName !== 'TH') {
+    while (cell && cell.nodeName !== "TD" && cell.nodeName !== "TH") {
       cell = cell.parentNode as Element;
     }
 
@@ -914,13 +916,15 @@ export default function NotesPage() {
 
     const row = cell.parentNode as HTMLTableRowElement;
     const table = row.parentNode as HTMLTableElement;
-    const tbody = table.querySelector('tbody') || table;
-    const rows = tbody.querySelectorAll('tr');
-    const cellIndex = Array.from(row.cells).indexOf(cell as HTMLTableCellElement);
+    const tbody = table.querySelector("tbody") || table;
+    const rows = tbody.querySelectorAll("tr");
+    const cellIndex = Array.from(row.cells).indexOf(
+      cell as HTMLTableCellElement
+    );
 
     // Check if this is the last column
     if (row.cells.length > 1) {
-      rows.forEach(row => {
+      rows.forEach((row) => {
         row.removeChild(row.cells[cellIndex]);
       });
     }
@@ -1602,7 +1606,7 @@ export default function NotesPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => addTableRow('above')}
+                          onClick={() => addTableRow("above")}
                           className="p-2 rounded hover:bg-gray-200 transition-colors"
                           title="Add Row Above"
                         >
@@ -1610,7 +1614,7 @@ export default function NotesPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => addTableRow('below')}
+                          onClick={() => addTableRow("below")}
                           className="p-2 rounded hover:bg-gray-200 transition-colors"
                           title="Add Row Below"
                         >
@@ -1618,7 +1622,7 @@ export default function NotesPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => addTableColumn('left')}
+                          onClick={() => addTableColumn("left")}
                           className="p-2 rounded hover:bg-gray-200 transition-colors"
                           title="Add Column Left"
                         >
@@ -1626,7 +1630,7 @@ export default function NotesPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => addTableColumn('right')}
+                          onClick={() => addTableColumn("right")}
                           className="p-2 rounded hover:bg-gray-200 transition-colors"
                           title="Add Column Right"
                         >
@@ -1718,7 +1722,9 @@ export default function NotesPage() {
                 )}
 
                 <div className="text-xs text-gray-500 mt-2">
-                  <strong>Rich Text Features:</strong> Undo/Redo, Bold, Italic, Underline, Headings, Lists, Tables (insert/add/delete rows/columns), Links, Text alignment
+                  <strong>Rich Text Features:</strong> Undo/Redo, Bold, Italic,
+                  Underline, Headings, Lists, Tables (insert/add/delete
+                  rows/columns), Links, Text alignment
                 </div>
               </div>
             </div>
