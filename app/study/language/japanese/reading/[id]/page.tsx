@@ -41,7 +41,7 @@ export default function JapaneseReadingDetailPage({
   const [activeTab, setActiveTab] = useState<TabType>("exercise");
   const [showAddVocabularyModal, setShowAddVocabularyModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [editingWord, setEditingWord] = useState(null);
+  const [editingWord, setEditingWord] = useState<number | null>(null);
   const [vocabularyList, setVocabularyList] = useState([
     {
       id: 1,
