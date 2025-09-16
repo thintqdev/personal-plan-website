@@ -185,7 +185,27 @@ export default function StudyDashboard() {
                 Tiếp Tục Học
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Link
+                  href="/study/daily"
+                  className="group p-4 border border-gray-200 rounded-xl hover:border-red-300 hover:bg-red-50 transition-all duration-200"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-red-200 transition-colors">
+                      <span className="text-xl">🇯🇵</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">
+                        JLPT Hàng Ngày
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Bài học JLPT với AI
+                      </p>
+                      <p className="text-xs text-red-600 mt-1">Học ngay →</p>
+                    </div>
+                  </div>
+                </Link>
+
                 <Link
                   href="/study/language"
                   className="group p-4 border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
@@ -390,6 +410,16 @@ export default function StudyDashboard() {
               </h3>
 
               <div className="space-y-3">
+                <Link
+                  href="/study/daily"
+                  className="flex items-center justify-between p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                >
+                  <span className="text-sm font-medium text-gray-900">
+                    JLPT Hàng Ngày
+                  </span>
+                  <span className="text-red-600">→</span>
+                </Link>
+
                 <Link
                   href="/study/language"
                   className="flex items-center justify-between p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"

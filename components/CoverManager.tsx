@@ -66,7 +66,7 @@ export default function CoverManager() {
       setIsLoading(true);
       const [coversData, activeCoverData, suggestionsData] = await Promise.all([
         getUserCovers(),
-        getActiveCover().catch(() => null), // Don't throw if no active cover exists
+        getActiveCover(),
         getCoverSuggestions(),
       ]);
 

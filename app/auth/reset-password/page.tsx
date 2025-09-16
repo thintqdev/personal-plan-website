@@ -102,7 +102,7 @@ function Content() {
   if (status === "success") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md pt-6">
           <CardHeader className="text-center">
             <div className="mx-auto flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
               <CheckCircle className="h-8 w-8 text-green-600" />
@@ -137,7 +137,7 @@ function Content() {
   if (status === "invalid-token") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md pt-6">
           <CardHeader className="text-center">
             <div className="mx-auto flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
               <AlertCircle className="h-8 w-8 text-red-600" />
@@ -180,7 +180,7 @@ function Content() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md pt-6">
         <CardHeader className="text-center">
           <div className="mx-auto flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
             <Lock className="h-8 w-8 text-blue-600" />

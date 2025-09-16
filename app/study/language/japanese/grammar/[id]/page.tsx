@@ -2,19 +2,8 @@
 
 import Link from "next/link";
 import { use } from "react";
-import {
-  ArrowLeft,
-  BookOpen,
-  CheckCircle,
-  ChevronRight,
-  Play,
-  Star,
-  Target,
-  Lightbulb,
-  MessageSquare,
-  Trophy,
-  Sparkles,
-} from "lucide-react";
+import { ArrowLeft, ChevronRight, Sparkles } from "lucide-react";
+import LanguageLayout from "../../../layout";
 
 export default function GrammarDetailPage({
   params,
@@ -22,642 +11,649 @@ export default function GrammarDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const resolvedParams = use(params);
-  const grammarId = parseInt(resolvedParams.id);
+  const grammarId = resolvedParams.id; // Format: "part-topic-point" like "1-1-1"
+
+  // Parse the ID to get part, topic, and point indices
+  const [partIndex, topicIndex, pointIndex] = grammarId
+    .split("-")
+    .map((id) => parseInt(id) - 1);
 
   // Mock data for grammar lessons - in real app this would come from API/database
-  const grammarLessons = {
-    1: {
-      id: 1,
-      title: "〜ている (Đang làm gì)",
-      description: "Diễn đạt hành động đang diễn ra hoặc trạng thái liên tục",
-      progress: 85,
-      completed: true,
-      content: {
-        introduction:
-          "〜ている là cấu trúc ngữ pháp quan trọng trong tiếng Nhật N3, dùng để diễn đạt hành động đang diễn ra hoặc trạng thái liên tục.",
-        structure: "Động từ thể て + いる",
-        examples: [
+  const grammarData = {
+    parts: [
+      {
+        name: "Phần I: Ngữ pháp trong câu",
+        topics: [
           {
-            japanese: "今、勉強しています。",
-            vietnamese: "Bây giờ tôi đang học.",
-          },
-          {
-            japanese: "雨が降っています。",
-            vietnamese: "Mưa đang rơi.",
-          },
-          {
-            japanese: "結婚しています。",
-            vietnamese: "Đã kết hôn. (trạng thái)",
-          },
-        ],
-        grammarPoints: [
-          {
-            title: "Hành động đang diễn ra",
-            usage: "Diễn đạt hành động đang xảy ra tại thời điểm nói",
-            meaning: "Chỉ hành động đang tiếp tục diễn ra",
-            examples: [
-              { jp: "食べています", vn: "đang ăn" },
-              { jp: "話しています", vn: "đang nói" },
-              { jp: "走っています", vn: "đang chạy" },
+            title: "Liên kết câu",
+            grammarPoints: [
+              {
+                structure: "～うちに",
+                combinations: [
+                  "Nの + うちに",
+                  "Vる + うちに",
+                  "Vている + うちに",
+                  "Aい + うちに",
+                  "Aな + うちに",
+                ],
+                usages: [
+                  {
+                    meaning:
+                      "Trong khi còn (trạng thái/khoảng thời gian) thì làm ~ trước khi thay đổi.",
+                    examples: [
+                      {
+                        jp: "日本にいるうちに、一度富士山に登りたい。",
+                        vi: "Trong khi còn ở Nhật, tôi muốn leo núi Phú Sĩ một lần.",
+                      },
+                      {
+                        jp: "若いうちに勉強しておいたほうがいい。",
+                        vi: "Trong khi còn trẻ nên học trước thì tốt hơn.",
+                      },
+                    ],
+                  },
+                  {
+                    meaning:
+                      "Trong khi đang ~ thì (tự nhiên) xảy ra sự thay đổi.",
+                    examples: [
+                      {
+                        jp: "話しているうちに、時間があっという間に過ぎた。",
+                        vi: "Trong lúc đang nói chuyện thì thời gian trôi qua lúc nào không hay.",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                structure: "～間に",
+                combinations: ["Nの + 間に", "Vている + 間に"],
+                usages: [
+                  {
+                    meaning:
+                      "Trong khoảng (kéo dài), một hành động ngắn xảy ra.",
+                    examples: [
+                      {
+                        jp: "お母さんが昼寝している間に、子どもたちは外で遊んだ。",
+                        vi: "Trong lúc mẹ ngủ trưa, bọn trẻ chơi ở ngoài.",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                structure: "～ながら",
+                combinations: ["Vている + ながら"],
+                usages: [
+                  {
+                    meaning: "Trong khi ~ (đồng thời)",
+                    examples: [
+                      {
+                        jp: "音楽を聞きながら、勉強する。",
+                        vi: "Học trong khi nghe nhạc.",
+                      },
+                      {
+                        jp: "歩きながら、電話をする。",
+                        vi: "Đi bộ trong khi nói điện thoại.",
+                      },
+                      {
+                        jp: "コーヒーを飲みながら、話す。",
+                        vi: "Nói chuyện trong khi uống cà phê.",
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
           },
           {
-            title: "Trạng thái liên tục",
-            usage: "Diễn đạt trạng thái đang tồn tại",
-            meaning: "Chỉ tình trạng đang tiếp diễn",
-            examples: [
-              { jp: "病気です", vn: "đang ốm" },
-              { jp: "結婚しています", vn: "đã kết hôn" },
-              { jp: "住んでいます", vn: "đang sống" },
-            ],
-          },
-          {
-            title: "Kết hợp với thời gian",
-            usage: "〜ている + 時間/日/年",
-            meaning: "Diễn đạt khoảng thời gian đã trôi qua",
-            examples: [
-              { jp: "3時間待っています", vn: "đã đợi 3 tiếng" },
-              { jp: "5年住んでいます", vn: "đã sống 5 năm" },
-            ],
-          },
-        ],
-      },
-    },
-    2: {
-      id: 2,
-      title: "〜たい (Muốn làm gì)",
-      description: "Diễn đạt mong muốn, nguyện vọng cá nhân",
-      progress: 70,
-      completed: false,
-      content: {
-        introduction:
-          "〜たい dùng để diễn đạt mong muốn, nguyện vọng của bản thân. Chỉ có thể dùng với chủ ngữ là người thứ nhất (tôi).",
-        structure: "Động từ thể ます (bỏ ます) + たい",
-        examples: [
-          {
-            japanese: "日本へ行きたいです。",
-            vietnamese: "Tôi muốn đi Nhật Bản.",
-          },
-          {
-            japanese: "寿司を食べたい。",
-            vietnamese: "Tôi muốn ăn sushi.",
-          },
-          {
-            japanese: "早く寝たいです。",
-            vietnamese: "Tôi muốn ngủ sớm.",
-          },
-        ],
-        grammarPoints: [
-          {
-            title: "Mong muốn hiện tại",
-            usage: "Diễn đạt mong muốn tại thời điểm nói",
-            meaning: "Thể hiện nguyện vọng, ham muốn",
-            examples: [
-              { jp: "見たい", vn: "muốn xem" },
-              { jp: "買いたい", vn: "muốn mua" },
-              { jp: "会いたい", vn: "muốn gặp" },
-            ],
-          },
-          {
-            title: "Kết hợp với 〜と思います",
-            usage: "〜たいと思います",
-            meaning: "Diễn đạt suy nghĩ về mong muốn của người khác",
-            examples: [
-              { jp: "食べたいと思います", vn: "có lẽ muốn ăn" },
-              { jp: "行きたいと思います", vn: "có lẽ muốn đi" },
-            ],
-          },
-          {
-            title: "Phủ định với 〜くない",
-            usage: "〜たくない",
-            meaning: "Không muốn làm gì",
-            examples: [
-              { jp: "行きたくない", vn: "không muốn đi" },
-              { jp: "食べたくない", vn: "không muốn ăn" },
-            ],
-          },
-        ],
-      },
-    },
-    3: {
-      id: 3,
-      title: "〜ことができる (Có thể làm gì)",
-      description: "Diễn đạt khả năng, kỹ năng hoặc khả năng thực hiện",
-      progress: 60,
-      completed: false,
-      content: {
-        introduction:
-          "〜ことができる diễn đạt khả năng làm được điều gì đó, có kỹ năng hoặc có khả năng thực hiện hành động.",
-        structure: "Động từ thể た (bỏ た) + ことができる",
-        examples: [
-          {
-            japanese: "日本語を話すことができます。",
-            vietnamese: "Tôi có thể nói tiếng Nhật.",
-          },
-          {
-            japanese: "ピアノを弾くことができます。",
-            vietnamese: "Tôi có thể chơi piano.",
-          },
-          {
-            japanese: "明日来ることができます。",
-            vietnamese: "Tôi có thể đến vào ngày mai.",
-          },
-        ],
-        grammarPoints: [
-          {
-            title: "Khả năng kỹ năng",
-            usage: "Diễn đạt kỹ năng, khả năng đã học được",
-            meaning: "Có thể làm được nhờ đã học hoặc rèn luyện",
-            examples: [
-              { jp: "泳ぐことができます", vn: "có thể bơi" },
-              { jp: "運転することができます", vn: "có thể lái xe" },
-            ],
-          },
-          {
-            title: "Khả năng tình huống",
-            usage: "Diễn đạt khả năng trong tình huống cụ thể",
-            meaning: "Có thể thực hiện được trong hoàn cảnh hiện tại",
-            examples: [
-              { jp: "手伝うことができます", vn: "có thể giúp đỡ" },
-              { jp: "参加することができます", vn: "có thể tham gia" },
-            ],
-          },
-          {
-            title: "Phủ định 〜ことができない",
-            usage: "Không thể làm gì",
-            meaning: "Không có khả năng hoặc không được phép",
-            examples: [
-              { jp: "見ることができません", vn: "không thể xem" },
-              { jp: "行くことができません", vn: "không thể đi" },
+            title: "Nguyên nhân và kết quả",
+            grammarPoints: [
+              {
+                structure: "～ので",
+                combinations: [
+                  "Vる/ない + ので",
+                  "Aい/くない + ので",
+                  "Aな/ではない + ので",
+                  "N/ではない + ので",
+                ],
+                usages: [
+                  {
+                    meaning: "Vì ~ nên... (lý do khách quan)",
+                    examples: [
+                      {
+                        jp: "雨が降っているので、傘を持って行きます。",
+                        vi: "Vì trời mưa nên tôi sẽ mang ô.",
+                      },
+                      {
+                        jp: "時間がなかったので、行きませんでした。",
+                        vi: "Vì không có thời gian nên tôi không đi.",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                structure: "～から",
+                combinations: [
+                  "Vる/ない + から",
+                  "Aい/くない + から",
+                  "Aな/ではない + から",
+                  "N/ではない + から",
+                ],
+                usages: [
+                  {
+                    meaning: "Vì ~ nên... (lý do trực tiếp)",
+                    examples: [
+                      {
+                        jp: "明日テストがあるから、勉強します。",
+                        vi: "Vì ngày mai có bài kiểm tra nên tôi học bài.",
+                      },
+                      {
+                        jp: "お腹が空いたから、食べます。",
+                        vi: "Vì đói bụng nên tôi ăn.",
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
           },
         ],
       },
-    },
-    4: {
-      id: 4,
-      title: "〜なければならない (Phải làm gì)",
-      description: "Diễn đạt nghĩa vụ, bổn phận phải thực hiện",
-      progress: 45,
-      completed: false,
-      content: {
-        introduction:
-          "〜なければならない diễn đạt nghĩa vụ, bổn phận phải làm gì đó. Thường dùng trong tình huống trang trọng hoặc có tính bắt buộc.",
-        structure: "Động từ thể た (bỏ た) + なければならない",
-        examples: [
+      {
+        name: "Phần II: Cách tổ chức câu",
+        topics: [
           {
-            japanese: "宿題をしなければなりません。",
-            vietnamese: "Tôi phải làm bài tập về nhà.",
-          },
-          {
-            japanese: "医者に行かなければなりません。",
-            vietnamese: "Tôi phải đi gặp bác sĩ.",
-          },
-          {
-            japanese: "早く寝なければなりません。",
-            vietnamese: "Tôi phải ngủ sớm.",
-          },
-        ],
-        grammarPoints: [
-          {
-            title: "Nghĩa vụ bắt buộc",
-            usage: "Diễn đạt bổn phận, trách nhiệm phải thực hiện",
-            meaning: "Phải làm theo quy định, luật lệ hoặc đạo đức",
-            examples: [
-              { jp: "勉強しなければなりません", vn: "phải học" },
-              { jp: "働かなければなりません", vn: "phải làm việc" },
+            title: "Liên từ bổ sung",
+            grammarPoints: [
+              {
+                structure: "それに",
+                combinations: ["S1。それに、S2。"],
+                usages: [
+                  {
+                    meaning:
+                      "Thêm nữa / hơn nữa (bổ sung thông tin tích cực cùng hướng).",
+                    examples: [
+                      {
+                        jp: "この店は安い。それに、サービスもいい。",
+                        vi: "Cửa hàng này rẻ. Hơn nữa, dịch vụ cũng tốt.",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                structure: "それから",
+                combinations: ["S1。それから、S2。"],
+                usages: [
+                  {
+                    meaning: "Sau đó, tiếp theo",
+                    examples: [
+                      {
+                        jp: "朝ごはんを食べます。それから、学校へ行きます。",
+                        vi: "Ăn sáng. Sau đó đi học.",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                structure: "そして",
+                combinations: ["S1。そして、S2。"],
+                usages: [
+                  {
+                    meaning: "Và rồi, sau đó",
+                    examples: [
+                      {
+                        jp: "友達に会いました。そして、一緒に映画を見ました。",
+                        vi: "Gặp bạn bè. Và rồi cùng xem phim.",
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
           },
           {
-            title: "Nghĩa vụ tình huống",
-            usage: "Diễn đạt cần thiết trong tình huống cụ thể",
-            meaning: "Phải làm để đạt được mục đích",
-            examples: [
-              { jp: "急がなければなりません", vn: "phải vội" },
-              { jp: "連絡しなければなりません", vn: "phải liên lạc" },
-            ],
-          },
-          {
-            title: "Dạng rút gọn 〜なきゃ",
-            usage: "〜なきゃいけない (khẩu ngữ)",
-            meaning: "Cách nói thân mật của 〜なければならない",
-            examples: [
-              { jp: "行かなきゃ", vn: "phải đi" },
-              { jp: "食べなきゃ", vn: "phải ăn" },
-            ],
-          },
-        ],
-      },
-    },
-    5: {
-      id: 5,
-      title: "〜てはいけない (Không được làm gì)",
-      description: "Diễn đạt cấm đoán, không được phép làm gì",
-      progress: 30,
-      completed: false,
-      content: {
-        introduction:
-          "〜てはいけない diễn đạt sự cấm đoán, không được phép làm gì đó. Thường dùng trong quy tắc, luật lệ hoặc lời khuyên nghiêm túc.",
-        structure: "Động từ thể て + はいけない",
-        examples: [
-          {
-            japanese: "ここでタバコを吸ってはいけません。",
-            vietnamese: "Không được hút thuốc ở đây.",
-          },
-          {
-            japanese: "遅れてはいけません。",
-            vietnamese: "Không được đến muộn.",
-          },
-          {
-            japanese: "触ってはいけません。",
-            vietnamese: "Không được chạm vào.",
-          },
-        ],
-        grammarPoints: [
-          {
-            title: "Cấm đoán tuyệt đối",
-            usage: "Diễn đạt luật lệ, quy định nghiêm cấm",
-            meaning: "Hoàn toàn không được phép",
-            examples: [
-              { jp: "入ってはいけません", vn: "không được vào" },
-              { jp: "話してはいけません", vn: "không được nói" },
-            ],
-          },
-          {
-            title: "Lời khuyên nghiêm túc",
-            usage: "Diễn đạt lời khuyên mạnh mẽ",
-            meaning: "Không nên làm vì có hậu quả xấu",
-            examples: [
-              { jp: "食べ過ぎてはいけません", vn: "không được ăn quá nhiều" },
-              { jp: "無理をしてはいけません", vn: "không được cố sức quá" },
-            ],
-          },
-          {
-            title: "Dạng lịch sự 〜てはいけません",
-            usage: "Dùng trong văn cảnh trang trọng",
-            meaning: "Cách nói lịch sự của 〜てはいけない",
-            examples: [
-              { jp: "飲んではいけません", vn: "không được uống" },
-              { jp: "使ってはいけません", vn: "không được dùng" },
+            title: "Liên từ đối lập",
+            grammarPoints: [
+              {
+                structure: "でも",
+                combinations: ["S1。でも、S2。"],
+                usages: [
+                  {
+                    meaning: "Nhưng, tuy nhiên",
+                    examples: [
+                      {
+                        jp: "雨が降っています。でも、出かけます。",
+                        vi: "Trời đang mưa. Nhưng tôi vẫn đi ra ngoài.",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                structure: "しかし",
+                combinations: ["S1。しかし、S2。"],
+                usages: [
+                  {
+                    meaning: "Tuy nhiên (lịch sự hơn)",
+                    examples: [
+                      {
+                        jp: "勉強しました。しかし、テストで失敗しました。",
+                        vi: "Tôi đã học. Tuy nhiên, tôi thi trượt.",
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
           },
         ],
       },
-    },
-    6: {
-      id: 6,
-      title: "〜てもいい (Được phép làm gì)",
-      description: "Diễn đạt sự cho phép, được phép làm gì",
-      progress: 15,
-      completed: false,
-      content: {
-        introduction:
-          "〜てもいい diễn đạt sự cho phép, được phép làm gì đó. Là dạng trái nghĩa với 〜てはいけない.",
-        structure: "Động từ thể て + もいい",
-        examples: [
+      {
+        name: "Phần III: Ứng dụng thực tế",
+        topics: [
           {
-            japanese: "ここで写真を撮ってもいいですか。",
-            vietnamese: "Tôi có thể chụp ảnh ở đây không?",
-          },
-          {
-            japanese: "食べてもいいですよ。",
-            vietnamese: "Bạn có thể ăn được đấy.",
-          },
-          {
-            japanese: "休んでもいいです。",
-            vietnamese: "Bạn có thể nghỉ ngơi.",
-          },
-        ],
-        grammarPoints: [
-          {
-            title: "Xin phép lịch sự",
-            usage: "〜てもいいですか？",
-            meaning: "Xin phép làm gì đó một cách lịch sự",
-            examples: [
-              { jp: "座ってもいいですか", vn: "tôi có thể ngồi không?" },
-              { jp: "使ってもいいですか", vn: "tôi có thể dùng không?" },
+            title: "Khẩu ngữ",
+            grammarPoints: [
+              {
+                structure: "～ちゃう（＝～てしまう）",
+                combinations: [
+                  "Vて + しまう → Vちゃう",
+                  "Vで + しまう → Vじゃう",
+                  "ちゃった（過去形）",
+                  "ちゃって（て形）",
+                ],
+                usages: [
+                  {
+                    meaning: "Lỡ ~ mất / làm xong hết ~ (khẩu ngữ).",
+                    examples: [
+                      {
+                        jp: "宿題を忘れちゃった。",
+                        vi: "Tớ lỡ quên mất bài tập rồi.",
+                      },
+                      {
+                        jp: "ケーキを全部食べちゃった。",
+                        vi: "Tớ ăn hết bánh mất rồi.",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                structure: "～つもり",
+                combinations: ["Vる + つもり", "Vない + つもりはない"],
+                usages: [
+                  {
+                    meaning: "Có ý định ~",
+                    examples: [
+                      {
+                        jp: "明日、勉強するつもりです。",
+                        vi: "Ngày mai tôi có ý định học bài.",
+                      },
+                      {
+                        jp: "日本に行くつもりはありません。",
+                        vi: "Tôi không có ý định đi Nhật.",
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
           },
           {
-            title: "Cho phép",
-            usage: "〜てもいいよ/〜てもいいですよ",
-            meaning: "Cho phép người khác làm gì đó",
-            examples: [
-              { jp: "行ってもいいよ", vn: "có thể đi được" },
-              { jp: "飲んでもいいですよ", vn: "có thể uống được" },
-            ],
-          },
-          {
-            title: "Không nhất thiết phải",
-            usage: "〜なくてもいい",
-            meaning: "Không nhất thiết phải làm gì",
-            examples: [
-              { jp: "来なくてもいい", vn: "không nhất thiết phải đến" },
-              { jp: "勉強しなくてもいい", vn: "không nhất thiết phải học" },
+            title: "Thể lịch sự",
+            grammarPoints: [
+              {
+                structure: "～ます",
+                combinations: [
+                  "Vます（現在形）",
+                  "Vました（過去形）",
+                  "Vません（否定形）",
+                  "Vましょう（意志形）",
+                ],
+                usages: [
+                  {
+                    meaning: "Thể lịch sự",
+                    examples: [
+                      {
+                        jp: "食べます (食べる)",
+                        vi: "Ăn (thể lịch sự)",
+                      },
+                      {
+                        jp: "行きます (行く)",
+                        vi: "Đi (thể lịch sự)",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                structure: "～ませんか",
+                combinations: ["Vませんか"],
+                usages: [
+                  {
+                    meaning: "Mời ~ không?",
+                    examples: [
+                      {
+                        jp: "一緒に食べませんか。",
+                        vi: "Cùng ăn không?",
+                      },
+                      {
+                        jp: "映画を見ませんか。",
+                        vi: "Xem phim không?",
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
           },
         ],
       },
-    },
+    ],
   };
 
-  const lesson = grammarLessons[grammarId as keyof typeof grammarLessons];
+  // Get the current grammar point
+  const currentPart = grammarData.parts[partIndex];
+  const currentTopic = currentPart?.topics[topicIndex];
+  const currentPoint = currentTopic?.grammarPoints[pointIndex];
 
-  if (!lesson) {
+  if (!currentPart || !currentTopic || !currentPoint) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
-        <div className="text-center bg-white rounded-xl p-8 shadow-sm border border-blue-100">
-          <h1 className="text-2xl font-bold text-blue-900 mb-4">
+      <LanguageLayout
+        showBackButton={true}
+        backButtonHref="/study/language/japanese/grammar"
+      >
+        <div className="text-center bg-white rounded-xl p-8 shadow-sm border border-red-100">
+          <h1 className="text-2xl font-bold text-red-900 mb-4">
             Không tìm thấy bài học
           </h1>
           <Link
             href="/study/language/japanese/grammar"
-            className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-900 transition-all duration-200 hover:scale-105 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg"
+            className="inline-flex items-center space-x-2 text-red-600 hover:text-red-900 transition-all duration-200 hover:scale-105 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Quay lại trang ngữ pháp</span>
           </Link>
         </div>
-      </div>
+      </LanguageLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      {/* Header */}
-      <div className="border-b border-blue-200/50 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link
-                href="/study/language/japanese/grammar"
-                className="flex items-center space-x-2 text-blue-600 hover:text-blue-900 transition-all duration-200 hover:scale-105"
+    <LanguageLayout
+      showBackButton={true}
+      backButtonHref="/study/language/japanese/grammar"
+    >
+      {/* Header với thông tin cơ bản */}
+      <div className="bg-white rounded-lg shadow-sm border border-red-200 p-8 mb-6">
+        <div className="text-center">
+          {/* Cấu trúc ngữ pháp chính */}
+          <div className="mb-4">
+            <div className="text-4xl font-bold text-red-600 mb-2 font-mono">
+              {currentPoint.structure}
+            </div>
+            <div className="text-lg text-red-600">{currentTopic.title}</div>
+          </div>
+
+          {/* Thông tin cơ bản */}
+          <div className="grid grid-cols-3 gap-3 mt-6">
+            <div className="text-center">
+              <div className="text-xs text-gray-500 mb-1">MỨC ĐỘ</div>
+              <div className="text-lg font-bold text-gray-900">
+                N{partIndex === 0 ? "3" : partIndex === 1 ? "4" : "5"}
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs text-gray-500 mb-1">PHẦN</div>
+              <div className="text-lg font-bold text-gray-900">
+                {partIndex + 1}
+              </div>
+              <div className="text-xs text-gray-600">
+                {currentPart.name.split(":")[0]}
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs text-gray-500 mb-1">CÁCH DÙNG</div>
+              <div className="text-lg font-bold text-gray-900">
+                {currentPoint.usages.length}
+              </div>
+              <div className="text-xs text-gray-600">cách</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="space-y-6">
+        {/* Phần 1: Cách kết hợp */}
+        <div className="bg-white rounded-lg shadow-sm border border-red-200 p-6">
+          <h2 className="text-lg font-semibold text-red-900 mb-4 flex items-center">
+            <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+              <span className="text-red-600 font-bold text-sm">組</span>
+            </div>
+            Cách kết hợp
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {currentPoint.combinations?.map((combination, index) => (
+              <div
+                key={index}
+                className="bg-red-50 border border-red-200 rounded-lg p-3 hover:bg-red-100 transition-colors"
               >
-                <ArrowLeft className="w-5 h-5" />
-                <span>Quay lại</span>
-              </Link>
+                <div className="flex items-center space-x-3">
+                  <span className="text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center font-bold flex-shrink-0">
+                    {index + 1}
+                  </span>
+                  <div className="font-mono text-red-900 font-semibold text-sm flex-1 min-w-0">
+                    <span className="break-all">{combination}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Usage Examples */}
+        <div className="bg-white rounded-lg shadow-sm border border-red-200 p-6">
+          <h2 className="text-lg font-semibold text-red-900 mb-4 flex items-center">
+            <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+              <span className="text-red-600 font-bold text-sm">例</span>
+            </div>
+            Cách sử dụng
+          </h2>
+
+          <div className="space-y-4">
+            {currentPoint.usages.map((usage, usageIndex) => (
+              <div
+                key={usageIndex}
+                className="border border-red-200 rounded-lg p-4"
+              >
+                <div className="flex items-start space-x-3 mb-3">
+                  <span className="text-sm bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
+                    {usageIndex + 1}
+                  </span>
+                  <div className="text-red-900 font-medium leading-relaxed">
+                    {usage.meaning}
+                  </div>
+                </div>
+
+                <div className="ml-9 space-y-3">
+                  {usage.examples.slice(0, 2).map((example, exIndex) => (
+                    <div
+                      key={exIndex}
+                      className="bg-red-50 border border-red-200 rounded-lg p-3"
+                    >
+                      <div className="font-mono text-red-900 font-medium mb-1">
+                        {example.jp}
+                      </div>
+                      <div className="text-sm text-red-600 italic">
+                        {example.vi}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Practice */}
+        <div className="bg-white rounded-lg shadow-sm border border-red-200 p-6">
+          <h2 className="text-lg font-semibold text-red-900 mb-4 flex items-center">
+            <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+              <span className="text-red-600 font-bold text-sm">練</span>
+            </div>
+            Bài tập luyện tập
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button className="bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg p-4 text-left transition-colors">
+              <div className="flex items-center space-x-3 mb-2">
+                <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">穴</span>
+                </div>
+                <div>
+                  <div className="font-medium text-red-900">Điền khuyết</div>
+                  <div className="text-xs text-red-600">10 câu • Dễ</div>
+                </div>
+              </div>
+            </button>
+
+            <button className="bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg p-4 text-left transition-colors">
+              <div className="flex items-center space-x-3 mb-2">
+                <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">卡</span>
+                </div>
+                <div>
+                  <div className="font-medium text-red-900">Flashcard</div>
+                  <div className="text-xs text-red-600">15 thẻ • Ôn tập</div>
+                </div>
+              </div>
+            </button>
+
+            <button className="bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg p-4 text-left transition-colors">
+              <div className="flex items-center space-x-3 mb-2">
+                <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">試</span>
+                </div>
+                <div>
+                  <div className="font-medium text-red-900">Trắc nghiệm</div>
+                  <div className="text-xs text-red-600">
+                    20 câu • Trung bình
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Notes */}
+        <div className="bg-white rounded-lg shadow-sm border border-red-200 p-6">
+          <h2 className="text-lg font-semibold text-red-900 mb-4 flex items-center">
+            <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+              <span className="text-red-600 font-bold text-sm">注</span>
+            </div>
+            Lưu ý quan trọng
+          </h2>
+
+          <div className="space-y-3">
+            <div className="flex items-start space-x-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <span className="text-yellow-600 mt-0.5">⚠️</span>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-900 to-indigo-900 bg-clip-text text-transparent">
-                  {lesson.title}
-                </h1>
-                <p className="text-blue-600 text-sm">{lesson.description}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="text-right">
-                <div className="text-sm text-blue-600">Tiến độ</div>
-                <div className="text-lg font-bold text-blue-900">
-                  {lesson.progress}%
+                <div className="font-medium text-red-900 mb-1">
+                  Sai lầm thường gặp
+                </div>
+                <div className="text-sm text-red-700">
+                  Không nhầm lẫn với cấu trúc tương tự có nghĩa khác
                 </div>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center shadow-sm">
-                <BookOpen className="w-6 h-6 text-blue-600" />
+            </div>
+
+            <div className="flex items-start space-x-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <span className="text-red-600 mt-0.5">💡</span>
+              <div>
+                <div className="font-medium text-red-900 mb-1">Mẹo ghi nhớ</div>
+                <div className="text-sm text-red-700">
+                  Liên tưởng với tình huống thực tế để dễ nhớ
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <span className="text-green-600 mt-0.5">✓</span>
+              <div>
+                <div className="font-medium text-red-900 mb-1">
+                  Ứng dụng thực tế
+                </div>
+                <div className="text-sm text-red-700">
+                  Thường dùng trong hội thoại hàng ngày
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Progress Bar */}
-        <div className="mb-8 bg-white rounded-xl p-6 shadow-sm border border-blue-100">
-          <div className="flex items-center space-x-2 mb-3">
-            <Target className="w-5 h-5 text-blue-600" />
-            <div className="text-sm text-blue-600 font-medium">
-              Tiến độ bài học
-            </div>
-            <div className="text-sm text-blue-900 font-bold">
-              {lesson.progress}%
-            </div>
-          </div>
-          <div className="w-full bg-blue-100 rounded-full h-3 overflow-hidden">
-            <div
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
-              style={{ width: `${lesson.progress}%` }}
-            ></div>
-          </div>
-        </div>
+      {/* Navigation */}
+      <div className="flex justify-between items-center mt-8 pt-6 border-t border-red-200">
+        <Link
+          href={`/study/language/japanese/grammar/${Math.max(
+            1,
+            parseInt(grammarId.split("-")[0]) - 1
+          )}-${Math.max(1, parseInt(grammarId.split("-")[1]))}-${Math.max(
+            1,
+            parseInt(grammarId.split("-")[2])
+          )}`}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-lg border transition-all duration-200 ${
+            parseInt(grammarId.split("-")[0]) > 1
+              ? "text-red-600 border-red-200 hover:bg-red-50"
+              : "text-gray-400 border-gray-200 cursor-not-allowed"
+          }`}
+          onClick={(e) =>
+            parseInt(grammarId.split("-")[0]) <= 1 && e.preventDefault()
+          }
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span className="font-medium">Bài trước</span>
+        </Link>
 
-        {/* Introduction */}
-        <div className="mb-8 bg-white rounded-xl p-6 shadow-sm border border-blue-100">
-          <div className="flex items-center space-x-2 mb-4">
-            <Lightbulb className="w-5 h-5 text-amber-500" />
-            <h2 className="text-lg font-semibold text-blue-900">Giới thiệu</h2>
-          </div>
-          <p className="text-blue-700 leading-relaxed text-base mb-4">
-            {lesson.content.introduction}
-          </p>
-          {lesson.content.structure && (
-            <div className="bg-amber-50 rounded-lg p-4 border-l-4 border-amber-400">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                <span className="text-sm font-medium text-amber-800">
-                  Cấu trúc
-                </span>
-              </div>
-              <p className="text-amber-700 font-medium text-base">
-                {lesson.content.structure}
-              </p>
-            </div>
-          )}
-        </div>
+        <Link
+          href="/study/language/japanese/grammar"
+          className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium"
+        >
+          Quay lại danh sách
+        </Link>
 
-        {/* Grammar Points */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-2 mb-6">
-            <Sparkles className="w-5 h-5 text-purple-500" />
-            <h2 className="text-lg font-semibold text-blue-900">
-              Điểm ngữ pháp chính
-            </h2>
-          </div>
-          <div className="grid gap-6">
-            {lesson.content.grammarPoints.map((point, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl p-6 shadow-sm border border-blue-100 hover:shadow-lg transition-all duration-200 hover:scale-[1.01]"
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-bold text-purple-600">
-                      {index + 1}
-                    </span>
-                  </div>
-                  <div className="flex-1 space-y-4">
-                    <h3 className="font-semibold text-blue-900 text-lg mb-4">
-                      {point.title}
-                    </h3>
-
-                    {/* Cách dùng */}
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border-l-4 border-blue-400">
-                      <div className="flex items-center space-x-2 mb-3">
-                        <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                        <span className="text-sm font-semibold text-blue-800 uppercase tracking-wide">
-                          Cách dùng
-                        </span>
-                      </div>
-                      <p className="text-blue-700 text-base leading-relaxed font-medium">
-                        {point.usage}
-                      </p>
-                    </div>
-
-                    {/* Ý nghĩa */}
-                    {"meaning" in point && (
-                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border-l-4 border-purple-400">
-                        <div className="flex items-center space-x-2 mb-3">
-                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                          <span className="text-sm font-semibold text-purple-800 uppercase tracking-wide">
-                            Ý nghĩa
-                          </span>
-                        </div>
-                        <p className="text-purple-700 text-base leading-relaxed">
-                          {point.meaning}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Ví dụ */}
-                    {"examples" in point && (
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border-l-4 border-green-400">
-                        <div className="flex items-center space-x-2 mb-4">
-                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                          <span className="text-sm font-semibold text-green-800 uppercase tracking-wide">
-                            Ví dụ
-                          </span>
-                        </div>
-                        <div className="grid gap-3">
-                          {point.examples.map((example, exIndex) => (
-                            <div
-                              key={exIndex}
-                              className="bg-white rounded-lg p-4 border border-green-200 shadow-sm hover:shadow-md transition-shadow duration-200"
-                            >
-                              <div className="space-y-2">
-                                <div className="font-semibold text-blue-900 text-lg leading-relaxed">
-                                  {example.jp}
-                                </div>
-                                <div className="text-sm text-blue-700 italic">
-                                  {example.vn}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Examples */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-2 mb-6">
-            <MessageSquare className="w-5 h-5 text-green-500" />
-            <h2 className="text-lg font-semibold text-blue-900">Ví dụ</h2>
-          </div>
-          <div className="grid gap-4">
-            {lesson.content.examples.map((example, index) => (
-              <div
-                key={index}
-                className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5 border border-green-200 hover:shadow-md transition-all duration-200 hover:scale-[1.02]"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-bold text-white">
-                        {index + 1}
-                      </span>
-                    </div>
-                    <div className="font-semibold text-blue-900 text-lg leading-relaxed">
-                      {example.japanese}
-                    </div>
-                  </div>
-                  <div className="ml-11">
-                    <div className="text-sm text-blue-700 italic bg-white/70 rounded-lg px-4 py-2 border border-green-200">
-                      {example.vietnamese}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Practice Section */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-2 mb-6">
-            <Trophy className="w-5 h-5 text-orange-500" />
-            <h2 className="text-lg font-semibold text-blue-900">Luyện tập</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <button className="group bg-white rounded-xl p-6 shadow-sm border border-blue-100 hover:shadow-lg transition-all duration-200 hover:scale-[1.02] text-left">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                  <Play className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="font-semibold text-blue-900 text-lg">
-                  Bài tập điền khuyết
-                </div>
-              </div>
-              <div className="text-sm text-blue-600 ml-15 leading-relaxed">
-                Luyện tập ngữ pháp với bài tập tương tác
-              </div>
-            </button>
-            <button className="group bg-white rounded-xl p-6 shadow-sm border border-blue-100 hover:shadow-lg transition-all duration-200 hover:scale-[1.02] text-left">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                  <Star className="w-6 h-6 text-purple-600" />
-                </div>
-                <div className="font-semibold text-blue-900 text-lg">
-                  Flashcard
-                </div>
-              </div>
-              <div className="text-sm text-blue-600 ml-15 leading-relaxed">
-                Ôn tập từ vựng và cấu trúc
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <div className="flex justify-between items-center pt-6 border-t border-blue-200/50">
-          <Link
-            href={`/study/language/japanese/grammar/${grammarId - 1}`}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-xl transition-all duration-200 ${
-              grammarId > 1
-                ? "text-blue-600 hover:text-blue-900 hover:bg-blue-50 hover:shadow-md hover:scale-105"
-                : "text-blue-300 cursor-not-allowed"
-            }`}
-            onClick={(e) => grammarId <= 1 && e.preventDefault()}
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="font-medium">Bài trước</span>
-          </Link>
-
-          <div className="flex items-center space-x-4 bg-white rounded-xl px-4 py-2 shadow-sm border border-blue-100">
-            <span className="text-sm text-blue-600 font-medium">
-              Bài {grammarId} / 6
-            </span>
-            {lesson.completed && (
-              <CheckCircle className="w-5 h-5 text-green-600" />
-            )}
-          </div>
-
-          <Link
-            href={`/study/language/japanese/grammar/${grammarId + 1}`}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-xl transition-all duration-200 ${
-              grammarId < 6
-                ? "text-blue-600 hover:text-blue-900 hover:bg-blue-50 hover:shadow-md hover:scale-105"
-                : "text-blue-300 cursor-not-allowed"
-            }`}
-            onClick={(e) => grammarId >= 6 && e.preventDefault()}
-          >
-            <span className="font-medium">Bài tiếp</span>
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
+        <Link
+          href={`/study/language/japanese/grammar/${Math.min(
+            grammarData.parts.length,
+            parseInt(grammarId.split("-")[0]) + 1
+          )}-${Math.min(
+            grammarData.parts[parseInt(grammarId.split("-")[0])]?.topics
+              .length || 1,
+            parseInt(grammarId.split("-")[1])
+          )}-${Math.min(
+            grammarData.parts[parseInt(grammarId.split("-")[0])]?.topics[
+              parseInt(grammarId.split("-")[1]) - 1
+            ]?.grammarPoints.length || 1,
+            parseInt(grammarId.split("-")[2])
+          )}`}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-lg border transition-all duration-200 ${
+            parseInt(grammarId.split("-")[0]) < grammarData.parts.length
+              ? "text-red-600 border-red-200 hover:bg-red-50"
+              : "text-gray-400 border-gray-200 cursor-not-allowed"
+          }`}
+          onClick={(e) =>
+            parseInt(grammarId.split("-")[0]) >= grammarData.parts.length &&
+            e.preventDefault()
+          }
+        >
+          <span className="font-medium">Bài tiếp</span>
+          <ChevronRight className="w-4 h-4" />
+        </Link>
       </div>
-    </div>
+    </LanguageLayout>
   );
 }

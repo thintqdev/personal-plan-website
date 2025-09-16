@@ -1,53 +1,55 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import {
-  ArrowLeft,
   BookOpen,
   Star,
   CheckCircle,
   Clock,
   RotateCcw,
+  Flame,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import LanguageLayout from "../../layout";
 
 export default function JapaneseVocabularyPage() {
-  const lessons = [
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+
+  const topics = [
     {
       id: 1,
-      title: "Bài 1: Chào hỏi cơ bản",
+      title: "Chào hỏi",
       words: 15,
       difficulty: "Dễ",
       progress: 100,
       completed: true,
-      description: "Học các từ vựng cơ bản để chào hỏi trong tiếng Nhật",
+      description: "Các từ vựng cơ bản để chào hỏi trong tiếng Nhật",
       vocabulary: [
         {
           japanese: "こんにちは",
-          romaji: "konnichiwa",
           meaning: "Xin chào (ban ngày)",
           example: "こんにちは、田中さん。",
         },
         {
           japanese: "こんばんは",
-          romaji: "konbanwa",
           meaning: "Xin chào (tối)",
           example: "こんばんは、おやすみなさい。",
         },
         {
           japanese: "おはよう",
-          romaji: "ohayou",
           meaning: "Chào buổi sáng",
           example: "おはようございます。",
         },
         {
           japanese: "さようなら",
-          romaji: "sayounara",
           meaning: "Tạm biệt",
           example: "さようなら、また明日。",
         },
         {
           japanese: "ありがとう",
-          romaji: "arigatou",
           meaning: "Cảm ơn",
           example: "プレゼント、ありがとうございます。",
         },
@@ -55,7 +57,7 @@ export default function JapaneseVocabularyPage() {
     },
     {
       id: 2,
-      title: "Bài 2: Gia đình và người thân",
+      title: "Gia đình",
       words: 20,
       difficulty: "Dễ",
       progress: 80,
@@ -64,31 +66,26 @@ export default function JapaneseVocabularyPage() {
       vocabulary: [
         {
           japanese: "家族",
-          romaji: "kazoku",
           meaning: "Gia đình",
           example: "私の家族は4人です。",
         },
         {
           japanese: "父",
-          romaji: "chichi",
           meaning: "Cha",
           example: "父は会社員です。",
         },
         {
           japanese: "母",
-          romaji: "haha",
           meaning: "Mẹ",
           example: "母は料理が上手です。",
         },
         {
           japanese: "兄",
-          romaji: "ani",
           meaning: "Anh trai",
           example: "兄は大学生です。",
         },
         {
           japanese: "姉",
-          romaji: "ane",
           meaning: "Chị gái",
           example: "姉は看護師です。",
         },
@@ -96,7 +93,7 @@ export default function JapaneseVocabularyPage() {
     },
     {
       id: 3,
-      title: "Bài 3: Thực phẩm và đồ uống",
+      title: "Thực phẩm",
       words: 25,
       difficulty: "Trung bình",
       progress: 60,
@@ -105,31 +102,26 @@ export default function JapaneseVocabularyPage() {
       vocabulary: [
         {
           japanese: "りんご",
-          romaji: "ringo",
           meaning: "Quả táo",
           example: "赤いりんごが好きです。",
         },
         {
           japanese: "みかん",
-          romaji: "mikan",
           meaning: "Quả cam",
           example: "みかんを食べます。",
         },
         {
           japanese: "バナナ",
-          romaji: "banana",
           meaning: "Quả chuối",
           example: "バナナは甘いです。",
         },
         {
           japanese: "水",
-          romaji: "mizu",
           meaning: "Nước",
           example: "水を飲んでください。",
         },
         {
           japanese: "お茶",
-          romaji: "ocha",
           meaning: "Trà",
           example: "お茶を飲みます。",
         },
@@ -137,7 +129,7 @@ export default function JapaneseVocabularyPage() {
     },
     {
       id: 4,
-      title: "Bài 4: Thời gian và ngày tháng",
+      title: "Thời gian",
       words: 18,
       difficulty: "Trung bình",
       progress: 0,
@@ -146,31 +138,26 @@ export default function JapaneseVocabularyPage() {
       vocabulary: [
         {
           japanese: "今日",
-          romaji: "kyou",
           meaning: "Hôm nay",
           example: "今日はいい天気です。",
         },
         {
           japanese: "明日",
-          romaji: "ashita",
           meaning: "Ngày mai",
           example: "明日は学校があります。",
         },
         {
           japanese: "昨日",
-          romaji: "kinou",
           meaning: "Hôm qua",
           example: "昨日は雨でした。",
         },
         {
           japanese: "朝",
-          romaji: "asa",
           meaning: "Buổi sáng",
           example: "朝ご飯を食べます。",
         },
         {
           japanese: "夜",
-          romaji: "yoru",
           meaning: "Buổi tối",
           example: "夜は暗いです。",
         },
@@ -178,7 +165,7 @@ export default function JapaneseVocabularyPage() {
     },
     {
       id: 5,
-      title: "Bài 5: Đồ vật trong nhà",
+      title: "Đồ vật trong nhà",
       words: 22,
       difficulty: "Trung bình",
       progress: 0,
@@ -187,31 +174,26 @@ export default function JapaneseVocabularyPage() {
       vocabulary: [
         {
           japanese: "テーブル",
-          romaji: "teeburu",
           meaning: "Cái bàn",
           example: "テーブルに本があります。",
         },
         {
           japanese: "いす",
-          romaji: "isu",
           meaning: "Cái ghế",
           example: "いすに座ってください。",
         },
         {
           japanese: "ベッド",
-          romaji: "beddo",
           meaning: "Cái giường",
           example: "ベッドで寝ます。",
         },
         {
           japanese: "ドア",
-          romaji: "doa",
           meaning: "Cửa",
           example: "ドアを開けてください。",
         },
         {
           japanese: "窓",
-          romaji: "mado",
           meaning: "Cửa sổ",
           example: "窓から見えます。",
         },
@@ -219,7 +201,7 @@ export default function JapaneseVocabularyPage() {
     },
     {
       id: 6,
-      title: "Bài 6: Nghề nghiệp và công việc",
+      title: "Nghề nghiệp",
       words: 30,
       difficulty: "Khó",
       progress: 0,
@@ -228,31 +210,26 @@ export default function JapaneseVocabularyPage() {
       vocabulary: [
         {
           japanese: "先生",
-          romaji: "sensei",
           meaning: "Giáo viên",
           example: "先生は親切です。",
         },
         {
           japanese: "医者",
-          romaji: "isha",
           meaning: "Bác sĩ",
           example: "医者になりたいです。",
         },
         {
           japanese: "会社員",
-          romaji: "kaishain",
           meaning: "Nhân viên công ty",
           example: "会社員として働いています。",
         },
         {
           japanese: "学生",
-          romaji: "gakusei",
           meaning: "Sinh viên",
           example: "私は学生です。",
         },
         {
           japanese: "料理人",
-          romaji: "ryourinin",
           meaning: "Đầu bếp",
           example: "料理人が作りました。",
         },
@@ -260,134 +237,214 @@ export default function JapaneseVocabularyPage() {
     },
   ];
 
+  // Calculate pagination
+  const totalPages = Math.ceil(topics.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentTopics = topics.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/study/language/japanese"
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span>Quay lại</span>
-              </Link>
+    <LanguageLayout
+      showBackButton={true}
+      backButtonHref="/study/language/japanese"
+      backButtonText="Quay lại"
+    >
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+              <BookOpen className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <div className="text-xl font-bold text-red-800">127</div>
+              <div className="text-xs text-red-600">Từ đã học</div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+              <CheckCircle className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <div className="text-xl font-bold text-red-800">1</div>
+              <div className="text-xs text-red-600">Bài hoàn thành</div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
+              <Star className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <div className="text-xl font-bold text-red-800">85%</div>
+              <div className="text-xs text-red-600">Độ chính xác</div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-red-800 rounded-lg flex items-center justify-center">
+              <Clock className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <div className="text-xl font-bold text-red-800">24</div>
+              <div className="text-xs text-red-600">Giờ học</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {lessons.map((lesson) => (
+      {/* Topics List */}
+      <div className="bg-white rounded-xl shadow-sm border p-6">
+        <h2 className="text-xl font-bold text-red-800 mb-6">
+          Danh sách chủ đề
+        </h2>
+        <div className="space-y-4">
+          {currentTopics.map((topic) => (
             <div
-              key={lesson.id}
-              className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow duration-200 flex flex-col"
+              key={topic.id}
+              className="p-4 rounded-lg border border-gray-200 hover:border-red-300 hover:bg-red-50/30 transition-all duration-200 cursor-pointer"
             >
-              <div className="p-6 flex flex-col flex-1">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {lesson.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-3">
-                      {lesson.description}
-                    </p>
-                  </div>
-                  {lesson.completed && (
-                    <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-1">
-                      <BookOpen className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">
-                        {lesson.words} từ
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
-                    <span>Tiến độ</span>
-                    <span>{lesson.progress}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${lesson.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                <div className="flex space-x-2 mt-auto">
-                  <Link
-                    href={`/study/language/japanese/vocabulary/${lesson.id}`}
-                    className={`flex-1 py-2 px-3 rounded-md text-sm font-medium text-center transition-all duration-200 shadow-sm hover:shadow-md ${
-                      lesson.completed
-                        ? "bg-green-500 text-white hover:bg-green-600"
-                        : "bg-blue-500 text-white hover:bg-blue-600"
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                      topic.completed
+                        ? "bg-red-600"
+                        : topic.progress > 0
+                        ? "bg-red-400"
+                        : "bg-red-500"
                     }`}
                   >
-                    {lesson.completed ? "Ôn tập" : "Học"}
-                  </Link>
-
-                  <Link
-                    href={`/study/language/japanese/vocabulary/${lesson.id}/flashcard`}
-                    className="flex-1 py-2 px-3 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center text-sm font-medium"
-                  >
-                    <RotateCcw className="w-3 h-3 mr-1" />
-                    <span>Flashcard</span>
-                  </Link>
+                    {topic.completed ? (
+                      <CheckCircle className="w-6 h-6 text-white" />
+                    ) : (
+                      <span className="text-white font-bold text-sm">
+                        {topic.id}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-red-800">
+                      {topic.title}
+                    </h3>
+                    <p className="text-sm text-red-600">{topic.description}</p>
+                  </div>
                 </div>
+                <div className="text-right">
+                  <div className="flex items-center gap-2 mb-2">
+                    <BookOpen className="w-4 h-4 text-red-400" />
+                    <span className="text-sm text-red-600">
+                      {topic.words} từ
+                    </span>
+                  </div>
+                  <div
+                    className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                      topic.difficulty === "Dễ"
+                        ? "text-green-700 bg-green-100"
+                        : topic.difficulty === "Trung bình"
+                        ? "text-yellow-700 bg-yellow-100"
+                        : "text-red-700 bg-red-100"
+                    }`}
+                  >
+                    {topic.difficulty}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <div className="flex items-center justify-between text-sm text-red-600 mb-2">
+                  <span>Tiến độ</span>
+                  <span>{topic.progress}%</span>
+                </div>
+                <div className="w-full bg-red-200 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      topic.completed ? "bg-red-600" : "bg-red-500"
+                    }`}
+                    style={{ width: `${topic.progress}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Link
+                  href={`/study/language/japanese/vocabulary/${topic.id}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    topic.completed
+                      ? "bg-red-600 text-white hover:bg-red-700"
+                      : "bg-red-500 text-white hover:bg-red-600"
+                  }`}
+                >
+                  {topic.completed ? "Ôn tập" : "Học"}
+                </Link>
+
+                <Link
+                  href={`/study/language/japanese/vocabulary/${topic.id}/flashcard`}
+                  className="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 transition-colors flex items-center text-sm font-medium"
+                >
+                  <RotateCcw className="w-4 h-4 mr-1" />
+                  Flashcard
+                </Link>
               </div>
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Page Title and Progress Section */}
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-8">
+          <div className="text-sm text-red-600">
+            Hiển thị {startIndex + 1}-{Math.min(endIndex, topics.length)} của{" "}
+            {topics.length} chủ đề
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-700 bg-white border border-red-300 rounded-lg hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Trước
+            </button>
 
-        <div className="mt-12 bg-white rounded-xl shadow-sm border p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">
-            Thống kê học tập
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                <BookOpen className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="text-2xl font-bold text-gray-900">127</div>
-              <div className="text-sm text-gray-600">Từ đã học</div>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      page === currentPage
+                        ? "bg-red-500 text-white"
+                        : "text-red-700 bg-white border border-red-300 hover:bg-red-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
             </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="text-2xl font-bold text-gray-900">1</div>
-              <div className="text-sm text-gray-600">Bài hoàn thành</div>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Star className="w-6 h-6 text-yellow-600" />
-              </div>
-              <div className="text-2xl font-bold text-gray-900">85%</div>
-              <div className="text-sm text-gray-600">Độ chính xác</div>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Clock className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="text-2xl font-bold text-gray-900">24</div>
-              <div className="text-sm text-gray-600">Giờ học</div>
-            </div>
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-700 bg-white border border-red-300 rounded-lg hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Sau
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </LanguageLayout>
   );
 }

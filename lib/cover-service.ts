@@ -40,15 +40,15 @@ export const getUserCovers = async (): Promise<Cover[]> => {
     }
 
     const data = await response.json();
-    return data.data;
+    return data.data || []; // Return empty array if no data
   } catch (error) {
     console.error("Error fetching user covers:", error);
-    throw error;
+    return []; // Return empty array on error to prevent UI crashes
   }
 };
 
 // Lấy cover đang active của user
-export const getActiveCover = async (): Promise<Cover> => {
+export const getActiveCover = async (): Promise<Cover | null> => {
   try {
     const response = await fetch(`${API_URL}/api/covers/active`, {
       method: "GET",
@@ -57,7 +57,8 @@ export const getActiveCover = async (): Promise<Cover> => {
 
     if (!response.ok) {
       if (response.status === 404) {
-        throw new Error("No active cover found for this user");
+        // Return null instead of throwing error when no active cover exists
+        return null;
       }
       throw new Error(
         `Failed to fetch active cover: ${response.status} ${response.statusText}`
@@ -68,7 +69,8 @@ export const getActiveCover = async (): Promise<Cover> => {
     return data.data;
   } catch (error) {
     console.error("Error fetching active cover:", error);
-    throw error;
+    // Return null for any other errors to prevent UI crashes
+    return null;
   }
 };
 
@@ -179,9 +181,9 @@ export const getCoverSuggestions = async (): Promise<CoverSuggestion[]> => {
     }
 
     const data = await response.json();
-    return data.data;
+    return data.data || []; // Return empty array if no data
   } catch (error) {
     console.error("Error fetching cover suggestions:", error);
-    throw error;
+    return []; // Return empty array on error to prevent UI crashes
   }
 };

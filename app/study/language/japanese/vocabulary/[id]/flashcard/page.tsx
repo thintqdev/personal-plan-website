@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, RotateCcw, Volume2, Eye, EyeOff } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import LanguageLayout from "@/app/study/language/layout";
 
 export default function VocabularyFlashcardPage() {
   const params = useParams();
@@ -334,10 +335,10 @@ export default function VocabularyFlashcardPage() {
 
   if (!isClient) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-rose-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Đang tải...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <p className="text-red-600">Đang tải...</p>
         </div>
       </div>
     );
@@ -345,14 +346,14 @@ export default function VocabularyFlashcardPage() {
 
   if (!currentLesson || !currentFlashcard) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-rose-100 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-bold text-red-800 mb-4">
             Không tìm thấy bài học
           </h1>
           <Link
             href="/study/language/japanese/vocabulary"
-            className="text-blue-600 hover:text-blue-800"
+            className="text-red-600 hover:text-red-800"
           >
             Quay lại danh sách bài học
           </Link>
@@ -397,300 +398,279 @@ export default function VocabularyFlashcardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link
-                href={`/study/language/japanese/vocabulary/${lessonId}`}
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span>Quay lại bài học</span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <div className="text-sm text-gray-600">Tiến độ</div>
-                <div className="text-lg font-semibold text-blue-600">
-                  {currentCard + 1}/{currentLesson.vocabulary.length}
-                </div>
-              </div>
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                <RotateCcw className="w-8 h-8 text-blue-600" />
-              </div>
-            </div>
+    <LanguageLayout
+      showBackButton={true}
+      backButtonHref="/study/language/japanese/vocabulary"
+      backButtonText="Quay lại"
+    >
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-rose-100">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          {/* Settings */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-red-800">
+              Flashcard: {currentLesson.title}
+            </h1>
+            <p className="text-red-600">Ôn tập từ vựng theo thẻ ghi nhớ</p>
           </div>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Settings */}
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-            Flashcard: {currentLesson.title}
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600">
-            Ôn tập từ vựng theo thẻ ghi nhớ
-          </p>
-        </div>
-        <div className="mb-6 flex justify-center space-x-4">
-          <button
-            onClick={() => setShowFurigana(!showFurigana)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              showFurigana
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-gray-700"
-            }`}
-          >
-            {showFurigana ? (
-              <Eye className="w-4 h-4 inline mr-2" />
-            ) : (
-              <EyeOff className="w-4 h-4 inline mr-2" />
-            )}
-            Furigana
-          </button>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="w-full bg-gray-200 rounded-full h-3">
-            <div
-              className="bg-blue-500 h-3 rounded-full transition-all duration-300"
-              style={{
-                width: `${
-                  ((currentCard + 1) / currentLesson.vocabulary.length) * 100
-                }%`,
-              }}
-            ></div>
-          </div>
-          <div className="flex justify-between text-sm text-gray-600 mt-2">
-            <span>
-              Thẻ {currentCard + 1} / {currentLesson.vocabulary.length}
-            </span>
-            <span>Đã biết: {knownCards.size}</span>
-          </div>
-        </div>
-
-        {/* Flashcard */}
-        <div className="flex justify-center mb-8">
-          <div
-            className="w-full max-w-lg h-96 cursor-pointer perspective-1000"
-            onClick={handleFlip}
-          >
-            <div
-              className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d ${
-                isFlipped ? "rotate-y-180" : ""
+          <div className="mb-6 flex justify-center space-x-4">
+            <button
+              onClick={() => setShowFurigana(!showFurigana)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                showFurigana
+                  ? "bg-red-500 text-white"
+                  : "bg-gray-200 text-gray-700"
               }`}
             >
-              {/* Front of card */}
-              <div className="absolute inset-0 w-full h-full backface-hidden">
-                <div className="w-full h-full bg-white rounded-3xl shadow-xl border-2 border-gray-200 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 hover:shadow-2xl transition-all duration-300">
-                  <div className="text-center">
-                    {/* Japanese Character */}
-                    <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4 sm:mb-6">
-                      {currentFlashcard.japanese}
-                    </div>
+              {showFurigana ? (
+                <Eye className="w-4 h-4 inline mr-2" />
+              ) : (
+                <EyeOff className="w-4 h-4 inline mr-2" />
+              )}
+              Furigana
+            </button>
+          </div>
 
-                    {/* Furigana */}
-                    {showFurigana && (
-                      <div className="text-base sm:text-lg md:text-xl text-gray-600 mb-4 sm:mb-6 font-medium">
-                        {currentFlashcard.furigana}
+          {/* Progress Bar */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between text-sm text-red-600 mb-2">
+              <span>Tiến độ flashcard</span>
+              <span>Đã biết: {knownCards.size}</span>
+            </div>
+            <div className="w-full bg-red-200 rounded-full h-3">
+              <div
+                className="bg-red-500 h-3 rounded-full transition-all duration-300"
+                style={{
+                  width: `${
+                    ((currentCard + 1) / currentLesson.vocabulary.length) * 100
+                  }%`,
+                }}
+              ></div>
+            </div>
+            <div className="flex justify-between text-sm text-red-600 mt-2">
+              <span>
+                Thẻ {currentCard + 1} / {currentLesson.vocabulary.length}
+              </span>
+            </div>
+          </div>
+
+          {/* Flashcard */}
+          <div className="flex justify-center mb-8">
+            <div
+              className="w-full max-w-lg h-96 cursor-pointer perspective-1000"
+              onClick={handleFlip}
+            >
+              <div
+                className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d ${
+                  isFlipped ? "rotate-y-180" : ""
+                }`}
+              >
+                {/* Front of card */}
+                <div className="absolute inset-0 w-full h-full backface-hidden">
+                  <div className="w-full h-full bg-white rounded-3xl shadow-xl border-2 border-red-200 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 hover:shadow-2xl transition-all duration-300">
+                    <div className="text-center">
+                      {/* Japanese Character */}
+                      <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-red-800 mb-4 sm:mb-6">
+                        {currentFlashcard.japanese}
                       </div>
-                    )}
 
-                    {/* Audio Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        playAudio(currentFlashcard.audio);
-                      }}
-                      className="inline-flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 sm:px-4 py-2 rounded-full transition-all duration-200"
-                    >
-                      <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="text-xs sm:text-sm font-medium">
-                        Phát âm
-                      </span>
-                    </button>
+                      {/* Furigana */}
+                      {showFurigana && (
+                        <div className="text-base sm:text-lg md:text-xl text-red-600 mb-4 sm:mb-6 font-medium">
+                          {currentFlashcard.furigana}
+                        </div>
+                      )}
 
-                    {/* Hint */}
-                    <div className="mt-6 sm:mt-8 text-gray-500 text-xs sm:text-sm">
-                      Nhấp để xem nghĩa và ví dụ
+                      {/* Audio Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          playAudio(currentFlashcard.audio);
+                        }}
+                        className="inline-flex items-center space-x-2 bg-red-100 hover:bg-red-200 text-red-700 px-3 sm:px-4 py-2 rounded-full transition-all duration-200"
+                      >
+                        <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="text-xs sm:text-sm font-medium">
+                          Phát âm
+                        </span>
+                      </button>
+
+                      {/* Hint */}
+                      <div className="mt-6 sm:mt-8 text-gray-500 text-xs sm:text-sm">
+                        Nhấp để xem nghĩa và ví dụ
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Back of card */}
+                <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180">
+                  <div className="w-full h-full bg-white rounded-3xl shadow-xl border-2 border-red-200 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
+                    <div className="text-center max-w-sm">
+                      {/* Meaning */}
+                      <div className="text-2xl sm:text-3xl font-bold text-red-800 mb-4 sm:mb-6">
+                        {currentFlashcard.meaning}
+                      </div>
+
+                      {/* Furigana */}
+                      {showFurigana && (
+                        <div className="text-base sm:text-lg text-red-600 mb-3 sm:mb-4 font-medium">
+                          {currentFlashcard.furigana}
+                        </div>
+                      )}
+
+                      {/* Example Section */}
+                      <div className="bg-red-50 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6">
+                        <div className="text-xs sm:text-sm text-red-600 mb-2 font-medium">
+                          Ví dụ thực tế:
+                        </div>
+                        <div className="text-base sm:text-lg font-semibold text-red-800 mb-2">
+                          {currentFlashcard.example}
+                        </div>
+                        <div className="text-xs sm:text-sm text-red-600 italic">
+                          {currentFlashcard.exampleMeaning}
+                        </div>
+                      </div>
+
+                      {/* Audio Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          playAudio(currentFlashcard.audio);
+                        }}
+                        className="inline-flex items-center space-x-2 bg-red-100 hover:bg-red-200 text-red-700 px-3 sm:px-4 py-2 rounded-full transition-all duration-200 mb-3 sm:mb-4"
+                      >
+                        <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="text-xs sm:text-sm font-medium">
+                          Nghe lại
+                        </span>
+                      </button>
+
+                      {/* Hint */}
+                      <div className="text-gray-500 text-xs sm:text-sm">
+                        Nhấp để lật lại
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* Back of card */}
-              <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180">
-                <div className="w-full h-full bg-white rounded-3xl shadow-xl border-2 border-gray-200 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
-                  <div className="text-center max-w-sm">
-                    {/* Meaning */}
-                    <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">
-                      {currentFlashcard.meaning}
-                    </div>
+          {/* Controls */}
+          <div className="flex justify-center space-x-4 sm:space-x-6 mb-8">
+            <button
+              onClick={handlePrevious}
+              disabled={currentCard === 0}
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-md hover:shadow-lg text-sm sm:text-base"
+            >
+              ← Trước
+            </button>
 
-                    {/* Furigana */}
-                    {showFurigana && (
-                      <div className="text-base sm:text-lg text-gray-600 mb-3 sm:mb-4 font-medium">
-                        {currentFlashcard.furigana}
-                      </div>
-                    )}
+            <button
+              onClick={handleFlip}
+              className="px-6 sm:px-8 py-2 sm:py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all duration-200 font-medium shadow-md hover:shadow-lg text-sm sm:text-base"
+            >
+              {isFlipped ? "Lật Lại" : "Xem Nghĩa"}
+            </button>
 
-                    {/* Example Section */}
-                    <div className="bg-gray-50 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6">
-                      <div className="text-xs sm:text-sm text-gray-600 mb-2 font-medium">
-                        Ví dụ thực tế:
-                      </div>
-                      <div className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
-                        {currentFlashcard.example}
-                      </div>
-                      <div className="text-xs sm:text-sm text-gray-600 italic">
-                        {currentFlashcard.exampleMeaning}
-                      </div>
-                    </div>
+            <button
+              onClick={handleNext}
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-all duration-200 font-medium shadow-md hover:shadow-lg text-sm sm:text-base"
+            >
+              Tiếp →
+            </button>
+          </div>
 
-                    {/* Audio Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        playAudio(currentFlashcard.audio);
-                      }}
-                      className="inline-flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 sm:px-4 py-2 rounded-full transition-all duration-200 mb-3 sm:mb-4"
-                    >
-                      <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="text-xs sm:text-sm font-medium">
-                        Nghe lại
-                      </span>
-                    </button>
+          {/* Action Buttons */}
+          {isFlipped && (
+            <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-8">
+              <button
+                onClick={handleUnknown}
+                className="px-8 sm:px-10 py-3 sm:py-4 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
+              >
+                Chưa biết
+              </button>
+              <button
+                onClick={handleKnown}
+                className="px-8 sm:px-10 py-3 sm:py-4 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
+              >
+                Đã biết
+              </button>
+            </div>
+          )}
 
-                    {/* Hint */}
-                    <div className="text-gray-500 text-xs sm:text-sm">
-                      Nhấp để lật lại
-                    </div>
-                  </div>
-                </div>
+          {/* Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
+            <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-red-200 text-center">
+              <div className="text-2xl sm:text-3xl font-bold text-red-500 mb-2">
+                {knownCards.size}
+              </div>
+              <div className="text-xs sm:text-sm text-red-600">Đã biết</div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-red-200 text-center">
+              <div className="text-2xl sm:text-3xl font-bold text-red-500 mb-2">
+                {currentLesson.vocabulary.length - knownCards.size}
+              </div>
+              <div className="text-xs sm:text-sm text-red-600">Cần ôn tập</div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-red-200 text-center">
+              <div className="text-2xl sm:text-3xl font-bold text-red-500 mb-2">
+                {knownCards.size > 0
+                  ? Math.round(
+                      (knownCards.size / currentLesson.vocabulary.length) * 100
+                    )
+                  : 0}
+                %
+              </div>
+              <div className="text-xs sm:text-sm text-red-600">
+                Tỷ lệ chính xác
+              </div>
+            </div>
+          </div>
+
+          {/* Tips */}
+          <div className="bg-red-50 rounded-2xl p-4 sm:p-6 border border-red-200">
+            <h3 className="text-base sm:text-lg font-bold text-red-900 mb-4 flex items-center">
+              💡 Mẹo sử dụng Flashcard hiệu quả
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm text-red-800">
+              <div className="flex items-start space-x-2">
+                <span className="text-red-500 font-bold">1.</span>
+                <span>Xem mặt trước, cố gắng nhớ nghĩa trước khi lật thẻ</span>
+              </div>
+              <div className="flex items-start space-x-2">
+                <span className="text-red-500 font-bold">2.</span>
+                <span>Nghe phát âm để ghi nhớ cách đọc chính xác</span>
+              </div>
+              <div className="flex items-start space-x-2">
+                <span className="text-red-500 font-bold">3.</span>
+                <span>Học ví dụ để hiểu cách sử dụng trong ngữ cảnh</span>
+              </div>
+              <div className="flex items-start space-x-2">
+                <span className="text-red-500 font-bold">4.</span>
+                <span>Ôn tập thường xuyên để ghi nhớ lâu dài</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Controls */}
-        <div className="flex justify-center space-x-4 sm:space-x-6 mb-8">
-          <button
-            onClick={handlePrevious}
-            disabled={currentCard === 0}
-            className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-md hover:shadow-lg text-sm sm:text-base"
-          >
-            ← Trước
-          </button>
-
-          <button
-            onClick={handleFlip}
-            className="px-6 sm:px-8 py-2 sm:py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all duration-200 font-medium shadow-md hover:shadow-lg text-sm sm:text-base"
-          >
-            {isFlipped ? "Lật Lại" : "Xem Nghĩa"}
-          </button>
-
-          <button
-            onClick={handleNext}
-            className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-200 font-medium shadow-md hover:shadow-lg text-sm sm:text-base"
-          >
-            Tiếp →
-          </button>
-        </div>
-
-        {/* Action Buttons */}
-        {isFlipped && (
-          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-8">
-            <button
-              onClick={handleUnknown}
-              className="px-8 sm:px-10 py-3 sm:py-4 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
-            >
-              ❌ Chưa biết
-            </button>
-            <button
-              onClick={handleKnown}
-              className="px-8 sm:px-10 py-3 sm:py-4 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
-            >
-              ✅ Đã biết
-            </button>
-          </div>
-        )}
-
-        {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
-          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-gray-200 text-center">
-            <div className="text-2xl sm:text-3xl font-bold text-blue-500 mb-2">
-              {knownCards.size}
-            </div>
-            <div className="text-xs sm:text-sm text-gray-600">Đã biết</div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-gray-200 text-center">
-            <div className="text-2xl sm:text-3xl font-bold text-gray-500 mb-2">
-              {currentLesson.vocabulary.length - knownCards.size}
-            </div>
-            <div className="text-xs sm:text-sm text-gray-600">Cần ôn tập</div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-gray-200 text-center">
-            <div className="text-2xl sm:text-3xl font-bold text-green-500 mb-2">
-              {knownCards.size > 0
-                ? Math.round(
-                    (knownCards.size / currentLesson.vocabulary.length) * 100
-                  )
-                : 0}
-              %
-            </div>
-            <div className="text-xs sm:text-sm text-gray-600">
-              Tỷ lệ chính xác
-            </div>
-          </div>
-        </div>
-
-        {/* Tips */}
-        <div className="bg-blue-50 rounded-2xl p-4 sm:p-6 border border-blue-200">
-          <h3 className="text-base sm:text-lg font-bold text-blue-900 mb-4 flex items-center">
-            💡 Mẹo sử dụng Flashcard hiệu quả
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm text-blue-800">
-            <div className="flex items-start space-x-2">
-              <span className="text-blue-500 font-bold">1.</span>
-              <span>Xem mặt trước, cố gắng nhớ nghĩa trước khi lật thẻ</span>
-            </div>
-            <div className="flex items-start space-x-2">
-              <span className="text-blue-500 font-bold">2.</span>
-              <span>Nghe phát âm để ghi nhớ cách đọc chính xác</span>
-            </div>
-            <div className="flex items-start space-x-2">
-              <span className="text-blue-500 font-bold">3.</span>
-              <span>Học ví dụ để hiểu cách sử dụng trong ngữ cảnh</span>
-            </div>
-            <div className="flex items-start space-x-2">
-              <span className="text-blue-500 font-bold">4.</span>
-              <span>Ôn tập thường xuyên để ghi nhớ lâu dài</span>
-            </div>
-          </div>
-        </div>
+        <style jsx>{`
+          .perspective-1000 {
+            perspective: 1000px;
+          }
+          .transform-style-preserve-3d {
+            transform-style: preserve-3d;
+          }
+          .backface-hidden {
+            backface-visibility: hidden;
+          }
+          .rotate-y-180 {
+            transform: rotateY(180deg);
+          }
+        `}</style>
       </div>
-
-      <style jsx>{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        .transform-style-preserve-3d {
-          transform-style: preserve-3d;
-        }
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-      `}</style>
-    </div>
+    </LanguageLayout>
   );
 }
